@@ -1,8 +1,8 @@
 # Evaluation
 
-This document defines how TriageBudget will be measured. It is written before any model is trained so the metrics, splits, and baselines cannot be chosen after seeing results.
+This document defines how TriageBudget is measured. Metrics, splits, and baselines are fixed before results are reported so they cannot be chosen after seeing outcomes.
 
-**Current status: no results.** Every number in this document is a target, a definition, or an external fact.
+**Current status: Week 1 baselines measured on the frozen GUIDE split.** TF-IDF + LightGBM reaches macro-F1 0.706 on the official test split, versus 0.219 for the majority class and 0.191 for rules. Figures marked as targets or external facts are not results.
 
 ---
 
@@ -175,7 +175,7 @@ All baselines run on the same frozen split.
 | ID | Baseline | Purpose |
 |---|---|---|
 | B0 | Majority class | Floor |
-| B1 | Rules: severity + detector + keyword heuristics | Non-ML reference |
+| B1 | Rules: MITRE technique present or malicious verdict (`has_mitre or malicious_count > 0`) | Non-ML reference |
 | B2 | TF-IDF + logistic regression | Simple linear baseline |
 | B3 | TF-IDF + LightGBM | Classical ML baseline |
 | B4 | MiniLM embeddings + LightGBM | Dense feature baseline, optional |
