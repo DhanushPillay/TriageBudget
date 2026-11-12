@@ -12,8 +12,10 @@ from triage.config import (
     LABEL_MAP,
     LABELS,
     REQUIRED_RAW_COLUMNS,
-    ROOT,
     SEED,
+    display_path,
+    resolve_path,
+    sql_path,
 )
 
 
@@ -25,24 +27,19 @@ def sha256_file(path: Path) -> str:
     return digest.hexdigest()
 
 
+def _file_hash_matches(path: Path, expected: Any) -> bool:
+    try:
+        return path.is_file() and sha256_file(path) == expected
+    except OSError:
+        return False
+
+
 def sha256_ids(ids: list[str]) -> str:
     digest = hashlib.sha256()
     for incident_id in sorted(ids):
         digest.update(incident_id.encode("utf-8"))
         digest.update(b"\n")
     return digest.hexdigest()
-
-
-def _sql_path(path: Path) -> str:
-    return path.resolve().as_posix().replace("'", "''")
-
-
-def _relative(path: Path) -> str:
-    resolved = path.resolve()
-    try:
-        return resolved.relative_to(ROOT.resolve()).as_posix()
-    except ValueError:
-        return resolved.as_posix()
 
 
 def find_raw_files(raw_dir: Path) -> tuple[list[Path], list[Path]]:
@@ -61,28 +58,23 @@ def find_raw_files(raw_dir: Path) -> tuple[list[Path], list[Path]]:
     train = named("guide_train.csv") or [path for path in files if "train" in path.name.lower()]
     test = named("guide_test.csv") or [path for path in files if "test" in path.name.lower()]
     if not train:
-        if len(files) == 1:
+        if len(files) == 1 and not test:
             train = files
         else:
             raise FileNotFoundError(
                 f"Could not identify a train CSV under {raw_dir}. "
-                "Expected GUIDE_Train.csv or a single CSV."
+                "Expected GUIDE_Train.csv and GUIDE_Test.csv."
             )
     return train, test
 
 
 def _label_sql(column: str = "IncidentGrade") -> str:
+    cases = "\n".join(
+        f"            WHEN '{raw}' THEN '{label}'" for raw, label in sorted(LABEL_MAP.items())
+    )
     return f"""
         CASE lower(replace(trim({column}), ' ', '_'))
-            WHEN 'truepositive' THEN 'true_positive'
-            WHEN 'true_positive' THEN 'true_positive'
-            WHEN 'tp' THEN 'true_positive'
-            WHEN 'benignpositive' THEN 'benign_positive'
-            WHEN 'benign_positive' THEN 'benign_positive'
-            WHEN 'bp' THEN 'benign_positive'
-            WHEN 'falsepositive' THEN 'false_positive'
-            WHEN 'false_positive' THEN 'false_positive'
-            WHEN 'fp' THEN 'false_positive'
+{cases}
             ELSE NULL
         END
     """
@@ -113,9 +105,9 @@ def run_etl(
         con.execute("SET preserve_insertion_order = false")
         con.execute("SET memory_limit = '10GB'")
         con.execute("SET threads = 4")
-        con.execute(f"SET temp_directory = '{_sql_path(temp_dir)}'")
+        con.execute(f"SET temp_directory = '{sql_path(temp_dir)}'")
 
-        file_list = ", ".join(f"'{_sql_path(path)}'" for path in all_files)
+        file_list = ", ".join(f"'{sql_path(path)}'" for path in all_files)
         con.execute(
             f"""
             CREATE VIEW raw AS
@@ -130,23 +122,32 @@ def run_etl(
             """
         )
 
-        columns = {row[0] for row in con.execute("DESCRIBE SELECT * FROM raw").fetchall()}
-        missing = sorted(set(REQUIRED_RAW_COLUMNS) - columns)
-        if missing:
-            raise ValueError(f"Raw GUIDE files are missing required columns: {missing}")
+        for path in all_files:
+            columns = {
+                row[0]
+                for row in con.execute(
+                    f"DESCRIBE SELECT * FROM read_csv("
+                    f"'{sql_path(path)}', all_varchar = true, header = true)"
+                ).fetchall()
+            }
+            missing = sorted(set(REQUIRED_RAW_COLUMNS) - columns)
+            if missing:
+                raise ValueError(
+                    f"Raw GUIDE file {path.name} is missing required columns: {missing}"
+                )
+
+        split_cases = " ".join(
+            f"WHEN source_file = '{sql_path(path)}' THEN '{split}'"
+            for split, paths in (("train", train_files), ("test", test_files))
+            for path in paths
+        )
 
         con.execute(
             f"""
             CREATE TABLE incidents AS
             WITH base AS (
                 SELECT
-                    CASE
-                        WHEN lower(source_file) LIKE '%guide_train.csv' THEN 'train'
-                        WHEN lower(source_file) LIKE '%guide_test.csv' THEN 'test'
-                        WHEN lower(source_file) LIKE '%train%' THEN 'train'
-                        WHEN lower(source_file) LIKE '%test%' THEN 'test'
-                        ELSE 'train'
-                    END AS source_split,
+                    CASE {split_cases} ELSE NULL END AS source_split,
                     COALESCE(NULLIF(trim(OrgId), ''), 'unknown') AS org_id,
                     NULLIF(trim(IncidentId), '') AS incident_id_raw,
                     NULLIF(trim(AlertId), '') AS alert_id,
@@ -378,7 +379,7 @@ def run_etl(
         con.execute(
             f"""
             COPY (SELECT * FROM incidents ORDER BY incident_id)
-            TO '{_sql_path(out_path)}'
+            TO '{sql_path(out_path)}'
             (FORMAT PARQUET, COMPRESSION ZSTD)
             """
         )
@@ -420,14 +421,14 @@ def run_etl(
             "generated_at": datetime.now(UTC).isoformat(),
             "raw_files": [
                 {
-                    "path": _relative(path),
+                    "path": display_path(path),
                     "sha256": sha256_file(path),
                     "rows": file_rows.get(path.resolve().as_posix(), 0),
                 }
                 for path in all_files
             ],
             "incidents_parquet": {
-                "path": _relative(out_path),
+                "path": display_path(out_path),
                 "sha256": sha256_file(out_path),
                 "rows": int(
                     con.execute("SELECT count(*) FROM incidents").fetchone()[0]
@@ -477,13 +478,13 @@ def _write_table(con: duckdb.DuckDBPyConnection, table: str, path: Path) -> dict
     con.execute(
         f"""
         COPY (SELECT * FROM {table} ORDER BY incident_id)
-        TO '{_sql_path(path)}'
+        TO '{sql_path(path)}'
         (FORMAT PARQUET, COMPRESSION ZSTD)
         """
     )
     ids = _table_ids(con, table)
     return {
-        "path": _relative(path),
+        "path": display_path(path),
         "rows": len(ids),
         "label_counts": _count_by_label(con, table),
         "ids_sha256": sha256_ids(ids),
@@ -506,27 +507,70 @@ def build_manifest(
     out_dir.mkdir(parents=True, exist_ok=True)
 
     if manifest_path.exists() and not force:
-        existing = json.loads(manifest_path.read_text(encoding="utf-8"))
+        try:
+            existing = json.loads(manifest_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            raise FileExistsError(
+                f"Manifest exists at {manifest_path} but could not be read: {exc}. "
+                "Use --force to rebuild it."
+            ) from exc
         validation = validate_manifest(manifest_path)
-        if validation["passed"]:
-            return existing
-        raise FileExistsError(
-            f"Manifest exists at {manifest_path} but does not validate. "
-            "Use --force only when intentionally rebuilding the frozen split."
-        )
+        if not validation["passed"]:
+            raise FileExistsError(
+                f"Manifest exists at {manifest_path} but does not validate. "
+                "Use --force only when intentionally rebuilding the frozen split."
+            )
+        requested = {
+            "source": display_path(incidents_path),
+            "sample_size": sample_size,
+            "seed": seed,
+        }
+        recorded = {
+            "source": existing.get("source", {}).get("incidents_parquet", {}).get("path"),
+            "sample_size": existing.get("sampling", {}).get("max_train_incidents"),
+            "seed": existing.get("sampling", {}).get("seed"),
+        }
+        if requested != recorded:
+            raise ValueError(
+                f"Manifest {manifest_path} was built with {recorded}, not {requested}. "
+                "Use --force to rebuild the split."
+            )
+        return existing
 
     con = duckdb.connect()
     try:
         con.execute(
-            f"CREATE VIEW inc AS SELECT * FROM read_parquet('{_sql_path(incidents_path)}')"
+            f"CREATE VIEW inc AS SELECT * FROM read_parquet('{sql_path(incidents_path)}')"
         )
         test_total, test_labeled = con.execute(
             "SELECT count(*), count(triage_label) FROM inc WHERE split = 'test'"
         ).fetchone()
         test_labeled = int(test_labeled or 0)
         test_total = int(test_total or 0)
+        test_missing = int(
+            con.execute(
+                "SELECT count(*) FROM inc WHERE split = 'test' AND triage_label IS NULL"
+            ).fetchone()[0]
+        )
+        test_conflicts = int(
+            con.execute(
+                """
+                SELECT count(*)
+                FROM inc
+                WHERE split = 'test'
+                  AND triage_label IS NOT NULL
+                  AND (label_conflict OR split_conflict)
+                """
+            ).fetchone()[0]
+        )
         use_official_test = test_total > 0 and (test_labeled / test_total) >= 0.5
-        test_source = "official" if use_official_test else "local_carve_out"
+        fully_labeled = test_total > 0 and test_labeled == test_total
+        if not use_official_test:
+            test_source = "local_carve_out"
+        elif fully_labeled:
+            test_source = "official"
+        else:
+            test_source = "official_partial"
 
         if use_official_test:
             con.execute(
@@ -629,7 +673,10 @@ def build_manifest(
                 )
                 SELECT * EXCLUDE (rn, n_label)
                 FROM ranked
-                WHERE rn <= greatest(1, round(0.1 * n_label))
+                WHERE rn <= CASE
+                    WHEN n_label < 2 THEN 0
+                    ELSE greatest(1, round(0.1 * n_label))
+                END
                 """
             )
         else:
@@ -639,8 +686,10 @@ def build_manifest(
             """
             CREATE TABLE train AS
             SELECT *
-            FROM train_sample
-            WHERE incident_id NOT IN (SELECT incident_id FROM dev)
+            FROM train_sample AS sample
+            WHERE NOT EXISTS (
+                SELECT 1 FROM dev WHERE dev.incident_id = sample.incident_id
+            )
             """
         )
         con.execute(
@@ -672,19 +721,32 @@ def build_manifest(
             )
 
         if not use_official_test:
+            if test_total:
+                warnings.append(
+                    f"Official test labels cover {test_labeled} of {test_total} incidents, "
+                    "below the 50 percent threshold. The test split was carved from the "
+                    "official train split and must be reported as local_carve_out."
+                )
+            else:
+                warnings.append(
+                    "No official test incidents were found. The test split was carved "
+                    "from the official train split and must be reported as local_carve_out."
+                )
+            if unused_count:
+                warnings.append(
+                    f"{unused_count} official test incidents were excluded "
+                    "(missing labels or label/split conflicts)."
+                )
+        elif test_source == "official_partial":
             warnings.append(
-                "Official test labels were missing or below 50 percent. "
-                "The test split was carved from the official train split and must be "
-                "reported as local_carve_out."
+                f"Official test is only labelled for {test_labeled} of {test_total} "
+                f"incidents and is reported as official_partial. {test_missing} without "
+                f"labels and {test_conflicts} with label or split conflicts were excluded."
             )
-        if unused_count:
+        elif test_conflicts:
             warnings.append(
-                f"{unused_count} official test incidents without labels were excluded."
-            )
-        if test_labeled and not use_official_test:
-            warnings.append(
-                f"Official test file contained {test_labeled} labelled rows, but coverage "
-                f"was below 50 percent of {test_total}."
+                f"{test_conflicts} official test incidents with label or split conflicts "
+                "were excluded."
             )
 
         manifest = {
@@ -694,7 +756,7 @@ def build_manifest(
             "created_at": datetime.now(UTC).isoformat(),
             "source": {
                 "incidents_parquet": {
-                    "path": _relative(incidents_path),
+                    "path": display_path(incidents_path),
                     "sha256": sha256_file(incidents_path),
                     "rows": int(con.execute("SELECT count(*) FROM inc").fetchone()[0]),
                 }
@@ -703,6 +765,7 @@ def build_manifest(
                 "seed": seed,
                 "max_train_incidents": sample_size,
                 "strategy": "label_stratified_hash",
+                "duckdb_version": duckdb.__version__,
                 "dev_fraction": 0.1 if train_sample_count >= 100 else 0.0,
             },
             "test_source": test_source,
@@ -719,11 +782,6 @@ def build_manifest(
     return manifest
 
 
-def _resolve_manifest_path(value: str) -> Path:
-    path = Path(value)
-    return path if path.is_absolute() else (ROOT / path)
-
-
 def validate_manifest(manifest_path: Path) -> dict[str, Any]:
     manifest_path = Path(manifest_path)
     checks: list[dict[str, Any]] = []
@@ -735,28 +793,46 @@ def validate_manifest(manifest_path: Path) -> dict[str, Any]:
         add("manifest exists", False, str(manifest_path))
         return {"passed": False, "checks": checks}
 
-    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-    source = manifest.get("source", {}).get("incidents_parquet", {})
-    source_path = _resolve_manifest_path(source.get("path", ""))
-    source_ok = source_path.exists() and sha256_file(source_path) == source.get("sha256")
-    add(
-        "source hash matches",
-        source_ok,
-        f"{source_path} expected {source.get('sha256')}",
-    )
+    try:
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        add("manifest parses", False, f"{manifest_path}: {exc}")
+        return {"passed": False, "checks": checks}
+
+    source = manifest.get("source")
+    incidents = source.get("incidents_parquet") if isinstance(source, dict) else None
+    source_raw = incidents.get("path") if isinstance(incidents, dict) else None
+    source_hash = incidents.get("sha256") if isinstance(incidents, dict) else None
+    if not isinstance(source_raw, str) or not source_raw:
+        add("source hash matches", False, "manifest has no source incidents path")
+    else:
+        source_path = resolve_path(source_raw)
+        add(
+            "source hash matches",
+            _file_hash_matches(source_path, source_hash),
+            f"{source_path} expected {source_hash}",
+        )
 
     split_ids: dict[str, set[str]] = {}
     con = duckdb.connect()
     try:
-        for split_name, split in manifest.get("splits", {}).items():
-            path = _resolve_manifest_path(split.get("path", ""))
-            file_ok = path.exists() and sha256_file(path) == split.get("file_sha256")
+        splits = manifest.get("splits")
+        if not isinstance(splits, dict):
+            add("manifest splits present", False, "manifest has no splits mapping")
+            splits = {}
+        for split_name, split in splits.items():
+            path_raw = split.get("path") if isinstance(split, dict) else None
+            if not isinstance(path_raw, str) or not path_raw:
+                add(f"{split_name} file hash matches", False, "no split path recorded")
+                continue
+            path = resolve_path(path_raw)
+            file_ok = _file_hash_matches(path, split.get("file_sha256"))
             add(f"{split_name} file hash matches", file_ok, str(path))
             if not file_ok:
                 continue
             con.execute(
                 f"CREATE OR REPLACE VIEW split_{split_name} AS "
-                f"SELECT * FROM read_parquet('{_sql_path(path)}')"
+                f"SELECT * FROM read_parquet('{sql_path(path)}')"
             )
             rows = int(con.execute(f"SELECT count(*) FROM split_{split_name}").fetchone()[0])
             add(f"{split_name} row count matches", rows == split.get("rows"), f"{rows} rows")
@@ -806,7 +882,7 @@ def quality_report(
     con = duckdb.connect()
     try:
         con.execute(
-            f"CREATE VIEW inc AS SELECT * FROM read_parquet('{_sql_path(incidents_path)}')"
+            f"CREATE VIEW inc AS SELECT * FROM read_parquet('{sql_path(incidents_path)}')"
         )
         total, unique_ids = con.execute(
             "SELECT count(*), count(DISTINCT incident_id) FROM inc"
@@ -815,37 +891,36 @@ def quality_report(
 
         unknown_labels = int(
             con.execute(
-                f"""
+                """
                 SELECT count(*)
                 FROM inc
-                WHERE triage_label IS NOT NULL
-                  AND triage_label NOT IN ({", ".join("'" + label + "'" for label in LABELS)})
+                WHERE triage_label IS NULL AND triage_label_raw IS NOT NULL
                 """
             ).fetchone()[0]
         )
-        add("label values known", unknown_labels == 0, f"{unknown_labels} unknown labels")
+        add(
+            "label values known",
+            unknown_labels == 0,
+            f"{unknown_labels} unknown raw labels",
+        )
 
         bad_splits = int(
             con.execute(
-                "SELECT count(*) FROM inc WHERE split NOT IN ('train', 'test')"
+                "SELECT count(*) FROM inc "
+                "WHERE split IS NULL OR split NOT IN ('train', 'test')"
             ).fetchone()[0]
         )
         add("split values known", bad_splits == 0, f"{bad_splits} invalid split values")
 
-        mixed = int(
-            con.execute(
-                """
-                SELECT count(*)
-                FROM (
-                    SELECT incident_id
-                    FROM inc
-                    GROUP BY incident_id
-                    HAVING count(DISTINCT split) > 1
-                )
-                """
-            ).fetchone()[0]
+        split_conflicts = int(
+            con.execute("SELECT count(*) FROM inc WHERE split_conflict").fetchone()[0]
         )
-        add("split disjoint by incident", mixed == 0, f"{mixed} incidents in both splits")
+        add(
+            "split disjoint by incident",
+            split_conflicts == 0,
+            f"{split_conflicts} incidents in multiple source files",
+            True,
+        )
 
         conflicts = int(
             con.execute("SELECT count(*) FROM inc WHERE label_conflict").fetchone()[0]
@@ -854,16 +929,6 @@ def quality_report(
             "label conflicts",
             conflicts == 0,
             f"{conflicts} incidents with conflicting labels",
-            True,
-        )
-
-        split_conflicts = int(
-            con.execute("SELECT count(*) FROM inc WHERE split_conflict").fetchone()[0]
-        )
-        add(
-            "split conflicts",
-            split_conflicts == 0,
-            f"{split_conflicts} incidents in multiple source files",
             True,
         )
 
