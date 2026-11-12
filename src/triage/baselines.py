@@ -11,40 +11,83 @@ import pandas as pd
 from lightgbm import LGBMClassifier
 from scipy.sparse import csr_matrix, hstack
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics import (
-    accuracy_score,
-    confusion_matrix,
-    f1_score,
-    precision_recall_fscore_support,
-)
 from sklearn.utils.class_weight import compute_sample_weight
 
-from triage.config import LABELS, NUMERIC_FEATURES, ROOT, SEED
-from triage.data import quality_report, validate_manifest
+from triage.config import (
+    LABELS,
+    NUMERIC_FEATURES,
+    SEED,
+    display_path,
+    resolve_path,
+    sql_path,
+)
+from triage.data import quality_report, sha256_file, validate_manifest
 
 MODEL_VERSION = "tfidf_word_1_2_plus_numeric_lgbm_v1"
-
-
-def _sql_path(path: Path) -> str:
-    return path.resolve().as_posix().replace("'", "''")
-
-
-def _display_path(path: Path) -> str:
-    resolved = Path(path).resolve()
-    try:
-        return resolved.relative_to(ROOT.resolve()).as_posix()
-    except ValueError:
-        return resolved.as_posix()
+FRAME_COLUMNS = ("summary", "triage_label", *NUMERIC_FEATURES)
 
 
 def load_frame(path: Path) -> pd.DataFrame:
+    columns = ", ".join(FRAME_COLUMNS)
     con = duckdb.connect()
     try:
         return con.execute(
-            f"SELECT * FROM read_parquet('{_sql_path(Path(path))}')"
+            f"SELECT {columns} FROM read_parquet('{sql_path(Path(path))}')"
         ).df()
     finally:
         con.close()
+
+
+def _count_rows(path: Path) -> int:
+    con = duckdb.connect()
+    try:
+        return int(
+            con.execute(
+                f"SELECT count(*) FROM read_parquet('{sql_path(Path(path))}')"
+            ).fetchone()[0]
+        )
+    finally:
+        con.close()
+
+
+def _read_ids(path: Path) -> set[str]:
+    con = duckdb.connect()
+    try:
+        rows = con.execute(
+            f"SELECT incident_id FROM read_parquet('{sql_path(Path(path))}')"
+        ).fetchall()
+        return {str(row[0]) for row in rows}
+    finally:
+        con.close()
+
+
+def _verify_split_provenance(
+    manifest: dict[str, Any],
+    train_path: Path,
+    dev_path: Path | None,
+    test_path: Path,
+    dev_rows: int,
+) -> None:
+    paths: list[tuple[str, Path]] = [("train", Path(train_path)), ("test", Path(test_path))]
+    if dev_rows and dev_path is not None:
+        paths.append(("dev", Path(dev_path)))
+    for name, path in paths:
+        expected = manifest.get("splits", {}).get(name, {}).get("file_sha256")
+        if not expected:
+            raise ValueError(f"Manifest has no file hash for the {name} split")
+        actual = sha256_file(path)
+        if actual != expected:
+            raise ValueError(
+                f"The {name} split does not match the frozen manifest: {path}. "
+                f"Expected {expected}, got {actual}. Rebuild the split or point "
+                "the command at the manifest's files."
+            )
+    overlap = _read_ids(Path(train_path)) & _read_ids(Path(test_path))
+    if overlap:
+        raise ValueError(
+            f"Train and test splits share {len(overlap)} incident ids. "
+            "Refusing to evaluate on leaked data."
+        )
 
 
 def _check_labels(frame: pd.DataFrame, name: str) -> None:
@@ -71,7 +114,6 @@ def _text_matrix(train: pd.DataFrame, test: pd.DataFrame) -> tuple[csr_matrix, c
         ngram_range=(1, 2),
         min_df=min_df,
         sublinear_tf=True,
-        strip_accents="unicode",
     )
     train_text_matrix = vectorizer.fit_transform(train_text)
     test_text_matrix = vectorizer.transform(test_text)
@@ -87,10 +129,37 @@ def _features(
     return train_features, test_features, train_text.shape[1]
 
 
+def _encode_labels(values: np.ndarray) -> np.ndarray:
+    codes = pd.Categorical(values, categories=LABELS).codes
+    return np.asarray(codes, dtype=np.int16)
+
+
+def _confusion_counts(true_codes: np.ndarray, pred_codes: np.ndarray) -> np.ndarray:
+    size = len(LABELS)
+    flat = true_codes.astype(np.int64) * size + pred_codes.astype(np.int64)
+    return np.bincount(flat, minlength=size * size).reshape(size, size)
+
+
+def _validate_codes(codes: np.ndarray) -> None:
+    if (codes < 0).any():
+        raise ValueError("Predictions contain labels outside the configured LABELS")
+
+
 def _metrics(y_true: np.ndarray, y_pred: np.ndarray) -> dict[str, Any]:
-    precision, recall, f1, support = precision_recall_fscore_support(
-        y_true, y_pred, labels=LABELS, zero_division=0
-    )
+    true_codes = _encode_labels(np.asarray(y_true))
+    pred_codes = _encode_labels(np.asarray(y_pred))
+    _validate_codes(true_codes)
+    _validate_codes(pred_codes)
+
+    matrix = _confusion_counts(true_codes, pred_codes)
+    tp = np.diag(matrix).astype(float)
+    fp = matrix.sum(axis=0) - tp
+    fn = matrix.sum(axis=1) - tp
+    support = matrix.sum(axis=1).astype(int)
+    precision = np.divide(tp, tp + fp, out=np.zeros_like(tp), where=(tp + fp) > 0)
+    recall = np.divide(tp, tp + fn, out=np.zeros_like(tp), where=(tp + fn) > 0)
+    f1 = np.divide(2 * tp, 2 * tp + fp + fn, out=np.zeros_like(tp), where=(2 * tp + fp + fn) > 0)
+
     per_class = {
         label: {
             "precision": float(precision[index]),
@@ -100,11 +169,11 @@ def _metrics(y_true: np.ndarray, y_pred: np.ndarray) -> dict[str, Any]:
         }
         for index, label in enumerate(LABELS)
     }
-    matrix = confusion_matrix(y_true, y_pred, labels=LABELS)
-    macro_f1 = f1_score(y_true, y_pred, labels=LABELS, average="macro", zero_division=0)
+    total = int(matrix.sum())
+    accuracy = float(tp.sum() / total) if total else 0.0
     return {
-        "macro_f1": float(macro_f1),
-        "accuracy": float(accuracy_score(y_true, y_pred)),
+        "macro_f1": float(f1.mean()),
+        "accuracy": accuracy,
         "per_class": per_class,
         "confusion_matrix": {
             "labels": list(LABELS),
@@ -116,23 +185,28 @@ def _metrics(y_true: np.ndarray, y_pred: np.ndarray) -> dict[str, Any]:
 def _bootstrap_ci(
     y_true: np.ndarray, y_pred: np.ndarray, n_bootstrap: int = 200, seed: int = SEED
 ) -> tuple[float, float]:
+    true_codes = _encode_labels(np.asarray(y_true))
+    pred_codes = _encode_labels(np.asarray(y_pred))
+    _validate_codes(true_codes)
+    _validate_codes(pred_codes)
+
     rng = np.random.default_rng(seed)
-    y_true = np.asarray(y_true)
-    y_pred = np.asarray(y_pred)
-    scores: list[float] = []
-    for _ in range(n_bootstrap):
-        indices = rng.integers(0, len(y_true), len(y_true))
-        scores.append(
-            float(
-                f1_score(
-                    y_true[indices],
-                    y_pred[indices],
-                    labels=LABELS,
-                    average="macro",
-                    zero_division=0,
-                )
-            )
+    scores = np.empty(n_bootstrap, dtype=float)
+    for index in range(n_bootstrap):
+        rows = rng.integers(0, len(true_codes), len(true_codes))
+        matrix = _confusion_counts(true_codes[rows], pred_codes[rows])
+        tp = np.diag(matrix).astype(float)
+        fp = matrix.sum(axis=0) - tp
+        fn = matrix.sum(axis=1) - tp
+        denominator = 2 * tp + fp + fn
+        f1 = np.divide(
+            2 * tp,
+            denominator,
+            out=np.zeros_like(tp),
+            where=denominator > 0,
         )
+        scores[index] = f1.mean()
+
     low, high = np.percentile(scores, [2.5, 97.5])
     return float(low), float(high)
 
@@ -168,7 +242,6 @@ def _fit_lgbm(
         learning_rate=0.05,
         num_leaves=31,
         min_child_samples=20,
-        subsample=0.9,
         colsample_bytree=0.8,
         reg_lambda=0.1,
         random_state=seed,
@@ -208,9 +281,16 @@ def run_baselines(
     dataset_label: str = "guide",
     seed: int = SEED,
 ) -> dict[str, Any]:
+    manifest_path = Path(manifest_path)
+    try:
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise ValueError(f"Could not read manifest {manifest_path}: {exc}") from exc
+
+    dev_rows = _count_rows(dev_path) if dev_path and Path(dev_path).exists() else 0
+    _verify_split_provenance(manifest, train_path, dev_path, test_path, dev_rows)
     train = load_frame(train_path)
     test = load_frame(test_path)
-    dev_rows = len(load_frame(dev_path)) if dev_path and Path(dev_path).exists() else 0
     _check_labels(train, "train")
     _check_labels(test, "test")
 
@@ -236,13 +316,26 @@ def run_baselines(
         result["macro_f1_ci95"] = _bootstrap_ci(y_test, prediction, seed=seed)
         results[name] = result
 
-    manifest = json.loads(Path(manifest_path).read_text(encoding="utf-8"))
-    manifest_validation = validate_manifest(Path(manifest_path))
+    manifest_validation = validate_manifest(manifest_path)
     source = manifest.get("source", {}).get("incidents_parquet", {})
-    incidents_path = Path(source.get("path", ""))
-    if not incidents_path.is_absolute():
-        incidents_path = ROOT / incidents_path
-    data_checks = quality_report(incidents_path, Path(manifest_path))
+    incidents_path = resolve_path(source.get("path") or "")
+    if incidents_path.is_file():
+        data_checks = quality_report(incidents_path, Path(manifest_path))
+    else:
+        detail = f"incidents parquet not found: {display_path(incidents_path)}"
+        data_checks = {
+            "passed": False,
+            "checks": [
+                {
+                    "name": "incidents parquet present",
+                    "passed": False,
+                    "detail": detail,
+                    "warning": False,
+                }
+            ],
+            "failed": ["incidents parquet present"],
+            "warnings": [],
+        }
     split_sizes = {
         name: split.get("rows", 0) for name, split in manifest.get("splits", {}).items()
     }
@@ -255,7 +348,7 @@ def run_baselines(
         "feature_version": "guide_csv_v1",
         "seed": seed,
         "manifest": {
-            "path": _display_path(Path(manifest_path)),
+            "path": display_path(Path(manifest_path)),
             "test_source": manifest.get("test_source"),
             "source_sha256": manifest.get("source", {})
             .get("incidents_parquet", {})
@@ -312,8 +405,13 @@ def _render_report(metadata: dict[str, Any], results: dict[str, Any]) -> str:
         )
 
     split_rows = metadata["split_sizes"]
-    warnings = metadata["manifest"].get("warnings", [])
+    warnings = list(metadata["manifest"].get("warnings", []))
+    warnings.extend(metadata["data_checks"].get("warnings", []))
     warning_text = "\n".join(f"- {warning}" for warning in warnings) if warnings else "- None"
+    checks_passed = metadata["data_checks"]["passed"]
+    checks_warned = bool(metadata["data_checks"].get("warnings"))
+    checks_label = "True (with warnings)" if checks_passed and checks_warned else str(checks_passed)
+    checks_gate = "" if checks_passed and not checks_warned else " (see warnings)"
 
     lines = [
         "# Week 1 baselines",
@@ -332,9 +430,9 @@ def _render_report(metadata: dict[str, Any], results: dict[str, Any]) -> str:
         f"| Seed | {metadata['seed']} |",
         f"| Model version | `{metadata['model_version']}` |",
         f"| Manifest validates | {metadata['manifest'].get('validation_passed')} |",
-        f"| Data checks pass | {metadata['data_checks']['passed']} |",
+        f"| Data checks pass | {checks_label} |",
         "",
-        "Manifest warnings:",
+        "Warnings:",
         "",
         warning_text,
         "",
@@ -414,7 +512,7 @@ def _render_report(metadata: dict[str, Any], results: dict[str, Any]) -> str:
                 f"- [{'x' if lgbm_f1 > rules_f1 else ' '}] "
                 "LightGBM beats rules on macro-F1.",
                 f"- [{'x' if metadata['data_checks']['passed'] else ' '}] "
-                "Data checks pass.",
+                f"Data checks pass{checks_gate}.",
             ]
         )
 
