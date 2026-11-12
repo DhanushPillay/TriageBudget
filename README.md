@@ -2,7 +2,7 @@
 
 A budget-aware RAG and agent system for security incident triage.
 
-**Status: Week 1 pipeline and baselines.** No GUIDE results yet. The pipeline is verified on a synthetic GUIDE-shaped fixture only. Real GUIDE numbers are pending data access.
+**Status: Week 1 real baselines are in.** On GUIDE, TF-IDF + LightGBM reaches macro-F1 0.706 on the frozen official test split, versus 0.219 for majority and 0.191 for rules. The classifier is not calibrated yet, and the clean-clone reproduction check remains open.
 
 ---
 
@@ -83,7 +83,9 @@ Week 1 artifacts:
 
 - `src/triage/`: GUIDE ETL, frozen split manifest, baselines, and integrity checks.
 - `tests/`: fixture-backed data and baseline tests.
-- `reports/fixture_run/`: fixture-only report and metrics. These are not GUIDE results.
+- `reports/w1_baselines.md` and `reports/w1_metrics.json`: real GUIDE baseline report and machine-readable metrics.
+- `data/manifests/split_v1.json`: frozen split manifest with source and split hashes.
+- `reports/fixture_run/`: fixture-only smoke report. Not a GUIDE result.
 - `.github/workflows/ci.yml`: lint, tests, and fixture smoke run.
 
 Later weeks add:
@@ -96,7 +98,7 @@ Later weeks add:
 - `audit/`: append-only reviewer actions.
 - GitHub Actions run: tests, data checks, and the smoke evaluation gate.
 
-No GUIDE benchmark artifacts exist yet.
+Week 1 GUIDE artifacts are real: the frozen split manifest, baseline report, and metrics. Later-week artifacts do not exist yet.
 
 ---
 
