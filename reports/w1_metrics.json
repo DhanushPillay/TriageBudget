@@ -1,0 +1,218 @@
+{
+  "dataset": "guide",
+  "generated_at": "2026-11-12T10:38:36.067167+00:00",
+  "model_version": "tfidf_word_1_2_plus_numeric_lgbm_v1",
+  "feature_version": "guide_csv_v1",
+  "seed": 42,
+  "manifest": {
+    "path": "data/manifests/split_v1.json",
+    "test_source": "official",
+    "source_sha256": "efd105e630b4e07854fa851bcd60d74ed8ef57933514c0c0541d305d86e993e3",
+    "validation_passed": true,
+    "warnings": [
+      "23670 train incidents without a triage label were excluded."
+    ]
+  },
+  "split_sizes": {
+    "train": 89999,
+    "dev": 10001,
+    "test": 303220,
+    "dev_loaded": 10001
+  },
+  "data_checks": {
+    "passed": true,
+    "failed": [],
+    "warnings": [
+      "labels present: 23670 incidents without a triage label"
+    ]
+  },
+  "features": {
+    "text": "summary field from GUIDE categorical and alert-title tokens",
+    "text_features": 5000,
+    "numeric_features": [
+      "alert_count",
+      "evidence_count",
+      "detector_count",
+      "entity_type_count",
+      "alert_title_count",
+      "category_count",
+      "evidence_role_count",
+      "has_mitre",
+      "suspicious_count",
+      "verdict_count",
+      "malicious_count",
+      "sha256_count",
+      "ip_count",
+      "url_count",
+      "account_count",
+      "device_count",
+      "registry_count",
+      "file_count",
+      "email_count",
+      "event_hour",
+      "event_day_of_week"
+    ]
+  },
+  "rules": {
+    "definition": "true_positive if has_mitre or malicious_count > 0; false_positive otherwise",
+    "note": "Deliberately ignores benign-positive signals; a reference point, not tuned."
+  },
+  "models": {
+    "majority": {
+      "macro_f1": 0.2188797944333071,
+      "accuracy": 0.4888035090033639,
+      "per_class": {
+        "true_positive": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 62540
+        },
+        "benign_positive": {
+          "precision": 0.4888035090033639,
+          "recall": 1.0,
+          "f1": 0.6566393832999213,
+          "support": 148215
+        },
+        "false_positive": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 92465
+        }
+      },
+      "confusion_matrix": {
+        "labels": [
+          "true_positive",
+          "benign_positive",
+          "false_positive"
+        ],
+        "rows_true": [
+          [
+            0,
+            62540,
+            0
+          ],
+          [
+            0,
+            148215,
+            0
+          ],
+          [
+            0,
+            92465,
+            0
+          ]
+        ]
+      },
+      "macro_f1_ci95": [
+        0.2183546277085394,
+        0.21937161719231635
+      ]
+    },
+    "rules": {
+      "macro_f1": 0.1910323564849694,
+      "accuracy": 0.2246751533540004,
+      "per_class": {
+        "true_positive": {
+          "precision": 0.18901945259217937,
+          "recall": 0.3359130156699712,
+          "f1": 0.2419133819278912,
+          "support": 62540
+        },
+        "benign_positive": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 148215
+        },
+        "false_positive": {
+          "precision": 0.24530659419610784,
+          "recall": 0.509576596550046,
+          "f1": 0.331183687527017,
+          "support": 92465
+        }
+      },
+      "confusion_matrix": {
+        "labels": [
+          "true_positive",
+          "benign_positive",
+          "false_positive"
+        ],
+        "rows_true": [
+          [
+            21008,
+            0,
+            41532
+          ],
+          [
+            44787,
+            0,
+            103428
+          ],
+          [
+            45347,
+            0,
+            47118
+          ]
+        ]
+      },
+      "macro_f1_ci95": [
+        0.189849751134867,
+        0.19218469500888935
+      ]
+    },
+    "tfidf_lgbm": {
+      "macro_f1": 0.7058330060826029,
+      "accuracy": 0.721769672185212,
+      "per_class": {
+        "true_positive": {
+          "precision": 0.5214870840396904,
+          "recall": 0.7033738407419252,
+          "f1": 0.598925748674205,
+          "support": 62540
+        },
+        "benign_positive": {
+          "precision": 0.7948097312104588,
+          "recall": 0.739972337482711,
+          "f1": 0.7664113709102598,
+          "support": 148215
+        },
+        "false_positive": {
+          "precision": 0.8060411978535572,
+          "recall": 0.7050343373168226,
+          "f1": 0.7521618986633438,
+          "support": 92465
+        }
+      },
+      "confusion_matrix": {
+        "labels": [
+          "true_positive",
+          "benign_positive",
+          "false_positive"
+        ],
+        "rows_true": [
+          [
+            43989,
+            12722,
+            5829
+          ],
+          [
+            28682,
+            109675,
+            9858
+          ],
+          [
+            11682,
+            15592,
+            65191
+          ]
+        ]
+      },
+      "macro_f1_ci95": [
+        0.7042524596129554,
+        0.7073899518903142
+      ]
+    }
+  }
+}
