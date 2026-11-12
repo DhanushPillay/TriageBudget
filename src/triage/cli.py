@@ -11,13 +11,17 @@ from triage.fixture import write_fixture
 from triage.pipeline import run_fixture_eval
 
 
+def _emit(payload: object) -> None:
+    print(json.dumps(payload, indent=2))
+
+
 def _cmd_etl(args: argparse.Namespace) -> int:
     stats = run_etl(
         raw_dir=Path(args.raw_dir),
         out_path=Path(args.out),
         stats_path=Path(args.stats) if args.stats else None,
     )
-    print(json.dumps(stats, indent=2))
+    _emit(stats)
     return 0
 
 
@@ -30,18 +34,15 @@ def _cmd_split(args: argparse.Namespace) -> int:
         seed=args.seed,
         force=args.force,
     )
-    print(
-        json.dumps(
-            {
-                "manifest": args.manifest,
-                "test_source": manifest.get("test_source"),
-                "splits": {
-                    name: split.get("rows") for name, split in manifest.get("splits", {}).items()
-                },
-                "warnings": manifest.get("warnings", []),
+    _emit(
+        {
+            "manifest": args.manifest,
+            "test_source": manifest.get("test_source"),
+            "splits": {
+                name: split.get("rows") for name, split in manifest.get("splits", {}).items()
             },
-            indent=2,
-        )
+            "warnings": manifest.get("warnings", []),
+        }
     )
     return 0
 
@@ -51,7 +52,7 @@ def _cmd_check(args: argparse.Namespace) -> int:
         incidents_path=Path(args.incidents),
         manifest_path=Path(args.manifest) if args.manifest else None,
     )
-    print(json.dumps(report, indent=2))
+    _emit(report)
     return 0 if report["passed"] else 1
 
 
@@ -66,21 +67,21 @@ def _cmd_baselines(args: argparse.Namespace) -> int:
         dataset_label=args.dataset,
         seed=args.seed,
     )
-    print(
-        json.dumps(
-            {
-                "dataset": metadata["dataset"],
-                "report": args.report,
-                "metrics": args.metrics,
-                "macro_f1": {
-                    name: round(result["macro_f1"], 4)
-                    for name, result in metadata["models"].items()
-                },
+    _emit(
+        {
+            "dataset": metadata["dataset"],
+            "report": args.report,
+            "metrics": args.metrics,
+            "macro_f1": {
+                name: round(result["macro_f1"], 4)
+                for name, result in metadata["models"].items()
             },
-            indent=2,
-        )
+        }
     )
-    return 0
+    passed = (
+        metadata["manifest"]["validation_passed"] and metadata["data_checks"]["passed"]
+    )
+    return 0 if passed else 1
 
 
 def _cmd_fixture(args: argparse.Namespace) -> int:
@@ -89,13 +90,13 @@ def _cmd_fixture(args: argparse.Namespace) -> int:
         train_incidents=args.train_incidents,
         test_incidents=args.test_incidents,
     )
-    print(json.dumps(info, indent=2))
+    _emit(info)
     return 0
 
 
 def _cmd_fixture_eval(args: argparse.Namespace) -> int:
     result = run_fixture_eval(work_dir=Path(args.work_dir), seed=args.seed)
-    print(json.dumps(result, indent=2))
+    _emit(result)
     return 0
 
 
