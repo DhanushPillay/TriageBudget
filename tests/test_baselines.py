@@ -2,10 +2,14 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from types import SimpleNamespace
 
+import pandas as pd
 import pytest
 
-from triage.data import quality_report, validate_manifest
+from triage import cli as cli_module
+from triage.baselines import _verify_split_provenance
+from triage.data import quality_report, sha256_file, validate_manifest
 from triage.pipeline import run_fixture_eval
 
 
@@ -53,3 +57,60 @@ def test_report_marks_fixture_as_non_benchmark(fixture_run: dict) -> None:
     assert "not GUIDE benchmark results" in report
     assert "GUIDE split manifest is frozen. Pending real files." in report
     assert "Fixture pipeline runs end to end." in report
+
+
+def _write_ids(path: Path, ids: list[str]) -> None:
+    pd.DataFrame({"incident_id": ids}).to_parquet(path, index=False)
+
+
+def test_provenance_rejects_split_hash_mismatch(tmp_path: Path) -> None:
+    train = tmp_path / "train.parquet"
+    test = tmp_path / "test.parquet"
+    _write_ids(train, ["a"])
+    _write_ids(test, ["b"])
+    manifest = {
+        "splits": {
+            "train": {"file_sha256": sha256_file(train)},
+            "test": {"file_sha256": "0" * 64},
+        }
+    }
+    with pytest.raises(ValueError, match="test split does not match"):
+        _verify_split_provenance(manifest, train, None, test, dev_rows=0)
+
+
+def test_provenance_rejects_incident_overlap(tmp_path: Path) -> None:
+    train = tmp_path / "train.parquet"
+    test = tmp_path / "test.parquet"
+    _write_ids(train, ["a"])
+    _write_ids(test, ["a"])
+    manifest = {
+        "splits": {
+            "train": {"file_sha256": sha256_file(train)},
+            "test": {"file_sha256": sha256_file(test)},
+        }
+    }
+    with pytest.raises(ValueError, match="share 1 incident"):
+        _verify_split_provenance(manifest, train, None, test, dev_rows=0)
+
+
+def test_baselines_command_returns_failure_when_checks_fail(monkeypatch) -> None:
+    metadata = {
+        "dataset": "guide",
+        "models": {"majority": {"macro_f1": 0.1}},
+        "manifest": {"validation_passed": True},
+        "data_checks": {"passed": False},
+    }
+    monkeypatch.setattr(cli_module, "run_baselines", lambda **_: metadata)
+    args = SimpleNamespace(
+        train="train.parquet",
+        dev=None,
+        test="test.parquet",
+        manifest="split_v1.json",
+        report="report.md",
+        metrics="metrics.json",
+        dataset="guide",
+        seed=42,
+    )
+    assert cli_module._cmd_baselines(args) == 1
+    metadata["data_checks"]["passed"] = True
+    assert cli_module._cmd_baselines(args) == 0
