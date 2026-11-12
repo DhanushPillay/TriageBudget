@@ -1,6 +1,6 @@
 {
   "dataset": "guide",
-  "generated_at": "2026-11-12T10:38:36.067167+00:00",
+  "generated_at": "2026-11-12T11:25:00.297752+00:00",
   "model_version": "tfidf_word_1_2_plus_numeric_lgbm_v1",
   "feature_version": "guide_csv_v1",
   "seed": 42,
