@@ -2,7 +2,7 @@
 
 TriageBudget uses Microsoft GUIDE, a public dataset of security incidents from Microsoft customer environments. This document records what the dataset contains, how it will be accessed, and where it can mislead.
 
-**Status: raw CSV layout verified from the public GUIDE sample in Week 1. The real files have not been downloaded or audited yet.**
+**Status: raw GUIDE files downloaded and audited in Week 1.** The ETL produced 1,033,998 incidents from 13,664,829 denormalized rows. Fields, labels, and splits are verified; see the local audit below.
 
 ---
 
@@ -28,6 +28,28 @@ Links:
 - Microsoft blog: <https://www.microsoft.com/en-us/security/blog/2024/07/23/>
 
 The dataset is real telemetry, not synthetic. That is why it is useful. It is also why it needs careful handling.
+
+---
+
+## 1.1 Local audit
+
+The Week 1 run used the Kaggle v2 files:
+
+| Item | Value |
+|---|---|
+| Raw rows | 13,664,829 |
+| Incidents | 1,033,998 |
+| Official train incidents | 730,778 |
+| Official test incidents | 303,220 |
+| Labeled train incidents | 707,108 |
+| Unlabeled train incidents | 23,670 |
+| Labeled test incidents | 303,220 |
+| Label conflicts | 0 |
+| Split conflicts | 0 |
+
+The composite key `(OrgId, IncidentId)` is unique after aggregation. The official test file has labels for every test incident, so `test_source` is `official`. Unlabeled train incidents are excluded from the frozen sample and reported as a manifest warning.
+
+Test label counts: true positive 62,540, benign positive 148,215, false positive 92,465.
 
 ---
 
