@@ -292,7 +292,7 @@ See [docs/roadmap.md](docs/roadmap.md) for gates and the risk register.
 - The classifier can run on the full test set. The agent will run on a stratified subset because free LLM tiers are rate-limited.
 - Human approval is required for closures and escalations. The system does not take autonomous action.
 - This project is not affiliated with Microsoft.
-- No benchmark numbers are claimed until the evaluation is run.
+- Benchmark numbers come from one frozen GUIDE split. They are not production estimates.
 
 ---
 
