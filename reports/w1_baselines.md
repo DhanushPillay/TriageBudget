@@ -14,11 +14,12 @@
 | Seed | 42 |
 | Model version | `tfidf_word_1_2_plus_numeric_lgbm_v1` |
 | Manifest validates | True |
-| Data checks pass | True |
+| Data checks pass | True (with warnings) |
 
-Manifest warnings:
+Warnings:
 
 - 23670 train incidents without a triage label were excluded.
+- labels present: 23670 incidents without a triage label
 
 ## Results
 
@@ -61,7 +62,7 @@ Deliberately ignores benign-positive signals; a reference point, not tuned.
 - [x] Split manifest validates.
 - [x] LightGBM beats majority on macro-F1.
 - [x] LightGBM beats rules on macro-F1.
-- [x] Data checks pass.
+- [x] Data checks pass (see warnings).
 
 ## What this does not prove
 
