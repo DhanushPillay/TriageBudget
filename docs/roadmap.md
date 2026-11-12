@@ -43,7 +43,7 @@ If the gate fails, stop. Do not start Week 1 until the data is understood.
 
 **Goal:** a reproducible pipeline and honest baselines.
 
-**Status:** pipeline implemented and verified on a synthetic GUIDE-shaped fixture. GUIDE data is not downloaded yet, so the real-data gate remains open.
+**Status:** pipeline implemented and verified on GUIDE. Real baselines are complete: TF-IDF + LightGBM reaches macro-F1 0.706 on the official test split, versus 0.219 for majority and 0.191 for rules. The clean-clone reproduction check remains open because raw GUIDE files are not committed.
 
 Tasks:
 
@@ -62,10 +62,10 @@ Artifact:
 
 Gate:
 
-- [ ] Data tests pass.
-- [ ] Split manifest is frozen.
-- [ ] LightGBM beats majority and rules on macro-F1.
-- [ ] A clean clone reproduces the baseline table.
+- [x] Data tests pass.
+- [x] Split manifest is frozen.
+- [x] LightGBM beats majority and rules on macro-F1.
+- [ ] A clean clone reproduces the baseline table. Raw GUIDE files are not committed, so this check is documented as pending in the README.
 
 **Hours:** 24.
 
