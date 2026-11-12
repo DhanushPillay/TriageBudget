@@ -1,0 +1,58 @@
+{
+  "manifest_version": 1,
+  "dataset": "Microsoft GUIDE",
+  "dataset_version": "kaggle-v2",
+  "created_at": "2026-11-12T10:27:16.832720+00:00",
+  "source": {
+    "incidents_parquet": {
+      "path": "data/processed/incidents.parquet",
+      "sha256": "efd105e630b4e07854fa851bcd60d74ed8ef57933514c0c0541d305d86e993e3",
+      "rows": 1033998
+    }
+  },
+  "sampling": {
+    "seed": 42,
+    "max_train_incidents": 100000,
+    "strategy": "label_stratified_hash",
+    "dev_fraction": 0.1
+  },
+  "test_source": "official",
+  "splits": {
+    "train": {
+      "path": "data/processed/train.parquet",
+      "rows": 89999,
+      "label_counts": {
+        "true_positive": 18530,
+        "benign_positive": 44114,
+        "false_positive": 27355
+      },
+      "ids_sha256": "b87b9fc1e29f750a39147d31c51aefdba566fd3edfb0cee407630358e9ea6a09",
+      "file_sha256": "a4b83b5755109cfa27bb2e502d8dc9a60bd7c4ac41b256974d4bb6aac5db89b1"
+    },
+    "dev": {
+      "path": "data/processed/dev.parquet",
+      "rows": 10001,
+      "label_counts": {
+        "true_positive": 2059,
+        "benign_positive": 4902,
+        "false_positive": 3040
+      },
+      "ids_sha256": "29abafd8128baa1df4c87caf7c3f3a122411a93742b22bce73681b847df6e0fe",
+      "file_sha256": "6421848c3c024f4912d8095689aedd844f5543bb9234925b4d1622470ee1e358"
+    },
+    "test": {
+      "path": "data/processed/test.parquet",
+      "rows": 303220,
+      "label_counts": {
+        "true_positive": 62540,
+        "benign_positive": 148215,
+        "false_positive": 92465
+      },
+      "ids_sha256": "b799d8eb5d7db6c56ca6cf61816b2f4713ad3668d02d8305db142a02f8e48a24",
+      "file_sha256": "670280c9adf7d203f5973af7258b26c392099c288730d055c5c8c284c9166055"
+    }
+  },
+  "warnings": [
+    "23670 train incidents without a triage label were excluded."
+  ]
+}
