@@ -12,6 +12,25 @@ REPORTS_DIR = ROOT / "reports"
 SEED = 42
 SAMPLE_SIZE = 100_000
 
+
+def sql_path(path: Path) -> str:
+    """Render a path for a DuckDB SQL string literal."""
+    return Path(path).resolve().as_posix().replace("'", "''")
+
+
+def display_path(path: Path) -> str:
+    resolved = Path(path).resolve()
+    try:
+        return resolved.relative_to(ROOT).as_posix()
+    except ValueError:
+        return resolved.as_posix()
+
+
+def resolve_path(value: str) -> Path:
+    path = Path(value)
+    return path if path.is_absolute() else ROOT / path
+
+
 LABELS = ("true_positive", "benign_positive", "false_positive")
 
 LABEL_MAP = {
