@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>TriageBudget review console</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#queue">Skip to queue</a>
+
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">TB</span>
+      <div>
+        <p class="brand-name">TriageBudget</p>
+        <p class="brand-sub">Analyst review console</p>
+      </div>
+    </div>
+    <div class="topbar-meta">
+      <span class="demo-pill" id="demo-pill">Demo data</span>
+      <span class="health" id="health"><span class="health-dot" aria-hidden="true"></span><span id="health-label">Checking API</span></span>
+    </div>
+  </header>
+
+  <div class="notice" role="note">
+    Precomputed GUIDE decisions for demonstration. This is not a production SOC tool.
+  </div>
+
+  <main class="layout">
+    <section class="queue-panel" aria-labelledby="queue-title">
+      <div class="panel-head">
+        <div>
+          <p class="eyebrow">Review queue</p>
+          <h1 id="queue-title">Incidents</h1>
+        </div>
+        <span class="count" id="queue-count" aria-live="polite">0</span>
+      </div>
+
+      <div class="filters" role="group" aria-label="Filter incidents">
+        <label class="search">
+          <span class="visually-hidden">Search incidents</span>
+          <input id="search" type="search" placeholder="Search id, verdict, route" autocomplete="off">
+        </label>
+        <div class="segmented" role="group" aria-label="Review status">
+          <button type="button" class="segment is-active" data-status="">All</button>
+          <button type="button" class="segment" data-status="pending">Pending</button>
+          <button type="button" class="segment" data-status="approved">Approved</button>
+          <button type="button" class="segment" data-status="edited">Edited</button>
+          <button type="button" class="segment" data-status="rejected">Rejected</button>
+        </div>
+      </div>
+
+      <div id="queue-error" class="inline-error" role="alert" hidden></div>
+      <ul class="queue" id="queue" aria-label="Incident queue"></ul>
+      <div id="queue-empty" class="empty" hidden>
+        <p class="empty-title">No incidents match.</p>
+        <p>Clear the search or choose another status.</p>
+      </div>
+    </section>
+
+    <section class="detail-panel" id="detail" aria-labelledby="detail-title" aria-live="polite">
+      <div class="detail-empty" id="detail-empty">
+        <p class="eyebrow">Detail</p>
+        <h2 id="detail-title">Select an incident</h2>
+        <p>The decision, evidence, remediation, and review history appear here.</p>
+      </div>
+      <div id="detail-content" hidden></div>
+    </section>
+  </main>
+
+  <dialog id="token-dialog" aria-labelledby="token-title">
+    <form method="dialog" class="token-form" id="token-form">
+      <h2 id="token-title">Reviewer token</h2>
+      <p>This deployment requires a token for review actions. It is kept in session storage only.</p>
+      <label for="token-input">Token</label>
+      <input id="token-input" type="password" autocomplete="off" required>
+      <div class="dialog-actions">
+        <button value="cancel" class="button ghost" type="submit">Cancel</button>
+        <button value="save" class="button primary" type="submit">Save token</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="/app.js" defer></script>
+</body>
+</html>
