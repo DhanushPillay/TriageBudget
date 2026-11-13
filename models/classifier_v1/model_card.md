@@ -1,7 +1,7 @@
 # Model card: classifier_v1
 
 - Version: `tfidf_lgbm_calibrated_v1`
-- Generated: 2026-11-13T08:14:40.961355+00:00
+- Generated: 2026-11-13T09:25:19.859691+00:00
 - Seed: 42
 - Dataset: guide
 
@@ -26,7 +26,7 @@ Microsoft GUIDE, official incident-level split, frozen manifest.
 
 - Text: summary field from GUIDE categorical and alert-title tokens (5000 TF-IDF features).
 - Numeric: alert_count, evidence_count, detector_count, entity_type_count, alert_title_count, category_count, evidence_role_count, has_mitre, suspicious_count, verdict_count, malicious_count, sha256_count, ip_count, url_count, account_count, device_count, registry_count, file_count, email_count, event_hour, event_day_of_week, summary_length, summary_tokens, event_month, is_weekend, alerts_per_detector, evidence_per_alert, entities_per_alert, threat_family_count, has_suspicion, has_verdict.
-- Excluded: severity (not in the public CSV), organization identity (queue-policy leakage risk), and priority rank (not in the public CSV).
+- Excluded: severity (not in the public CSV), organization identity (queue-policy leakage risk), and priority rank (queue ranks are present but are not used in this classifier; Week 4 evaluates them).
 - Organization frequency was tested and excluded: adding it changed default-config dev macro-F1 by 0.124. It behaves as an organization identifier, so it is not in the headline model.
 
 ## Model
@@ -48,7 +48,7 @@ Per-class metrics are in `reports/w2_classifier.md`.
 ## Limitations
 
 - Labels are customer analyst judgments and may contain queue-specific policy differences.
-- The public data has no severity or analyst priority. The queue ranking proxy is not the planned analyst metric.
+- The public data has no severity column. Queue ranks are present but are deferred to Week 4; the Week 2 queue ranking proxy is not the planned analyst metric.
 - Alert ids overlap between raw train and test. Incident ids are disjoint, but an alert-disjoint sensitivity run is pending.
 - The test split shares organizations with train. This is not a leave-one-queue-out evaluation.
 - Calibration is top-label and global. Per-organization calibration is not guaranteed.
