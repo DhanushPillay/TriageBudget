@@ -1,0 +1,213 @@
+{
+  "dataset": "guide",
+  "generated_at": "2026-11-13T09:17:32.447528+00:00",
+  "index": {
+    "index_version": "w3_retrieval_v1",
+    "built_at": "2026-11-13T09:17:32.101597+00:00",
+    "dataset": "guide",
+    "train_path": "data/processed/train.parquet",
+    "train_sha256": "a4b83b5755109cfa27bb2e502d8dc9a60bd7c4ac41b256974d4bb6aac5db89b1",
+    "train_rows": 89999,
+    "documents": 14727,
+    "incident_documents": 14664,
+    "playbook_documents": 63,
+    "playbook_files": [
+      "01-identity-credential.md",
+      "02-initial-access-phishing.md",
+      "03-endpoint-malware.md",
+      "04-lateral-movement-discovery.md",
+      "05-persistence-defense-evasion.md",
+      "06-c2-exfiltration.md",
+      "07-ransomware-impact.md",
+      "08-cloud-email.md",
+      "09-incident-response-escalation.md"
+    ],
+    "member_incidents": 89999,
+    "embedding_model": "BAAI/bge-small-en-v1.5",
+    "embedding_dim": 384,
+    "normalized": true,
+    "embed_seconds": 118.95331789999909,
+    "doc_bytes": 7080597,
+    "embedding_bytes": 22620800,
+    "index_bytes": 29701397
+  },
+  "leakage": {
+    "passed": true,
+    "test_incidents": 303220,
+    "indexed_incidents": 89999,
+    "overlap_count": 0,
+    "overlap_examples": []
+  },
+  "methods": {
+    "bm25": {
+      "incident": {
+        "recall@5": 0.4066666666666668,
+        "recall@10": 0.6833333333333331,
+        "ndcg@10": 0.4917833519025092,
+        "mrr": 0.5322896825396825
+      },
+      "playbook": {
+        "recall@5": 0.3066666666666666,
+        "recall@10": 0.6216666666666666
+      },
+      "median_latency_ms": 25.660950001110905,
+      "queries": 100
+    },
+    "dense": {
+      "incident": {
+        "recall@5": 0.30666666666666664,
+        "recall@10": 0.6066666666666666,
+        "ndcg@10": 0.43984078495644197,
+        "mrr": 0.5035
+      },
+      "playbook": {
+        "recall@5": 0.5133333333333333,
+        "recall@10": 0.6758333333333333
+      },
+      "median_latency_ms": 7.429999999658321,
+      "queries": 100
+    },
+    "hybrid": {
+      "incident": {
+        "recall@5": 0.4266666666666667,
+        "recall@10": 0.6733333333333336,
+        "ndcg@10": 0.5013168084705444,
+        "mrr": 0.5747301587301588
+      },
+      "playbook": {
+        "recall@5": 0.4216666666666667,
+        "recall@10": 0.6750000000000002
+      },
+      "median_latency_ms": 41.349950000039826,
+      "queries": 100
+    }
+  },
+  "smoke": {
+    "queries": 20,
+    "passed": 20,
+    "rows": [
+      {
+        "incident_id": "1050:34040",
+        "incident_citation": true,
+        "playbook_citation": true,
+        "passed": true
+      },
+      {
+        "incident_id": "107:141755",
+        "incident_citation": true,
+        "playbook_citation": true,
+        "passed": true
+      },
+      {
+        "incident_id": "1098:46640",
+        "incident_citation": true,
+        "playbook_citation": true,
+        "passed": true
+      },
+      {
+        "incident_id": "10:74629",
+        "incident_citation": true,
+        "playbook_citation": true,
+        "passed": true
+      },
+      {
+        "incident_id": "113:11023",
+        "incident_citation": true,
+        "playbook_citation": true,
+        "passed": true
+      },
+      {
+        "incident_id": "113:6296",
+        "incident_citation": true,
+        "playbook_citation": true,
+        "passed": true
+      },
+      {
+        "incident_id": "115:109153",
+        "incident_citation": true,
+        "playbook_citation": true,
+        "passed": true
+      },
+      {
+        "incident_id": "118:15309",
+        "incident_citation": true,
+        "playbook_citation": true,
+        "passed": true
+      },
+      {
+        "incident_id": "11:185056",
+        "incident_citation": true,
+        "playbook_citation": true,
+        "passed": true
+      },
+      {
+        "incident_id": "11:400526",
+        "incident_citation": true,
+        "playbook_citation": true,
+        "passed": true
+      },
+      {
+        "incident_id": "11:401686",
+        "incident_citation": true,
+        "playbook_citation": true,
+        "passed": true
+      },
+      {
+        "incident_id": "11:409899",
+        "incident_citation": true,
+        "playbook_citation": true,
+        "passed": true
+      },
+      {
+        "incident_id": "11:412906",
+        "incident_citation": true,
+        "playbook_citation": true,
+        "passed": true
+      },
+      {
+        "incident_id": "11:432184",
+        "incident_citation": true,
+        "playbook_citation": true,
+        "passed": true
+      },
+      {
+        "incident_id": "122:230248",
+        "incident_citation": true,
+        "playbook_citation": true,
+        "passed": true
+      },
+      {
+        "incident_id": "126:345221",
+        "incident_citation": true,
+        "playbook_citation": true,
+        "passed": true
+      },
+      {
+        "incident_id": "12:44355",
+        "incident_citation": true,
+        "playbook_citation": true,
+        "passed": true
+      },
+      {
+        "incident_id": "13:229014",
+        "incident_citation": true,
+        "playbook_citation": true,
+        "passed": true
+      },
+      {
+        "incident_id": "1412:108076",
+        "incident_citation": true,
+        "playbook_citation": true,
+        "passed": true
+      },
+      {
+        "incident_id": "147:353140",
+        "incident_citation": true,
+        "playbook_citation": true,
+        "passed": true
+      }
+    ]
+  },
+  "queries": 100,
+  "gold": "structured-overlap proxy; not human relevance labels"
+}
