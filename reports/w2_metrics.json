@@ -1,6 +1,6 @@
 {
   "dataset": "guide",
-  "generated_at": "2026-11-13T08:14:40.961355+00:00",
+  "generated_at": "2026-11-13T09:25:19.859691+00:00",
   "model_version": "tfidf_lgbm_calibrated_v1",
   "feature_version": "guide_csv_v2",
   "seed": 42,
@@ -621,7 +621,7 @@
     "recall_floor": 0.4888035090033639,
     "recall_above_floor": true,
     "queue_ranking_beats_signal": true,
-    "priority_labels_available": false,
+    "priority_ranks_available": true,
     "model_card_written": true
   }
 }
