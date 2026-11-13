@@ -377,7 +377,7 @@ Before building the agent, answer these:
 - [ ] At least 1,000 incidents have remediation labels. Not used: this project trains triage labels, not remediation quality.
 - [x] At least 50 playbook sections exist and are chunked: 63 synthetic sections.
 - [x] A 384-dim embedding index builds on the sample: 14,727 documents, 29,701,397 bytes.
-- [x] A 20-query retrieval smoke test returns citations: 20/20.
+- [x] A 20-query retrieval smoke test returns citations: 19/20.
 - [x] The sample fits in DuckDB and trains a LightGBM baseline in under 30 minutes: 15.1 seconds for the optimized Week 1 baseline run.
 
 If fewer than five of these pass, stop and reassess before writing agent code.
