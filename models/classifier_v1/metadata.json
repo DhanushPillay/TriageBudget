@@ -1,6 +1,6 @@
 {
   "dataset": "guide",
-  "generated_at": "2026-11-13T09:25:19.859691+00:00",
+  "generated_at": "2026-11-13T09:48:19.829730+00:00",
   "model_version": "tfidf_lgbm_calibrated_v1",
   "feature_version": "guide_csv_v2",
   "seed": 42,
@@ -14,6 +14,7 @@
     "path": "data/manifests/split_v1.json",
     "test_source": "official",
     "source_sha256": "efd105e630b4e07854fa851bcd60d74ed8ef57933514c0c0541d305d86e993e3",
+    "train_sha256": "a4b83b5755109cfa27bb2e502d8dc9a60bd7c4ac41b256974d4bb6aac5db89b1",
     "validation_passed": true,
     "warnings": [
       "23670 train incidents without a triage label were excluded."
