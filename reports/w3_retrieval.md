@@ -27,13 +27,15 @@ Incident documents are deduplicated by `(summary, triage_label)`. The representa
 
 | method | incident Recall@5 | incident Recall@10 | incident nDCG@10 | incident MRR | playbook Recall@5 | playbook Recall@10 | median latency |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| bm25 | 0.407 | 0.683 | 0.492 | 0.532 | 0.307 | 0.622 | 25.7 ms |
-| dense | 0.307 | 0.607 | 0.440 | 0.503 | 0.513 | 0.676 | 7.4 ms |
-| hybrid | 0.427 | 0.673 | 0.501 | 0.575 | 0.422 | 0.675 | 41.3 ms |
+| bm25 | 0.407 | 0.683 | 0.492 | 0.532 | 0.307 | 0.622 | 25.2 ms |
+| dense | 0.307 | 0.607 | 0.440 | 0.503 | 0.513 | 0.676 | 6.5 ms |
+| hybrid | 0.427 | 0.673 | 0.501 | 0.575 | 0.422 | 0.675 | 36.0 ms |
+
+Playbook recall averages only the 100 queries with non-empty proxy playbook gold.
 
 ## Citation smoke test
 
-20 of 20 queries returned at least one gold incident citation in the top 5 and one category-matched playbook section in the top 5.
+19 of 20 queries returned at least one gold incident citation in the top 5 and one category-matched playbook section in the top 5.
 
 ## Limitations
 
@@ -46,5 +48,5 @@ Incident documents are deduplicated by `(summary, triage_label)`. The representa
 ## Reproduce
 
 ```bash
-make w3-retrieval
+uv run python -m triage.retrieval build --train data/processed/train.parquet --dev data/processed/dev.parquet --test data/processed/test.parquet --playbooks data/playbooks --out indexes/w3_retrieval --report reports/w3_retrieval.md --metrics reports/w3_retrieval_metrics.json --dataset guide
 ```
