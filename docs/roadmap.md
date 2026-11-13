@@ -77,13 +77,13 @@ Gate:
 
 Tasks:
 
-1. Add features: alert counts, evidence types, entity counts, time, and organization frequency. The public CSV has no severity column and no priority rank; neither is invented. Organization identity and org frequency are excluded from the headline model because a queue-specific labeling style can leak into the score; the org-frequency gain is reported as an ablation. Per-org slices are reported.
+1. Add features: alert counts, evidence types, entity counts, time, and organization frequency. The public CSV has no severity column; none is invented. A queue-rank file is present and is used in Week 4. Organization identity and org frequency are excluded from the headline model because a queue-specific labeling style can leak into the score; the org-frequency gain is reported as an ablation. Per-org slices are reported.
 2. Tune LightGBM with a small grid on the dev split.
 3. Calibrate with temperature scaling, vector scaling, or isotonic regression. The method is selected by two-fold cross-validation on dev, then refit on all of dev.
 4. Report expected calibration error and a reliability diagram.
 5. Add per-class precision and recall.
 6. Optional: MiniLM embeddings and a fine-tune, only if the baseline is stable.
-7. Ranking: the public GUIDE CSV does not include the paper's expert priority ranks, so analyst P@5/10/20 cannot be measured. Report a queue-level true-positive ranking proxy (precision@5/10/20 and true-positive capture@10%) against a signal-only baseline. Mark the analyst priority gate as blocked by data.
+7. Ranking: the public release includes `GUIDE_Test_Queue_Rankings.csv` with 9,980 queue ranks. Week 4 evaluates analyst P@5/10/20 against that file. Week 2 reports a queue-level true-positive proxy (precision@5/10/20 and true-positive capture@10%) against a signal-only baseline.
 
 Artifact:
 
@@ -97,7 +97,7 @@ Gate:
 - [x] Per-class recall is above the majority-class prevalence floor (0.489 on the frozen test split) for all three classes.
 - [x] The queue ranking proxy beats the signal-only baseline at precision@10.
 - [x] The model card states training data, features, and limitations.
-- [x] Analyst priority P@5/10/20 is marked blocked: the public release has no priority labels.
+- [x] Analyst priority P@5/10/20 is deferred to Week 4; the queue-rank file is present, but Week 2 reports the proxy.
 
 If calibration is poor, fix it before building the router. A router on uncalibrated scores is a random threshold.
 
@@ -131,12 +131,14 @@ Artifact:
 
 Gate:
 
-- [ ] The 20-query retrieval smoke test returns relevant citations.
-- [ ] The index contains no test incident ids.
-- [ ] 18 of 20 decisions are schema-valid.
-- [ ] Zero hard-constraint violations.
-- [ ] Mean tool calls are below 8.
-- [ ] Every true-positive decision has at least one evidence citation.
+- [x] The 20-query retrieval smoke test returns relevant citations. Measured 20/20.
+- [x] The index contains no test incident ids. Measured 0 overlap.
+- [x] 18 of 20 decisions are schema-valid. Measured 20/20.
+- [x] Zero hard-constraint violations. Measured 0.
+- [x] Mean tool calls are below 8. Measured 5.00.
+- [x] Every true-positive decision has at least one evidence citation. Measured 7/7.
+
+Implementation notes: the local index is an exact numpy inner-product index, not FAISS or pgvector. The optional cross-encoder reranker was skipped. The agent is a deterministic offline policy over the typed tools; prompt templates exist but no LLM is called. Gate evidence is in `reports/w3_retrieval.md` and `reports/w3_agent.md`.
 
 If retrieval is weak, fix chunking and hybrid search before tuning the agent. If schema validity is below 80%, replace the free-form agent with a deterministic decision tree plus LLM explanation for the demo. Keep the schema, tools, and trace.
 
