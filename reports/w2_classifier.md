@@ -27,7 +27,7 @@ Warnings:
 
 - Text: summary field from GUIDE categorical and alert-title tokens (5000 TF-IDF features).
 - Numeric: alert_count, evidence_count, detector_count, entity_type_count, alert_title_count, category_count, evidence_role_count, has_mitre, suspicious_count, verdict_count, malicious_count, sha256_count, ip_count, url_count, account_count, device_count, registry_count, file_count, email_count, event_hour, event_day_of_week, summary_length, summary_tokens, event_month, is_weekend, alerts_per_detector, evidence_per_alert, entities_per_alert, threat_family_count, has_suspicion, has_verdict.
-- Excluded: severity (not in the public CSV), organization identity (queue-policy leakage risk), and priority rank (not in the public CSV).
+- Excluded: severity (not in the public CSV), organization identity (queue-policy leakage risk), and priority rank (queue ranks are present but are not used in this classifier; Week 4 evaluates them).
 
 ### Organization frequency ablation
 
@@ -104,7 +104,7 @@ The global test macro-F1 is not representative of every queue. The per-queue dis
 
 ## Queue ranking proxy
 
-The public GUIDE release has no analyst priority ranks, so P@5/10/20 against an analyst top-5 cannot be computed. The proxy ranks incidents within each organization queue by calibrated `p_true_positive`. It is not a substitute for analyst priority.
+Week 2 reports a queue ranking proxy. The public release includes `GUIDE_Test_Queue_Rankings.csv` for 9,980 test incidents; Week 4 evaluates analyst P@5/10/20 against that file. The proxy ranks incidents within each organization queue by calibrated `p_true_positive`. It is not a substitute for analyst priority.
 
 Queues with at least 50 incidents and 5 true positives: 448.
 
@@ -123,12 +123,12 @@ The signal baseline orders by malicious verdict, MITRE presence, suspicion, and 
 - [x] All three per-class recalls exceed the 0.489 majority-class prevalence floor.
 - [x] The queue ranking proxy beats the signal-only baseline at precision@10.
 - [x] The model card states training data, features, and limitations.
-- [x] Analyst priority P@5/10/20 is marked blocked: the public release has no priority labels.
+- [x] Analyst priority P@5/10/20 is deferred to Week 4; the queue-rank file is present, but Week 2 reports the proxy.
 
 ## What this does not prove
 
 - This is not production SOC readiness.
-- Severity and analyst priority are absent from the public data. The queue ranking is a proxy, not the planned analyst metric.
+- Severity is absent from the public data. Queue ranks are present but are deferred to Week 4; the Week 2 queue ranking is a proxy.
 - Organization identity is excluded from the headline model. The test split contains the same organizations as train, so this is not a leave-one-queue-out generalization test.
 - Alert ids overlap between raw train and test. Incident-level disjointness holds, but an alert-disjoint sensitivity run is still pending.
 - Calibration is top-label on this split. Per-organization calibration is not reported and may differ.
