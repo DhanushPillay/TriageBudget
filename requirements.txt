@@ -1,0 +1,7 @@
+# Runtime dependencies for the hosted review console only.
+# The training and retrieval stack (duckdb, fastembed, lightgbm, pandas,
+# pyarrow, scikit-learn, scipy) stays in pyproject.toml and is not installed
+# by Vercel, which keeps the function bundle well under the 500 MB limit.
+fastapi>=0.162.5
+httpx>=0.28.1
+psycopg[binary]>=3.3.9
