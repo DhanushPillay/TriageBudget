@@ -2,13 +2,13 @@
 
 A budget-aware RAG and agent system for security incident triage.
 
-**Status: Week 5 local review console is in.** The calibrated classifier reaches macro-F1 0.7282 on 303,220 test incidents. The Week 4 selective-risk router reaches 9.9% coverage at a 0.2% true-positive miss rate, so the 60% coverage target is missed by 50.1 points. On a fixed 600-case test subset the full agent reaches 15.0% coverage at 0.0% true-positive miss versus 12.0% at 1.0% for classifier-only. Hybrid retrieval reaches incident Recall@5 0.4267 and Recall@10 0.6733; the tested cross-encoder reranker was worse and is not in the default path. The FastAPI review console, SQLite/Postgres storage, demo seed, audit log, Docker Compose, and tests run locally. Hosted deployment is deferred. The clean-clone reproduction check remains open because raw GUIDE data is gitignored.
+**Status: Week 5 local review console is in, with an optional Groq explanation layer.** The calibrated classifier reaches macro-F1 0.7282 on 303,220 test incidents. The Week 4 selective-risk router reaches 9.9% coverage at a 0.2% true-positive miss rate, so the 60% coverage target is missed by 50.1 points. On a fixed 600-case test subset the full agent reaches 15.0% coverage at 0.0% true-positive miss versus 12.0% at 1.0% for classifier-only. Hybrid retrieval reaches incident Recall@5 0.4267 and Recall@10 0.6733; the tested cross-encoder reranker was worse and is not in the default path. The FastAPI review console, SQLite/Postgres storage, demo seed, audit log, Docker Compose, tests, and Groq explanation endpoint run locally. Vercel and Neon deployment files are in the repo; no live URL is claimed until the deployment is verified. The clean-clone reproduction check remains open because raw GUIDE data is gitignored.
 
 ---
 
 ## Skills at a glance
 
-Rows marked **planned** are not built yet. Week 1 to Week 5 rows have runnable artifacts; hosted deployment is planned.
+Rows marked **planned** are not built yet. Week 1 to Week 5 rows, plus the Groq explanation layer, have runnable artifacts. Hosted deployment files are ready; no live URL is claimed.
 
 | Skill | How TriageBudget uses it | Proof a reviewer can inspect |
 |---|---|---|
@@ -17,20 +17,21 @@ Rows marked **planned** are not built yet. Week 1 to Week 5 rows have runnable a
 | Data engineering | GUIDE ingestion, Parquet, DuckDB, split manifests, data-quality checks | `data/` pipeline, `tests/test_data.py` |
 | Agents and tool calling | Bounded offline policy over seven typed tools with a hard six-call cap | `reports/w3_agent.md`, tool traces |
 | Evaluation | Macro-F1, calibration, retrieval Recall@k and nDCG, selective risk, schema validity, tool budget | Week 1 to Week 5 reports |
-| Prompt engineering | Versioned prompt templates, injection rules, schema constraints; not executed by an LLM | `prompts/`, validator tests |
-| FastAPI | Incident, decision, review, audit, health, and metrics endpoints; local only | `src/triage/web/app.py`, `/docs`, `tests/test_web.py` |
-| Postgres | Incidents, decisions, reviews, audit events; SQLite locally, Postgres-ready, not deployed | `src/triage/web/db.py`, Docker Compose |
+| Prompt engineering | Versioned decision templates plus a live explanation prompt with JSON output and citation validation | `prompts/`, `src/triage/web/ai.py`, `tests/test_explain.py` |
+| LLM integration | Groq `openai/gpt-oss-120b` explains an existing decision, cites retrieved evidence, and cannot change the verdict | `src/triage/web/ai.py`, `POST /api/incidents/{id}/explain` |
+| FastAPI | Incident, decision, review, audit, health, metrics, and explain endpoints | `src/triage/web/app.py`, `/docs`, `tests/test_web.py` |
+| Postgres | Incidents, reviews, audit events, and explanation cache; SQLite locally, Postgres through `DATABASE_URL` | `src/triage/web/db.py`, Docker Compose |
 | SQL | DuckDB queries for features, metrics, and evaluation slices; parameterized SQLite/Postgres for the console | `src/triage/data.py`, `src/triage/web/db.py` |
-| Structured outputs | Dataclass `TriageDecision`, schema validation, repair or abstain | `tests/test_agent.py` |
-| Human-in-the-loop | Reviewer queue with approve, edit, reject, idempotency, and audit log; demo token only | `public/`, `reports/w5_demo.md` |
+| Structured outputs | Dataclass `TriageDecision`, JSON explanation schema, citation and uncertainty validation | `tests/test_agent.py`, `tests/test_explain.py` |
+| Human-in-the-loop | Reviewer queue with approve, edit, reject, idempotency, and audit log; AI stays advisory | `public/`, `reports/w5_demo.md` |
 | Classical ML | TF-IDF plus LightGBM with calibration | Model card, reliability diagram |
 | PyTorch (**planned**) | MiniLM or cross-encoder fine-tune | Not built |
-| Testing | pytest unit, data-integrity, and web API tests | `tests/`, CI test run |
-| Docker | Local app plus Postgres stack; hosted deployment deferred | `Dockerfile`, `docker-compose.yml` |
+| Testing | pytest unit, data-integrity, and web API tests, including a mocked Groq transport | `tests/`, CI test run |
+| Docker | Local app plus Postgres stack | `Dockerfile`, `docker-compose.yml` |
 | CI/CD | Tests and fixture evaluation on every push | GitHub Actions workflow |
-| Cloud deployment (**planned**) | Vercel plus Neon, with Render as fallback | `docs/deployment.md`, no live URL yet |
+| Cloud deployment | Vercel plus Neon packaging is in the repo, with Render as fallback | `vercel.json`, `requirements.txt`, `docs/deployment.md`; no live URL yet |
 | Git and GitHub | Public repo, small commits, issues, pull requests | Commit history and PRs |
-| Observability | Structured JSON request logs, tool latency, prompt hashes | `reports/w3_traces.json`, web logs |
+| Observability | Structured JSON request logs, AI model/latency/token logs, prompt hashes | `reports/w3_traces.json`, web logs |
 | Security | Redaction, injection defense, demo review token, no autonomous action | Validator tests, token tests |
 
 ---
@@ -58,8 +59,9 @@ TriageBudget is built around that question.
 4. **Investigates with RAG.** The bounded agent retrieves similar incidents and playbook sections, maps ATT&CK techniques, and proposes remediation. It has a hard six-call budget and logs every tool call.
 5. **Produces a decision packet.** Every verdict includes a priority, proposed remediation, cited evidence, confidence, and a `needs_human` flag.
 6. **Hands off to a queue.** A local review console lists the queue, shows evidence and remediation, accepts approve/edit/reject actions, and writes every action to an audit log. Week 3 still writes a trace for every decision.
+7. **Explains on request.** An analyst can ask Groq to explain a queued decision. The model returns a short rationale, the evidence ids it used, an uncertainty level, and one suggested check. It cannot change the verdict, close or escalate the incident, or execute remediation.
 
-The deterministic policy and tools produce the numbers and the decision in Weeks 3 and 4. The prompt templates exist, but no external LLM is called. Zero-shot and LLM-generated RAG are therefore reported as not measured, not as results.
+The deterministic policy and tools produce the numbers and the decision in Weeks 3 and 4. That decision path does not call a language model. The explanation layer is a separate, optional request over a decision that already exists. Zero-shot and LLM-generated RAG for the decision itself are therefore reported as not measured, not as results.
 
 ---
 
@@ -105,9 +107,12 @@ Week 1 to Week 5 artifacts:
 - `reports/w5_demo.md`: three local demo scenarios with expected actions.
 - `docs/deployment.md`: local, Docker, Vercel, Neon, and Render deployment notes.
 - `public/`: review console HTML, CSS, and JavaScript.
+- `src/triage/web/ai.py`: Groq explanation client, prompt, citation validation, retry, and cache key.
+- `tests/test_explain.py`: mocked Groq tests for caching, token gating, validation, and retry.
+- `app.py`, `requirements.txt`, `vercel.json`, and `.vercelignore`: Vercel entrypoint and packaging.
 - `results/run_20261113T100909Z/`: run config and metrics. Predictions and traces stay gitignored.
 
-Week 1 to Week 5 GUIDE artifacts are measured on the frozen split. The Week 5 review console is runnable locally and in Docker. Hosted deployment is deferred until Vercel and Neon credentials are supplied.
+Week 1 to Week 5 GUIDE artifacts are measured on the frozen split. The review console and explanation endpoint run locally and in Docker. The Vercel/Neon files are ready, but no hosted URL is claimed until the user deploys and verifies it.
 
 ---
 
@@ -137,6 +142,8 @@ flowchart TD
     H --> J[Audit log]
     I --> K[Human approve, edit, or reject]
     K --> J
+    I -. optional request .-> L[Groq explanation layer]
+    L -. cites evidence .-> P
 ```
 
 The agent is optional by design. If the classifier is confident, the system does not pay for an LLM call. If the agent is unavailable or over budget, the incident falls back to the human queue.
@@ -157,6 +164,16 @@ Retrieval is hybrid: BM25 plus dense vectors fused with reciprocal rank fusion. 
 Embeddings are generated locally with `bge-small-en-v1.5` (384 dimensions). Retrieval uses an exact numpy inner-product index over 14,727 documents. The Week 5 review console stores decisions, reviews, and audit events in SQLite locally or Postgres when `DATABASE_URL` is set. A hosted vector index is not used.
 
 The index stores deduplicated incident summaries and playbook sections. It does not store raw evidence text. The test split is never added to the index; the build fails if an indexed train incident id appears in test. A retrieval run reports Recall@5, Recall@10, nDCG@10, mean reciprocal rank, index size, and latency.
+
+### AI explanation layer
+
+`POST /api/incidents/{id}/explain` asks Groq `openai/gpt-oss-120b` to explain a decision that the classifier and agent already made. The fallback is `openai/gpt-oss-20b`. The endpoint requires the review token, so a public deployment cannot be used as an open model proxy.
+
+The model receives the incident summary, verdict, priority, confidence, class probabilities, retrieved evidence ids with short quotes, and remediation targets. It does not receive raw GUIDE logs, reviewer identity, or review notes. It must return JSON with four fields: `explanation`, `evidence_ids`, `uncertainty`, and `next_step`.
+
+Every cited id is checked against the evidence that was actually retrieved. Unknown ids reject the whole response with 502, and the result is not stored. The output is cached by incident, model, prompt version, and a hash of the source fields, so reopening a case does not pay for another call. Model, prompt version, token counts, and latency are stored and logged with the explanation.
+
+The layer is advisory. It cannot approve, edit, close, or escalate an incident, and it cannot call a remediation tool. Analyst action still goes through the review endpoint and the audit log. The project has not measured explanation correctness or citation support with human raters; the tests cover schema, citation validation, caching, token gating, and retry behavior only.
 
 See [docs/architecture.md](docs/architecture.md) for components, data contracts, and failure handling.
 
@@ -270,9 +287,9 @@ src/triage/
   pipeline.py    end-to-end fixture run
   cli.py         command line entry point
   selective.py   confidence router, selective-risk curve, Week 4 evaluation
-  web/           FastAPI review API, SQLite/Postgres storage, demo seed
+  web/           FastAPI review API, SQLite/Postgres storage, Groq explanation layer, demo seed
 public/          review console HTML, CSS, and JavaScript
-tests/           data, classifier, retrieval, agent, selective-risk, and web tests
+tests/           data, classifier, retrieval, agent, selective-risk, web, and explanation tests
 docs/            architecture, data, evaluation, roadmap, deployment
 reports/         generated reports, metrics, and traces
 results/         Week 4 run configs and metrics (predictions/traces gitignored)
@@ -280,6 +297,9 @@ prompts/         versioned agent prompt templates
 data/playbooks/  nine synthetic playbooks, 63 sections
 data/cases/      20 hand-picked Week 3 exception cases
 indexes/         local retrieval index (gitignored)
+app.py           Vercel ASGI entrypoint
+requirements.txt web-only dependencies for Vercel
+vercel.json      function duration and security headers
 ```
 
 ---
@@ -296,7 +316,7 @@ indexes/         local retrieval index (gitignored)
 | 5 | FastAPI, queue UI, audit log, Docker, SQLite/Postgres, CI | Local review console and demo script |
 | 6 | Frozen test, bootstrap intervals, per-organization slices, README, demo video | Final report and demo |
 
-Cut list, in order: 1M to 100k incidents, 499 to 50 queues, agent subset 2,000 to 500, skip the fine-tune, React to Streamlit. Hosted deployment is deferred until Vercel and Neon credentials are supplied; Docker Compose plus a recorded demo is the current path. The external labels, selective-risk curve, citations, and audit log stay.
+Cut list, in order: 1M to 100k incidents, 499 to 50 queues, agent subset 2,000 to 500, skip the fine-tune, React to Streamlit. The Vercel and Neon packaging is in the repo; the hosted URL is not claimed until the user supplies credentials and verifies the deployment. Docker Compose plus a recorded demo remains the fallback. The external labels, selective-risk curve, citations, and audit log stay.
 
 See [docs/roadmap.md](docs/roadmap.md) for gates and the risk register.
 
@@ -312,17 +332,17 @@ See [docs/roadmap.md](docs/roadmap.md) for gates and the risk register.
 - Prompt engineering with versioned templates, prompt-injection defense, and schema-constrained output.
 - Classical ML baseline with TF-IDF, LightGBM, and probability calibration.
 - Optional PyTorch fine-tune for a MiniLM or cross-encoder reranker.
-- FastAPI and Postgres for the API, decisions, reviews, and audit events.
+- FastAPI and Postgres for the API, decisions, reviews, audit events, and a cached explanation layer.
 - SQL with DuckDB and Postgres for features, evaluation slices, and audit queries.
-- Structured outputs with Pydantic schemas, validation, repair, and abstention.
-- Testing with pytest unit tests, data-integrity checks, and API integration tests.
-- Human-in-the-loop review with approve, edit, reject, and an append-only audit log.
+- Structured outputs with Pydantic schemas, JSON validation, citation checks, repair, and abstention.
+- Testing with pytest unit tests, data-integrity checks, API integration tests, and a mocked Groq transport.
+- Human-in-the-loop review with approve, edit, reject, an append-only audit log, and advisory-only AI explanations.
 - Docker for a reproducible local stack.
-- Cloud deployment planned on Vercel plus Neon, with Render as a fallback. No live URL is claimed until deployed.
+- Vercel plus Neon deployment packaging, with Render as a fallback. No live URL is claimed until deployed.
 - CI with tests, data checks, and an evaluation regression gate.
 - Git and GitHub with a public repo, small commits, and pull requests.
-- Observability with structured JSON request logs and tool latency. Langfuse is not used.
-- Security-minded design: redaction, no autonomous action, citations, audit log, and PII handling.
+- Observability with structured JSON request logs, model/token/latency logs for explanations, and tool latency. Langfuse is not used.
+- Security-minded design: redaction, no autonomous action, citations, audit log, server-side API keys, and PII handling.
 
 ---
 
@@ -332,6 +352,10 @@ See [docs/roadmap.md](docs/roadmap.md) for gates and the risk register.
 - GUIDE comes from Microsoft customer environments. Performance may not transfer to other telemetry.
 - The classifier runs on the full test set. The Week 4 agent runs on a fixed stratified 600-case test subset (200 per class). The agent is deterministic and offline, so this limit is compute, not rate limits.
 - Human approval is required for closures and escalations. The system does not take autonomous action.
+- The explanation layer has no human-rated correctness or citation-support evaluation yet. Citation validation proves an evidence id was retrieved; it does not prove the sentence is supported by that evidence.
+- Live explanations require `GROQ_API_KEY`; without it the endpoint returns 503 and the console disables the AI panel. The key is server-side and never sent to the browser.
+- Each explanation costs tokens and adds latency. Results are cached per incident and model, but there is no per-user budget or rate limit beyond the review token.
+- Vercel has not been deployed or verified yet. SQLite does not persist there; Neon Postgres through `DATABASE_URL` is required.
 - This project is not affiliated with Microsoft.
 - Benchmark numbers come from one frozen GUIDE split. They are not production estimates.
 - Organization identity and organization frequency are excluded from the headline classifier because queue-specific labeling styles leak into the score. The org-frequency ablation is reported, not used.
