@@ -11,6 +11,7 @@ kaggle.json
 data/raw/
 data/processed/
 data/*.duckdb
+data/*.db
 data/*.wal
 
 reports/fixture_run/
