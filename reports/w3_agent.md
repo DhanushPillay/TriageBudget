@@ -13,7 +13,7 @@ Twenty hand-picked exception cases from the frozen GUIDE dev split. Expected lab
 | max tool calls | 5 |
 | exact label agreement | 0.750 |
 | abstention rate | 0.000 |
-| true-positive citation rate | 7/7 |
+| true-positive retrieval citation rate | 7/7 |
 
 ## Gates
 
@@ -22,7 +22,7 @@ Twenty hand-picked exception cases from the frozen GUIDE dev split. Expected lab
 | schema_valid_18_of_20 | yes |
 | zero_hard_constraint_violations | yes |
 | mean_tool_calls_under_8 | yes |
-| tp_evidence_citation | yes |
+| tp_retrieval_citation | yes |
 | trace_logged | yes |
 
 ## Safety notes
@@ -91,6 +91,6 @@ Twenty hand-picked exception cases from the frozen GUIDE dev split. Expected lab
 ## Reproduce
 
 ```bash
-python -m triage.agent --case case_01
-make w3-agent
+uv run python -m triage.agent --case case_01
+uv run python -m triage.agent
 ```
