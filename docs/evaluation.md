@@ -2,7 +2,7 @@
 
 This document defines how TriageBudget is measured. Metrics, splits, and baselines are fixed before results are reported so they cannot be chosen after seeing outcomes.
 
-**Current status: Week 3 retrieval and bounded agent measured on the frozen GUIDE split.** Hybrid BM25 + dense + RRF retrieval reaches incident Recall@5 0.4267, Recall@10 0.6733, nDCG@10 0.5013, and playbook Recall@5 0.4217 on 100 dev proxy queries. The index has 0 test incident overlap. The 20-case agent run is 20/20 schema-valid with 0 hard-constraint violations, 5.00 mean tool calls, and 7/7 true positives cited. Exact label agreement is 0.75; all 3 missed true positives are flagged for human review and none are auto-closed. Week 2 classifier: macro-F1 0.7199 raw and 0.7282 after vector calibration, ECE 0.0184 to 0.0051, true-positive recall 0.684 to 0.516. Week 1 baselines were 0.219 for majority and 0.191 for rules. Figures marked as targets or external facts are not results.
+**Current status: Week 3 retrieval and bounded agent measured on the frozen GUIDE split.** Hybrid BM25 + dense + RRF retrieval reaches incident Recall@5 0.4267, Recall@10 0.6733, nDCG@10 0.5013, and playbook Recall@5 0.4217 on 100 dev proxy queries. The index has 0 test incident overlap. The 20-case agent run is 20/20 schema-valid with 0 hard-constraint violations, 5.00 mean tool calls, and 7/7 true positives with a retrieval citation. Exact label agreement is 0.75; all 3 missed true positives are flagged for human review and none are auto-closed. Week 2 classifier: macro-F1 0.7199 raw and 0.7282 after vector calibration, ECE 0.0184 to 0.0051, true-positive recall 0.684 to 0.516. Week 1 baselines were 0.219 for majority and 0.191 for rules. Figures marked as targets or external facts are not results.
 
 ---
 
@@ -78,6 +78,7 @@ Calibration rules:
 
 - The calibrator is fit on dev only. It is never fit on test.
 - Candidate methods are temperature scaling, vector scaling (temperature plus a per-class bias), and per-class isotonic regression. The method is selected by two-fold cross-validation on dev, then refit on all of dev. A method is eligible only if its cross-validated macro-F1 is within 0.005 of raw.
+- Known limitation: the same dev rows tune LightGBM and select the calibrator. The test split stays untouched, so the headline test metrics remain valid, but calibrator selection is optimistic. Week 4 can use nested cross-validation or a separate calibration split.
 - ECE is computed on the top-label confidence. The reliability diagram plots observed accuracy against mean confidence for the same bins. Class-wise one-vs-rest ECE is reported separately.
 - A calibrated classifier must report raw and calibrated ECE, Brier, and NLL on the same split. Calibration must not be assumed from the training objective.
 - Calibration can change the argmax. Raw and calibrated per-class metrics are both reported, and the router consumes `p_true_positive` rather than assuming the predicted class is unchanged.
