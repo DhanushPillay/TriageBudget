@@ -31,6 +31,7 @@ from triage.baselines import (
 from triage.config import (
     LABELS,
     NUMERIC_FEATURES,
+    RAW_DIR,
     SEED,
     display_path,
     resolve_path,
@@ -123,15 +124,31 @@ class ClassifierArtifacts:
         return list(self.metadata.get("label_order", LABELS))
 
     def predict_frame(self, frame: pd.DataFrame) -> np.ndarray:
+        if self.label_order != list(LABELS):
+            raise ValueError(
+                f"Model label order {self.label_order} does not match {list(LABELS)}"
+            )
         engineered = _add_engineered(frame, {})
         text = self.vectorizer.transform(
             engineered["summary"].fillna("").astype(str)
         )
         features = hstack([text, _numeric_matrix(engineered)], format="csr")
+        if features.shape[1] != self.booster.num_feature():
+            raise ValueError(
+                f"Feature count {features.shape[1]} does not match model "
+                f"expectation {self.booster.num_feature()}"
+            )
         raw = np.asarray(self.booster.predict(features), dtype=float)
-        if raw.ndim != 2 or raw.shape[1] != len(LABELS):
-            raise ValueError(f"Unexpected model output shape: {raw.shape}")
+        expected_shape = (len(frame), len(self.label_order))
+        if raw.shape != expected_shape:
+            raise ValueError(
+                f"Unexpected model output shape: {raw.shape}, expected {expected_shape}"
+            )
         probs = np.asarray(self.calibrator.predict_proba(raw), dtype=float)
+        if probs.shape != raw.shape:
+            raise ValueError(
+                f"Calibrated output shape {probs.shape} does not match {raw.shape}"
+            )
         if not np.allclose(probs.sum(axis=1), 1.0):
             raise ValueError("Calibrated probabilities do not sum to one")
         return probs
@@ -140,6 +157,16 @@ class ClassifierArtifacts:
 def load_classifier(model_dir: Path) -> ClassifierArtifacts:
     model_dir = Path(model_dir)
     metadata = json.loads((model_dir / "metadata.json").read_text(encoding="utf-8"))
+    version = metadata.get("model_version")
+    if version != MODEL_VERSION:
+        raise ValueError(
+            f"Unsupported classifier version {version!r}; expected {MODEL_VERSION!r}"
+        )
+    if metadata.get("label_order") != list(LABELS):
+        raise ValueError(
+            f"Classifier label order {metadata.get('label_order')!r} does not "
+            f"match {list(LABELS)}"
+        )
     booster = lgb.Booster(model_file=str(model_dir / "model.txt"))
     vectorizer = joblib.load(model_dir / "vectorizer.joblib")
     calibrator = joblib.load(model_dir / "calibrator.joblib")
@@ -1360,6 +1387,25 @@ def run_classifier(
     if dev is not None:
         _check_labels(dev, "dev")
 
+    manifest_validation = validate_manifest(manifest_path)
+    if not manifest_validation["passed"]:
+        failed = [
+            check["name"] for check in manifest_validation["checks"] if not check["passed"]
+        ]
+        raise ValueError(f"Manifest validation failed: {', '.join(failed)}")
+
+    source = manifest.get("source", {}).get("incidents_parquet", {})
+    incidents_path = resolve_path(source.get("path") or "")
+    if not incidents_path.is_file():
+        raise ValueError(
+            f"Incidents parquet not found: {display_path(incidents_path)}"
+        )
+    data_checks = quality_report(incidents_path, manifest_path)
+    if not data_checks["passed"]:
+        raise ValueError(
+            "Data quality checks failed: " + ", ".join(data_checks["failed"])
+        )
+
     if dev is None or len(dev) == 0:
         train_fit, calibration = _carve_calibration(train, seed)
         grid_enabled = False
@@ -1467,27 +1513,6 @@ def run_classifier(
         for label in LABELS
     )
 
-    manifest_validation = validate_manifest(manifest_path)
-    source = manifest.get("source", {}).get("incidents_parquet", {})
-    incidents_path = resolve_path(source.get("path") or "")
-    if incidents_path.is_file():
-        data_checks = quality_report(incidents_path, manifest_path)
-    else:
-        detail = f"incidents parquet not found: {display_path(incidents_path)}"
-        data_checks = {
-            "passed": False,
-            "checks": [
-                {
-                    "name": "incidents parquet present",
-                    "passed": False,
-                    "detail": detail,
-                    "warning": False,
-                }
-            ],
-            "failed": ["incidents parquet present"],
-            "warnings": [],
-        }
-
     split_sizes = {
         name: split.get("rows", 0) for name, split in manifest.get("splits", {}).items()
     }
@@ -1514,6 +1539,7 @@ def run_classifier(
             "path": display_path(manifest_path),
             "test_source": manifest.get("test_source"),
             "source_sha256": source.get("sha256"),
+            "train_sha256": manifest.get("splits", {}).get("train", {}).get("file_sha256"),
             "validation_passed": manifest_validation["passed"],
             "warnings": manifest.get("warnings", []),
         },
@@ -1574,7 +1600,10 @@ def run_classifier(
         "queue_ranking_beats_signal": bool(
             queue_ranking["beats_signal_at_10"]
         ),
-        "priority_ranks_available": True,
+        "priority_ranks_available": bool(
+            dataset_label == "guide"
+            and (RAW_DIR / "GUIDE_Test_Queue_Rankings.csv").is_file()
+        ),
         "model_card_written": True,
     }
 
