@@ -874,6 +874,88 @@ dialog::backdrop {
   margin-top: 6px;
 }
 
+.ai-box {
+  padding: 16px;
+  border: 1px solid rgba(116, 169, 247, 0.32);
+  border-radius: 12px;
+  background:
+    linear-gradient(180deg, rgba(116, 169, 247, 0.08), transparent 62%),
+    var(--bg-raised);
+}
+
+.ai-body {
+  display: grid;
+  gap: 10px;
+}
+
+.ai-text {
+  margin: 0;
+  color: #c9d4df;
+  font-size: 14px;
+}
+
+.ai-next {
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--panel);
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.ai-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.ai-uncertainty.low {
+  color: var(--teal);
+  border-color: rgba(70, 195, 155, 0.35);
+  background: var(--teal-soft);
+}
+
+.ai-uncertainty.medium {
+  color: var(--amber);
+  border-color: rgba(224, 169, 74, 0.35);
+  background: var(--amber-soft);
+}
+
+.ai-uncertainty.high {
+  color: var(--red);
+  border-color: rgba(239, 115, 115, 0.35);
+  background: var(--red-soft);
+}
+
+.ai-foot {
+  margin: 0;
+  color: var(--faint);
+  font-family: var(--mono);
+  font-size: 10px;
+}
+
+.ai-hint {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.ai-status {
+  min-height: 18px;
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.ai-status.is-ok {
+  color: var(--teal);
+}
+
+.ai-status.is-bad {
+  color: var(--red);
+}
+
 @media (max-width: 980px) {
   .layout {
     grid-template-columns: 1fr;
