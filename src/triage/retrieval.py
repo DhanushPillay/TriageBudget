@@ -5,6 +5,8 @@ import hashlib
 import json
 import math
 import re
+import shutil
+import tempfile
 import time
 from collections import Counter
 from collections.abc import Sequence
@@ -206,12 +208,13 @@ def load_incident_docs(train_path: Path) -> list[Doc]:
         first = group.iloc[0]
         incident_ids = group["incident_id"].astype(str).tolist()
         representative = incident_ids[0]
+        title = summary[:80] if pd.isna(first["title"]) else str(first["title"])
         docs.append(
             Doc(
                 doc_id=f"incident:{representative}",
                 source="incident",
                 source_id=representative,
-                title=str(first["title"] or summary[:80]),
+                title=title,
                 text=str(summary),
                 label=str(label),
                 categories=split_tokens(first["categories"]),
@@ -379,8 +382,15 @@ class RetrievalIndex:
         self.embeddings = np.asarray(embeddings, dtype=np.float32)
         self.embedder = embedder
         self.manifest = manifest
+        if self.embeddings.ndim != 2:
+            raise ValueError("Embeddings must be a 2-D array")
         if self.embeddings.shape[0] != len(self.docs):
             raise ValueError("Embedding rows do not match document count")
+        if self.embeddings.shape[1] != int(embedder.dim):
+            raise ValueError(
+                f"Embedding dimension {self.embeddings.shape[1]} does not match "
+                f"embedder dimension {embedder.dim}"
+            )
         self.bm25 = BM25([tokenize(doc.text) for doc in self.docs])
         self._indices: dict[str, np.ndarray] = {}
         for source in ("incident", "playbook"):
@@ -394,6 +404,7 @@ class RetrievalIndex:
             for category in doc.categories:
                 tokens.update(tokenize(category))
             self._doc_category_tokens.append(tokens)
+        self._category_vocab = set().union(*self._doc_category_tokens)
 
     @classmethod
     def load(cls, index_dir: Path, embedder: Embedder | None = None) -> RetrievalIndex:
@@ -407,9 +418,32 @@ class RetrievalIndex:
             if line.strip()
         ]
         embeddings = np.load(index_dir / "embeddings.npy")
+        if embeddings.ndim != 2:
+            raise ValueError("Embeddings must be a 2-D array")
         embedder = embedder or FastEmbedEmbedder(
             str(manifest.get("embedding_model", DEFAULT_EMBEDDING_MODEL))
         )
+        if manifest.get("index_version") != INDEX_VERSION:
+            raise ValueError(
+                f"Unsupported index version: {manifest.get('index_version')!r}"
+            )
+        if int(manifest.get("documents", -1)) != len(docs):
+            raise ValueError(
+                f"Manifest document count {manifest.get('documents')} does not match "
+                f"loaded documents {len(docs)}"
+            )
+        if int(manifest.get("embedding_dim", -1)) != embeddings.shape[1]:
+            raise ValueError(
+                f"Manifest embedding dimension {manifest.get('embedding_dim')} does not "
+                f"match embeddings {embeddings.shape[1]}"
+            )
+        if manifest.get("embedding_model") != embedder.name:
+            raise ValueError(
+                f"Index model {manifest.get('embedding_model')!r} does not match "
+                f"embedder {embedder.name!r}"
+            )
+        if manifest.get("normalized") is not True:
+            raise ValueError("Index manifest must declare normalized embeddings")
         return cls(docs, embeddings, embedder, manifest)
 
     def stats(self) -> dict[str, Any]:
@@ -454,7 +488,7 @@ class RetrievalIndex:
         return [int(index) for index in order if np.isfinite(scores[index])]
 
     def _playbook_category_candidates(self, query_tokens: Sequence[str]) -> list[int] | None:
-        query_set = set(query_tokens)
+        query_set = set(query_tokens) & self._category_vocab
         if not query_set:
             return None
         candidates = [
@@ -671,6 +705,7 @@ def evaluate_retrieval(
     for mode in ("bm25", "dense", "hybrid"):
         incident_rows: list[dict[str, float]] = []
         playbook_rows: list[dict[str, float]] = []
+        playbook_queries = 0
         latencies: list[float] = []
         for query in queries:
             started = time.perf_counter()
@@ -694,35 +729,45 @@ def evaluate_retrieval(
             )
             playbook_gold = set(query["gold_playbooks"])
             playbook_ranked = [hit.doc_id for hit in playbook_hits]
-            playbook_rows.append(
-                {
-                    "recall@5": (
-                        len(set(playbook_ranked[:5]) & playbook_gold) / len(playbook_gold)
-                        if playbook_gold
-                        else 0.0
-                    ),
-                    "recall@10": (
-                        len(set(playbook_ranked) & playbook_gold) / len(playbook_gold)
-                        if playbook_gold
-                        else 0.0
-                    ),
-                }
-            )
+            if playbook_gold:
+                playbook_queries += 1
+                playbook_rows.append(
+                    {
+                        "recall@5": len(set(playbook_ranked[:5]) & playbook_gold)
+                        / len(playbook_gold),
+                        "recall@10": len(set(playbook_ranked) & playbook_gold)
+                        / len(playbook_gold),
+                    }
+                )
         methods[mode] = {
             "incident": {
                 key: float(np.mean([row[key] for row in incident_rows]))
                 for key in ("recall@5", "recall@10", "ndcg@10", "mrr")
             },
             "playbook": {
-                key: float(np.mean([row[key] for row in playbook_rows]))
+                key: (
+                    float(np.mean([row[key] for row in playbook_rows]))
+                    if playbook_rows
+                    else 0.0
+                )
                 for key in ("recall@5", "recall@10")
             },
+            "playbook_queries": playbook_queries,
             "median_latency_ms": float(np.median(latencies)),
             "queries": len(queries),
         }
 
     smoke_rows: list[dict[str, Any]] = []
-    for query in queries[:smoke_queries]:
+    smoke_count = min(smoke_queries, len(queries))
+    smoke_indices = (
+        np.random.default_rng(seed + 1).choice(
+            len(queries), size=smoke_count, replace=False
+        )
+        if smoke_count
+        else []
+    )
+    smoke_sample = [queries[int(index)] for index in smoke_indices]
+    for query in smoke_sample:
         incident_hits = index.search(
             query["query"], k=5, source="incident", mode="hybrid"
         )
@@ -809,6 +854,14 @@ def render_report(metrics: dict[str, Any]) -> str:
             f"{_fmt(result['playbook']['recall@10'])} | "
             f"{_fmt(result['median_latency_ms'], 1)} ms |"
         )
+    playbook_queries = metrics["methods"].get("hybrid", {}).get("playbook_queries", 0)
+    lines.extend(
+        [
+            "",
+            f"Playbook recall averages only the {playbook_queries} queries with "
+            "non-empty proxy playbook gold.",
+        ]
+    )
     smoke = metrics["smoke"]
     lines.extend(
         [
@@ -836,7 +889,13 @@ def render_report(metrics: dict[str, Any]) -> str:
             "## Reproduce",
             "",
             "```bash",
-            "make w3-retrieval",
+            "uv run python -m triage.retrieval build "
+            "--train data/processed/train.parquet "
+            "--dev data/processed/dev.parquet "
+            "--test data/processed/test.parquet "
+            "--playbooks data/playbooks --out indexes/w3_retrieval "
+            "--report reports/w3_retrieval.md "
+            "--metrics reports/w3_retrieval_metrics.json --dataset guide",
             "```",
             "",
         ]
@@ -845,64 +904,103 @@ def render_report(metrics: dict[str, Any]) -> str:
 
 
 def _cmd_build(args: argparse.Namespace) -> int:
-    embedder = FastEmbedEmbedder(args.model)
-    docs, embeddings, manifest = build_index(
-        train_path=Path(args.train),
-        playbooks_dir=Path(args.playbooks),
-        out_dir=Path(args.out),
-        embedder=embedder,
-        dataset_label=args.dataset,
+    target = Path(args.out)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    staging = Path(
+        tempfile.mkdtemp(prefix=f".{target.name}.", dir=str(target.parent))
     )
-    index = RetrievalIndex(docs, embeddings, embedder, manifest)
-    leakage = check_leakage(index, Path(args.test))
-    metrics: dict[str, Any] = {
-        "dataset": args.dataset,
-        "generated_at": datetime.now(UTC).isoformat(),
-        "index": {**manifest, **index.stats()},
-        "leakage": leakage,
-        "methods": {},
-        "smoke": {"queries": 0, "passed": 0, "rows": []},
-    }
-    if not args.no_eval:
-        metrics.update(
-            evaluate_retrieval(
-                index,
-                dev_path=Path(args.dev),
-                n_queries=args.queries,
-                smoke_queries=args.smoke,
-                seed=args.seed,
+    try:
+        embedder = FastEmbedEmbedder(args.model)
+        docs, embeddings, manifest = build_index(
+            train_path=Path(args.train),
+            playbooks_dir=Path(args.playbooks),
+            out_dir=staging,
+            embedder=embedder,
+            dataset_label=args.dataset,
+        )
+        index = RetrievalIndex(docs, embeddings, embedder, manifest)
+        leakage = check_leakage(index, Path(args.test))
+        if not leakage["passed"]:
+            print(
+                json.dumps(
+                    {
+                        "error": "Retrieval leakage check failed",
+                        "leakage": leakage,
+                        "published": False,
+                    },
+                    indent=2,
+                )
+            )
+            return 1
+
+        if target.exists():
+            if target.is_dir():
+                shutil.rmtree(target)
+            else:
+                target.unlink()
+        staging.replace(target)
+
+        metrics: dict[str, Any] = {
+            "dataset": args.dataset,
+            "generated_at": datetime.now(UTC).isoformat(),
+            "index": {**manifest, **index.stats()},
+            "leakage": leakage,
+            "methods": {},
+            "smoke": {"queries": 0, "passed": 0, "rows": []},
+        }
+        if not args.no_eval:
+            metrics.update(
+                evaluate_retrieval(
+                    index,
+                    dev_path=Path(args.dev),
+                    n_queries=args.queries,
+                    smoke_queries=args.smoke,
+                    seed=args.seed,
+                )
+            )
+
+        report_path = Path(args.report)
+        metrics_path = Path(args.metrics)
+        report_path.parent.mkdir(parents=True, exist_ok=True)
+        metrics_path.parent.mkdir(parents=True, exist_ok=True)
+        metrics_path.write_text(json.dumps(metrics, indent=2) + "\n", encoding="utf-8")
+        report_path.write_text(render_report(metrics), encoding="utf-8")
+        print(
+            json.dumps(
+                {
+                    "index": display_path(target),
+                    "documents": len(docs),
+                    "leakage": leakage["passed"],
+                    "methods": {
+                        name: {
+                            "incident_recall@5": round(
+                                result["incident"]["recall@5"], 4
+                            ),
+                            "incident_recall@10": round(
+                                result["incident"]["recall@10"], 4
+                            ),
+                            "playbook_recall@5": round(
+                                result["playbook"]["recall@5"], 4
+                            ),
+                            "playbook_recall@10": round(
+                                result["playbook"]["recall@10"], 4
+                            ),
+                        }
+                        for name, result in metrics["methods"].items()
+                    },
+                    "smoke": (
+                        f"{metrics['smoke']['passed']}/{metrics['smoke']['queries']}"
+                    ),
+                    "report": args.report,
+                    "metrics": args.metrics,
+                },
+                indent=2,
             )
         )
-
-    report_path = Path(args.report)
-    metrics_path = Path(args.metrics)
-    report_path.parent.mkdir(parents=True, exist_ok=True)
-    metrics_path.parent.mkdir(parents=True, exist_ok=True)
-    metrics_path.write_text(json.dumps(metrics, indent=2) + "\n", encoding="utf-8")
-    report_path.write_text(render_report(metrics), encoding="utf-8")
-    print(
-        json.dumps(
-            {
-                "index": display_path(Path(args.out)),
-                "documents": len(docs),
-                "leakage": leakage["passed"],
-                "methods": {
-                    name: {
-                        "incident_recall@5": round(result["incident"]["recall@5"], 4),
-                        "incident_recall@10": round(result["incident"]["recall@10"], 4),
-                        "playbook_recall@5": round(result["playbook"]["recall@5"], 4),
-                        "playbook_recall@10": round(result["playbook"]["recall@10"], 4),
-                    }
-                    for name, result in metrics["methods"].items()
-                },
-                "smoke": f"{metrics['smoke']['passed']}/{metrics['smoke']['queries']}",
-                "report": args.report,
-                "metrics": args.metrics,
-            },
-            indent=2,
-        )
-    )
-    return 0 if leakage["passed"] else 1
+        return 0
+    finally:
+        if staging.exists():
+            shutil.rmtree(staging, ignore_errors=True)
 
 
 def _cmd_search(args: argparse.Namespace) -> int:
