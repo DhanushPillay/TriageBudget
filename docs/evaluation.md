@@ -2,7 +2,7 @@
 
 This document defines how TriageBudget is measured. Metrics, splits, and baselines are fixed before results are reported so they cannot be chosen after seeing outcomes.
 
-**Current status: Week 1 baselines measured on the frozen GUIDE split.** TF-IDF + LightGBM reaches macro-F1 0.706 on the official test split, versus 0.219 for the majority class and 0.191 for rules. Figures marked as targets or external facts are not results.
+**Current status: Week 2 calibrated classifier measured on the frozen GUIDE split.** TF-IDF + LightGBM reaches macro-F1 0.7199 raw and 0.7282 after vector calibration; ECE falls from 0.0184 to 0.0051. True-positive recall falls from 0.684 to 0.516, so the router must use calibrated `p_true_positive`, not only the predicted class. Week 1 baselines were 0.219 for majority and 0.191 for rules. Figures marked as targets or external facts are not results.
 
 ---
 
@@ -68,14 +68,24 @@ GUIDE uses `TruePositive`, `BenignPositive`, and `FalsePositive`. The mapping is
 | Per-class precision | TP / (TP + FP) | False positives cost analyst time |
 | Per-class recall | TP / (TP + FN) | False negatives cost security |
 | Confusion matrix | Counts by predicted and true class | Shows which classes are confused |
-| Expected calibration error | Weighted gap between confidence and accuracy across bins | The router depends on calibrated confidence |
-| Brier score | Mean squared error of predicted probabilities | Proper scoring rule |
+| Expected calibration error | Weighted gap between confidence and accuracy across 15 equal-width bins | The router depends on calibrated confidence |
+| Brier score | Mean squared error of the predicted probability vector | Proper scoring rule |
+| Negative log-likelihood | Mean negative log probability of the true class | Proper scoring rule, used to fit temperature scaling |
 
 Report macro-F1 with bootstrap confidence intervals over incidents.
 
+Calibration rules:
+
+- The calibrator is fit on dev only. It is never fit on test.
+- Candidate methods are temperature scaling, vector scaling (temperature plus a per-class bias), and per-class isotonic regression. The method is selected by two-fold cross-validation on dev, then refit on all of dev. A method is eligible only if its cross-validated macro-F1 is within 0.005 of raw.
+- ECE is computed on the top-label confidence. The reliability diagram plots observed accuracy against mean confidence for the same bins. Class-wise one-vs-rest ECE is reported separately.
+- A calibrated classifier must report raw and calibrated ECE, Brier, and NLL on the same split. Calibration must not be assumed from the training objective.
+- Calibration can change the argmax. Raw and calibrated per-class metrics are both reported, and the router consumes `p_true_positive` rather than assuming the predicted class is unchanged.
+- The per-class recall floor is the majority-class prevalence on the frozen test split (0.489). All three class recalls must exceed it.
+
 ### 4.2 Priority ranking
 
-GUIDE includes expert-ranked incidents. Treat priority as a ranking problem, not a regression.
+The GUIDE paper includes expert-ranked incidents. Treat priority as a ranking problem, not a regression.
 
 | Metric | Definition |
 |---|---|
@@ -85,6 +95,13 @@ GUIDE includes expert-ranked incidents. Treat priority as a ranking problem, not
 | NDCG@10 | Normalized discounted cumulative gain against the analyst ranking |
 
 Baseline: random ranking and severity-only ranking.
+
+The public GUIDE CSV does not include the expert priority ranks or a severity column. Analyst P@5/10/20 is therefore not measurable on the frozen split. Week 2 reports a queue-level proxy instead:
+
+- Rank incidents within each organization queue by calibrated `p_true_positive`.
+- Report macro precision@5/10/20 and true-positive capture@10% across queues with at least 50 test incidents and at least 5 true positives.
+- Compare with a signal-only baseline that orders by malicious verdict, MITRE presence, suspicion, and alert count.
+- Label the result as a queue risk-ranking proxy, not analyst priority. The analyst ranking gate stays blocked until priority labels are available.
 
 ### 4.3 Remediation
 
