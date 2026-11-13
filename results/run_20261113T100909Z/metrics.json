@@ -1,0 +1,2647 @@
+{
+  "dataset": "guide",
+  "generated_at": "2026-11-13T10:15:48.383782+00:00",
+  "seed": 42,
+  "run_dir": "results/run_20261113T100909Z",
+  "dataset_sha256": "670280c9adf7d203f5973af7258b26c392099c288730d055c5c8c284c9166055",
+  "model_version": "tfidf_lgbm_calibrated_v1",
+  "index_manifest": {
+    "index_version": "w3_retrieval_v1",
+    "built_at": "2026-11-13T09:50:38.877038+00:00",
+    "dataset": "guide",
+    "train_path": "data/processed/train.parquet",
+    "train_sha256": "a4b83b5755109cfa27bb2e502d8dc9a60bd7c4ac41b256974d4bb6aac5db89b1",
+    "train_rows": 89999,
+    "documents": 14727,
+    "incident_documents": 14664,
+    "playbook_documents": 63,
+    "playbook_files": [
+      "01-identity-credential.md",
+      "02-initial-access-phishing.md",
+      "03-endpoint-malware.md",
+      "04-lateral-movement-discovery.md",
+      "05-persistence-defense-evasion.md",
+      "06-c2-exfiltration.md",
+      "07-ransomware-impact.md",
+      "08-cloud-email.md",
+      "09-incident-response-escalation.md"
+    ],
+    "member_incidents": 89999,
+    "embedding_model": "BAAI/bge-small-en-v1.5",
+    "embedding_dim": 384,
+    "normalized": true,
+    "embed_seconds": 104.90301389999877,
+    "doc_bytes": 7080597,
+    "embedding_bytes": 22620800,
+    "index_bytes": 29701397
+  },
+  "subset": {
+    "per_label": 200,
+    "rows": 600,
+    "labels": {
+      "true_positive": 200,
+      "benign_positive": 200,
+      "false_positive": 200
+    }
+  },
+  "classifier": {
+    "metrics": {
+      "accuracy": 0.7634918540993338,
+      "macro_f1": 0.7282381259153364,
+      "macro_f1_ci95": [
+        0.7263328013141656,
+        0.7301467421240603
+      ],
+      "accuracy_ci95": [
+        0.7620791009827848,
+        0.7651017413099399
+      ]
+    },
+    "curve": [
+      {
+        "threshold": 0.5,
+        "coverage": 0.35298133368511314,
+        "covered": 107031,
+        "total": 303220,
+        "reviewed": 196189,
+        "selective_risk": 0.14933056777942838,
+        "selective_errors": 15983,
+        "tp_total": 62540,
+        "tp_miss": 4427,
+        "tp_miss_rate": 0.07078669651423089,
+        "review_minutes_per_100_incidents": 647.0186663148869
+      },
+      {
+        "threshold": 0.55,
+        "coverage": 0.32694743090825146,
+        "covered": 99137,
+        "total": 303220,
+        "reviewed": 204083,
+        "selective_risk": 0.1240909045058858,
+        "selective_errors": 12302,
+        "tp_total": 62540,
+        "tp_miss": 3929,
+        "tp_miss_rate": 0.06282379277262552,
+        "review_minutes_per_100_incidents": 673.0525690917486
+      },
+      {
+        "threshold": 0.6,
+        "coverage": 0.30479849614141546,
+        "covered": 92421,
+        "total": 303220,
+        "reviewed": 210799,
+        "selective_risk": 0.1041213577000898,
+        "selective_errors": 9623,
+        "tp_total": 62540,
+        "tp_miss": 3523,
+        "tp_miss_rate": 0.05633194755356572,
+        "review_minutes_per_100_incidents": 695.2015038585846
+      },
+      {
+        "threshold": 0.65,
+        "coverage": 0.2859639865444232,
+        "covered": 86710,
+        "total": 303220,
+        "reviewed": 216510,
+        "selective_risk": 0.08737169876600162,
+        "selective_errors": 7576,
+        "tp_total": 62540,
+        "tp_miss": 3091,
+        "tp_miss_rate": 0.0494243684042213,
+        "review_minutes_per_100_incidents": 714.0360134555767
+      },
+      {
+        "threshold": 0.7,
+        "coverage": 0.26787151243321683,
+        "covered": 81224,
+        "total": 303220,
+        "reviewed": 221996,
+        "selective_risk": 0.07203535900718999,
+        "selective_errors": 5851,
+        "tp_total": 62540,
+        "tp_miss": 2733,
+        "tp_miss_rate": 0.0437000319795331,
+        "review_minutes_per_100_incidents": 732.1284875667832
+      },
+      {
+        "threshold": 0.75,
+        "coverage": 0.2515533276169118,
+        "covered": 76276,
+        "total": 303220,
+        "reviewed": 226944,
+        "selective_risk": 0.05983533483664587,
+        "selective_errors": 4564,
+        "tp_total": 62540,
+        "tp_miss": 2282,
+        "tp_miss_rate": 0.03648864726574992,
+        "review_minutes_per_100_incidents": 748.4466723830883
+      },
+      {
+        "threshold": 0.8,
+        "coverage": 0.2336455378932788,
+        "covered": 70846,
+        "total": 303220,
+        "reviewed": 232374,
+        "selective_risk": 0.050207492307257996,
+        "selective_errors": 3557,
+        "tp_total": 62540,
+        "tp_miss": 1811,
+        "tp_miss_rate": 0.028957467220978573,
+        "review_minutes_per_100_incidents": 766.3544621067211
+      },
+      {
+        "threshold": 0.85,
+        "coverage": 0.21870918804828177,
+        "covered": 66317,
+        "total": 303220,
+        "reviewed": 236903,
+        "selective_risk": 0.04312619690275495,
+        "selective_errors": 2860,
+        "tp_total": 62540,
+        "tp_miss": 1507,
+        "tp_miss_rate": 0.024096578189958428,
+        "review_minutes_per_100_incidents": 781.2908119517182
+      },
+      {
+        "threshold": 0.9,
+        "coverage": 0.19955148077303608,
+        "covered": 60508,
+        "total": 303220,
+        "reviewed": 242712,
+        "selective_risk": 0.037565280624049714,
+        "selective_errors": 2273,
+        "tp_total": 62540,
+        "tp_miss": 1180,
+        "tp_miss_rate": 0.018867924528301886,
+        "review_minutes_per_100_incidents": 800.4485192269639
+      },
+      {
+        "threshold": 0.95,
+        "coverage": 0.09893476683596068,
+        "covered": 29999,
+        "total": 303220,
+        "reviewed": 273221,
+        "selective_risk": 0.00980032667755592,
+        "selective_errors": 294,
+        "tp_total": 62540,
+        "tp_miss": 130,
+        "tp_miss_rate": 0.002078669651423089,
+        "review_minutes_per_100_incidents": 901.0652331640393
+      },
+      {
+        "threshold": 1.0,
+        "coverage": 0.0,
+        "covered": 0,
+        "total": 303220,
+        "reviewed": 303220,
+        "selective_risk": null,
+        "selective_errors": 0,
+        "tp_total": 62540,
+        "tp_miss": 0,
+        "tp_miss_rate": 0.0,
+        "review_minutes_per_100_incidents": 1000.0
+      }
+    ],
+    "operating_point": {
+      "threshold": 0.95,
+      "coverage": 0.09893476683596068,
+      "covered": 29999,
+      "total": 303220,
+      "reviewed": 273221,
+      "selective_risk": 0.00980032667755592,
+      "selective_errors": 294,
+      "tp_total": 62540,
+      "tp_miss": 130,
+      "tp_miss_rate": 0.002078669651423089,
+      "review_minutes_per_100_incidents": 901.0652331640393,
+      "target_coverage": 0.6,
+      "target_miss_rate": 0.01,
+      "meets_target": false,
+      "coverage_shortfall": 0.5010652331640393,
+      "miss_shortfall": 0.0,
+      "budget_minutes_per_review": 10.0
+    },
+    "budget_sensitivity": [
+      {
+        "minutes_per_review": 5.0,
+        "review_minutes_per_100_incidents": 450.53261658201967,
+        "review_hours_for_test_set": 22768.416666666668
+      },
+      {
+        "minutes_per_review": 10.0,
+        "review_minutes_per_100_incidents": 901.0652331640393,
+        "review_hours_for_test_set": 45536.833333333336
+      },
+      {
+        "minutes_per_review": 20.0,
+        "review_minutes_per_100_incidents": 1802.1304663280787,
+        "review_hours_for_test_set": 91073.66666666667
+      }
+    ],
+    "slices": {
+      "per_class": [
+        {
+          "value": "benign_positive",
+          "incidents": 148215,
+          "coverage": 0.0010120433154539015,
+          "selective_risk": 1.0,
+          "tp_cases": 0,
+          "tp_miss_rate": 0.0
+        },
+        {
+          "value": "false_positive",
+          "incidents": 92465,
+          "coverage": 0.19377061590872222,
+          "selective_risk": 0.0007813808115197856,
+          "tp_cases": 0,
+          "tp_miss_rate": 0.0
+        },
+        {
+          "value": "true_positive",
+          "incidents": 62540,
+          "coverage": 0.19078989446754077,
+          "selective_risk": 0.01089507207509219,
+          "tp_cases": 62540,
+          "tp_miss_rate": 0.002078669651423089
+        }
+      ],
+      "per_org": [
+        {
+          "value": "0",
+          "incidents": 651,
+          "coverage": 0.1336405529953917,
+          "selective_risk": 0.04597701149425287,
+          "tp_cases": 645,
+          "tp_miss_rate": 0.006201550387596899
+        },
+        {
+          "value": "1",
+          "incidents": 130,
+          "coverage": 0.2,
+          "selective_risk": 0.0,
+          "tp_cases": 105,
+          "tp_miss_rate": 0.0
+        },
+        {
+          "value": "10",
+          "incidents": 206,
+          "coverage": 0.09223300970873786,
+          "selective_risk": 0.0,
+          "tp_cases": 155,
+          "tp_miss_rate": 0.0
+        },
+        {
+          "value": "100",
+          "incidents": 134,
+          "coverage": 0.0,
+          "selective_risk": null,
+          "tp_cases": 6,
+          "tp_miss_rate": 0.0
+        },
+        {
+          "value": "1000",
+          "incidents": 41,
+          "coverage": 0.0,
+          "selective_risk": null,
+          "tp_cases": 11,
+          "tp_miss_rate": 0.0
+        },
+        {
+          "value": "1001",
+          "incidents": 91,
+          "coverage": 0.0,
+          "selective_risk": null,
+          "tp_cases": 0,
+          "tp_miss_rate": 0.0
+        },
+        {
+          "value": "1002",
+          "incidents": 19,
+          "coverage": 0.0,
+          "selective_risk": null,
+          "tp_cases": 0,
+          "tp_miss_rate": 0.0
+        },
+        {
+          "value": "1003",
+          "incidents": 35,
+          "coverage": 0.0,
+          "selective_risk": null,
+          "tp_cases": 0,
+          "tp_miss_rate": 0.0
+        },
+        {
+          "value": "1004",
+          "incidents": 41,
+          "coverage": 0.0,
+          "selective_risk": null,
+          "tp_cases": 18,
+          "tp_miss_rate": 0.0
+        },
+        {
+          "value": "1005",
+          "incidents": 20,
+          "coverage": 0.0,
+          "selective_risk": null,
+          "tp_cases": 0,
+          "tp_miss_rate": 0.0
+        },
+        {
+          "value": "1007",
+          "incidents": 17,
+          "coverage": 0.0,
+          "selective_risk": null,
+          "tp_cases": 13,
+          "tp_miss_rate": 0.0
+        },
+        {
+          "value": "1008",
+          "incidents": 17,
+          "coverage": 0.0,
+          "selective_risk": null,
+          "tp_cases": 2,
+          "tp_miss_rate": 0.0
+        },
+        {
+          "value": "1009",
+          "incidents": 36,
+          "coverage": 0.0,
+          "selective_risk": null,
+          "tp_cases": 35,
+          "tp_miss_rate": 0.0
+        },
+        {
+          "value": "101",
+          "incidents": 21,
+          "coverage": 0.047619047619047616,
+          "selective_risk": 0.0,
+          "tp_cases": 6,
+          "tp_miss_rate": 0.0
+        },
+        {
+          "value": "1010",
+          "incidents": 27,
+          "coverage": 0.0,
+          "selective_risk": null,
+          "tp_cases": 5,
+          "tp_miss_rate": 0.0
+        },
+        {
+          "value": "1011",
+          "incidents": 20,
+          "coverage": 0.05,
+          "selective_risk": 0.0,
+          "tp_cases": 20,
+          "tp_miss_rate": 0.0
+        },
+        {
+          "value": "1012",
+          "incidents": 11,
+          "coverage": 0.0,
+          "selective_risk": null,
+          "tp_cases": 2,
+          "tp_miss_rate": 0.0
+        },
+        {
+          "value": "1013",
+          "incidents": 15,
+          "coverage": 0.0,
+          "selective_risk": null,
+          "tp_cases": 0,
+          "tp_miss_rate": 0.0
+        },
+        {
+          "value": "1014",
+          "incidents": 17,
+          "coverage": 0.0,
+          "selective_risk": null,
+          "tp_cases": 0,
+          "tp_miss_rate": 0.0
+        },
+        {
+          "value": "1015",
+          "incidents": 32,
+          "coverage": 0.0,
+          "selective_risk": null,
+          "tp_cases": 13,
+          "tp_miss_rate": 0.0
+        },
+        {
+          "value": "1016",
+          "incidents": 43,
+          "coverage": 0.0,
+          "selective_risk": null,
+          "tp_cases": 8,
+          "tp_miss_rate": 0.0
+        },
+        {
+          "value": "1017",
+          "incidents": 17,
+          "coverage": 0.0,
+          "selective_risk": null,
+          "tp_cases": 15,
+          "tp_miss_rate": 0.0
+        },
+        {
+          "value": "1018",
+          "incidents": 13,
+          "coverage": 0.0,
+          "selective_risk": null,
+          "tp_cases": 1,
+          "tp_miss_rate": 0.0
+        },
+        {
+          "value": "1019",
+          "incidents": 53,
+          "coverage": 0.0,
+          "selective_risk": null,
+          "tp_cases": 0,
+          "tp_miss_rate": 0.0
+        },
+        {
+          "value": "102",
+          "incidents": 283,
+          "coverage": 0.0,
+          "selective_risk": null,
+          "tp_cases": 6,
+          "tp_miss_rate": 0.0
+        },
+        {
+          "value": "1020",
+          "incidents": 43,
+          "coverage": 0.0,
+          "selective_risk": null,
+          "tp_cases": 0,
+          "tp_miss_rate": 0.0
+        },
+        {
+          "value": "1021",
+          "incidents": 25,
+          "coverage": 0.0,
+          "selective_risk": null,
+          "tp_cases": 5,
+          "tp_miss_rate": 0.0
+        },
+        {
+          "value": "1022",
+          "incidents": 9,
+          "coverage": 0.0,
+          "selective_risk": null,
+          "tp_cases": 3,
+          "tp_miss_rate": 0.0
+        },
+        {
+          "value": "1023",
+          "incidents": 2,
+          "coverage": 0.0,
+          "selective_risk": null,
+          "tp_cases": 0,
+          "tp_miss_rate": 0.0
+        },
+        {
+          "value": "1024",
+          "incidents": 13,
+          "coverage": 0.0,
+          "selective_risk": null,
+          "tp_cases": 13,
+          "tp_miss_rate": 0.0
+        },
+        {
+          "value": "1025",
+          "incidents": 24,
+          "coverage": 0.041666666666666664,
+          "selective_risk": 0.0,
+          "tp_cases": 4,
+          "tp_miss_rate": 0.0
+        },
+        {
+          "value": "1026",
+          "incidents": 13,
+          "coverage": 0.0,
+          "selective_risk": null,
+          "tp_cases": 2,
+          "tp_miss_rate": 0.0
+        },
+        {
+          "value": "1027",
+          "incidents": 34,
+          "coverage": 0.0,
+          "selective_risk": null,
+          "tp_cases": 1,
+          "tp_miss_rate": 0.0
+        },
+        {
+          "value": "1028",
+          "incidents": 43,
+          "coverage": 0.0,
+          "selective_risk": null,
+          "tp_cases": 2,
+          "tp_miss_rate": 0.0
+        },
+        {
+          "value": "1029",
+          "incidents": 25,
+          "coverage": 0.0,
+          "selective_risk": null,
+          "tp_cases": 0,
+          "tp_miss_rate": 0.0
+        },
+        {
+          "value": "103",
+          "incidents": 297,
+          "coverage": 0.0,
+          "selective_risk": null,
+          "tp_cases": 3,
+          "tp_miss_rate": 0.0
+        },
+        {
+          "value": "1030",
+          "incidents": 55,
+          "coverage": 0.0,
+          "selective_risk": null,
+          "tp_cases": 11,
+          "tp_miss_rate": 0.0
+        },
+        {
+          "value": "1031",
+          "incidents": 24,
+          "coverage": 0.041666666666666664,
+          "selective_risk": 0.0,
+          "tp_cases": 18,
+          "tp_miss_rate": 0.0
+        },
+        {
+          "value": "1032",
+          "incidents": 24,
+          "coverage": 0.125,
+          "selective_risk": 0.0,
+          "tp_cases": 0,
+          "tp_miss_rate": 0.0
+        },
+        {
+          "value": "1033",
+          "incidents": 54,
+          "coverage": 0.037037037037037035,
+          "selective_risk": 0.5,
+          "tp_cases": 2,
+          "tp_miss_rate": 0.5
+        },
+        {
+          "value": "1034",
+          "incidents": 42,
+          "coverage": 0.0,
+          "selective_risk": null,
+          "tp_cases": 42,
+          "tp_miss_rate": 0.0
+        },
+        {
+          "value": "1035",
+          "incidents": 39,
+          "coverage": 0.1794871794871795,
+          "selective_risk": 0.7142857142857143,
+          "tp_cases": 0,
+          "tp_miss_rate": 0.0
+        },
+        {
+          "value": "1036",
+          "incidents": 25,
+          "coverage": 0.0,
+          "selective_risk": null,
+          "tp_cases": 2,
+          "tp_miss_rate": 0.0
+        },
+        {
+          "value": "1037",
+          "incidents": 51,
+          "coverage": 0.0,
+          "selective_risk": null,
+          "tp_cases": 1,
+          "tp_miss_rate": 0.0
+        },
+        {
+          "value": "1038",
+          "incidents": 65,
+          "coverage": 0.015384615384615385,
+          "selective_risk": 0.0,
+          "tp_cases": 13,
+          "tp_miss_rate": 0.0
+        },
+        {
+          "value": "1039",
+          "incidents": 68,
+          "coverage": 0.0,
+          "selective_risk": null,
+          "tp_cases": 5,
+          "tp_miss_rate": 0.0
+        },
+        {
+          "value": "104",
+          "incidents": 42,
+          "coverage": 0.0,
+          "selective_risk": null,
+          "tp_cases": 0,
+          "tp_miss_rate": 0.0
+        },
+        {
+          "value": "1040",
+          "incidents": 21,
+          "coverage": 0.0,
+          "selective_risk": null,
+          "tp_cases": 11,
+          "tp_miss_rate": 0.0
+        },
+        {
+          "value": "1041",
+          "incidents": 34,
+          "coverage": 0.0,
+          "selective_risk": null,
+          "tp_cases": 7,
+          "tp_miss_rate": 0.0
+        },
+        {
+          "value": "1042",
+          "incidents": 52,
+          "coverage": 0.057692307692307696,
+          "selective_risk": 0.0,
+          "tp_cases": 46,
+          "tp_miss_rate": 0.0
+        }
+      ]
+    }
+  },
+  "full_system": {
+    "metrics": {
+      "accuracy": 0.6966666666666667,
+      "macro_f1": 0.6927108939940251,
+      "macro_f1_ci95": [
+        0.6606261701400608,
+        0.7302420322819065
+      ],
+      "accuracy_ci95": [
+        0.6649583333333333,
+        0.733375
+      ]
+    },
+    "curve": [
+      {
+        "threshold": 0.5,
+        "coverage": 0.15,
+        "covered": 90,
+        "total": 600,
+        "reviewed": 510,
+        "selective_risk": 0.022222222222222223,
+        "selective_errors": 2,
+        "tp_total": 200,
+        "tp_miss": 0,
+        "tp_miss_rate": 0.0,
+        "review_minutes_per_100_incidents": 850.0
+      },
+      {
+        "threshold": 0.55,
+        "coverage": 0.15,
+        "covered": 90,
+        "total": 600,
+        "reviewed": 510,
+        "selective_risk": 0.022222222222222223,
+        "selective_errors": 2,
+        "tp_total": 200,
+        "tp_miss": 0,
+        "tp_miss_rate": 0.0,
+        "review_minutes_per_100_incidents": 850.0
+      },
+      {
+        "threshold": 0.6,
+        "coverage": 0.15,
+        "covered": 90,
+        "total": 600,
+        "reviewed": 510,
+        "selective_risk": 0.022222222222222223,
+        "selective_errors": 2,
+        "tp_total": 200,
+        "tp_miss": 0,
+        "tp_miss_rate": 0.0,
+        "review_minutes_per_100_incidents": 850.0
+      },
+      {
+        "threshold": 0.65,
+        "coverage": 0.15,
+        "covered": 90,
+        "total": 600,
+        "reviewed": 510,
+        "selective_risk": 0.022222222222222223,
+        "selective_errors": 2,
+        "tp_total": 200,
+        "tp_miss": 0,
+        "tp_miss_rate": 0.0,
+        "review_minutes_per_100_incidents": 850.0
+      },
+      {
+        "threshold": 0.7,
+        "coverage": 0.14833333333333334,
+        "covered": 89,
+        "total": 600,
+        "reviewed": 511,
+        "selective_risk": 0.02247191011235955,
+        "selective_errors": 2,
+        "tp_total": 200,
+        "tp_miss": 0,
+        "tp_miss_rate": 0.0,
+        "review_minutes_per_100_incidents": 851.6666666666667
+      },
+      {
+        "threshold": 0.75,
+        "coverage": 0.13666666666666666,
+        "covered": 82,
+        "total": 600,
+        "reviewed": 518,
+        "selective_risk": 0.024390243902439025,
+        "selective_errors": 2,
+        "tp_total": 200,
+        "tp_miss": 0,
+        "tp_miss_rate": 0.0,
+        "review_minutes_per_100_incidents": 863.3333333333333
+      },
+      {
+        "threshold": 0.8,
+        "coverage": 0.12833333333333333,
+        "covered": 77,
+        "total": 600,
+        "reviewed": 523,
+        "selective_risk": 0.012987012987012988,
+        "selective_errors": 1,
+        "tp_total": 200,
+        "tp_miss": 0,
+        "tp_miss_rate": 0.0,
+        "review_minutes_per_100_incidents": 871.6666666666666
+      },
+      {
+        "threshold": 0.85,
+        "coverage": 0.115,
+        "covered": 69,
+        "total": 600,
+        "reviewed": 531,
+        "selective_risk": 0.0,
+        "selective_errors": 0,
+        "tp_total": 200,
+        "tp_miss": 0,
+        "tp_miss_rate": 0.0,
+        "review_minutes_per_100_incidents": 885.0
+      },
+      {
+        "threshold": 0.9,
+        "coverage": 0.10833333333333334,
+        "covered": 65,
+        "total": 600,
+        "reviewed": 535,
+        "selective_risk": 0.0,
+        "selective_errors": 0,
+        "tp_total": 200,
+        "tp_miss": 0,
+        "tp_miss_rate": 0.0,
+        "review_minutes_per_100_incidents": 891.6666666666666
+      },
+      {
+        "threshold": 0.95,
+        "coverage": 0.08666666666666667,
+        "covered": 52,
+        "total": 600,
+        "reviewed": 548,
+        "selective_risk": 0.0,
+        "selective_errors": 0,
+        "tp_total": 200,
+        "tp_miss": 0,
+        "tp_miss_rate": 0.0,
+        "review_minutes_per_100_incidents": 913.3333333333333
+      },
+      {
+        "threshold": 1.0,
+        "coverage": 0.0,
+        "covered": 0,
+        "total": 600,
+        "reviewed": 600,
+        "selective_risk": null,
+        "selective_errors": 0,
+        "tp_total": 200,
+        "tp_miss": 0,
+        "tp_miss_rate": 0.0,
+        "review_minutes_per_100_incidents": 1000.0
+      }
+    ],
+    "operating_point": {
+      "threshold": 0.5,
+      "coverage": 0.15,
+      "covered": 90,
+      "total": 600,
+      "reviewed": 510,
+      "selective_risk": 0.022222222222222223,
+      "selective_errors": 2,
+      "tp_total": 200,
+      "tp_miss": 0,
+      "tp_miss_rate": 0.0,
+      "review_minutes_per_100_incidents": 850.0,
+      "target_coverage": 0.6,
+      "target_miss_rate": 0.01,
+      "meets_target": false,
+      "coverage_shortfall": 0.44999999999999996,
+      "miss_shortfall": 0.0,
+      "budget_minutes_per_review": 10.0
+    },
+    "budget_sensitivity": [
+      {
+        "minutes_per_review": 5.0,
+        "review_minutes_per_100_incidents": 425.0,
+        "review_hours_for_test_set": 42.5
+      },
+      {
+        "minutes_per_review": 10.0,
+        "review_minutes_per_100_incidents": 850.0,
+        "review_hours_for_test_set": 85.0
+      },
+      {
+        "minutes_per_review": 20.0,
+        "review_minutes_per_100_incidents": 1700.0,
+        "review_hours_for_test_set": 170.0
+      }
+    ],
+    "schema_valid": 600,
+    "cases": 600,
+    "mean_tool_calls": 5.0,
+    "needs_human": 432,
+    "routes": {
+      "agent": 450,
+      "human": 65,
+      "auto_escalate": 57,
+      "auto_close": 28
+    }
+  },
+  "classifier_subset": {
+    "metrics": {
+      "accuracy": 0.7016666666666667,
+      "macro_f1": 0.6946167796692838,
+      "macro_f1_ci95": [
+        0.6625976332552191,
+        0.7331887721982147
+      ],
+      "accuracy_ci95": [
+        0.6716249999999999,
+        0.74
+      ]
+    },
+    "curve": [
+      {
+        "threshold": 0.5,
+        "coverage": 0.4083333333333333,
+        "covered": 245,
+        "total": 600,
+        "reviewed": 355,
+        "selective_risk": 0.12653061224489795,
+        "selective_errors": 31,
+        "tp_total": 200,
+        "tp_miss": 13,
+        "tp_miss_rate": 0.065,
+        "review_minutes_per_100_incidents": 591.6666666666667
+      },
+      {
+        "threshold": 0.55,
+        "coverage": 0.375,
+        "covered": 225,
+        "total": 600,
+        "reviewed": 375,
+        "selective_risk": 0.1111111111111111,
+        "selective_errors": 25,
+        "tp_total": 200,
+        "tp_miss": 11,
+        "tp_miss_rate": 0.055,
+        "review_minutes_per_100_incidents": 625.0
+      },
+      {
+        "threshold": 0.6,
+        "coverage": 0.3466666666666667,
+        "covered": 208,
+        "total": 600,
+        "reviewed": 392,
+        "selective_risk": 0.07692307692307693,
+        "selective_errors": 16,
+        "tp_total": 200,
+        "tp_miss": 8,
+        "tp_miss_rate": 0.04,
+        "review_minutes_per_100_incidents": 653.3333333333334
+      },
+      {
+        "threshold": 0.65,
+        "coverage": 0.33166666666666667,
+        "covered": 199,
+        "total": 600,
+        "reviewed": 401,
+        "selective_risk": 0.05527638190954774,
+        "selective_errors": 11,
+        "tp_total": 200,
+        "tp_miss": 7,
+        "tp_miss_rate": 0.035,
+        "review_minutes_per_100_incidents": 668.3333333333334
+      },
+      {
+        "threshold": 0.7,
+        "coverage": 0.31166666666666665,
+        "covered": 187,
+        "total": 600,
+        "reviewed": 413,
+        "selective_risk": 0.0481283422459893,
+        "selective_errors": 9,
+        "tp_total": 200,
+        "tp_miss": 7,
+        "tp_miss_rate": 0.035,
+        "review_minutes_per_100_incidents": 688.3333333333334
+      },
+      {
+        "threshold": 0.75,
+        "coverage": 0.2916666666666667,
+        "covered": 175,
+        "total": 600,
+        "reviewed": 425,
+        "selective_risk": 0.045714285714285714,
+        "selective_errors": 8,
+        "tp_total": 200,
+        "tp_miss": 6,
+        "tp_miss_rate": 0.03,
+        "review_minutes_per_100_incidents": 708.3333333333333
+      },
+      {
+        "threshold": 0.8,
+        "coverage": 0.27,
+        "covered": 162,
+        "total": 600,
+        "reviewed": 438,
+        "selective_risk": 0.030864197530864196,
+        "selective_errors": 5,
+        "tp_total": 200,
+        "tp_miss": 4,
+        "tp_miss_rate": 0.02,
+        "review_minutes_per_100_incidents": 730.0
+      },
+      {
+        "threshold": 0.85,
+        "coverage": 0.24333333333333335,
+        "covered": 146,
+        "total": 600,
+        "reviewed": 454,
+        "selective_risk": 0.0273972602739726,
+        "selective_errors": 4,
+        "tp_total": 200,
+        "tp_miss": 4,
+        "tp_miss_rate": 0.02,
+        "review_minutes_per_100_incidents": 756.6666666666666
+      },
+      {
+        "threshold": 0.9,
+        "coverage": 0.22166666666666668,
+        "covered": 133,
+        "total": 600,
+        "reviewed": 467,
+        "selective_risk": 0.022556390977443608,
+        "selective_errors": 3,
+        "tp_total": 200,
+        "tp_miss": 3,
+        "tp_miss_rate": 0.015,
+        "review_minutes_per_100_incidents": 778.3333333333334
+      },
+      {
+        "threshold": 0.95,
+        "coverage": 0.12,
+        "covered": 72,
+        "total": 600,
+        "reviewed": 528,
+        "selective_risk": 0.027777777777777776,
+        "selective_errors": 2,
+        "tp_total": 200,
+        "tp_miss": 2,
+        "tp_miss_rate": 0.01,
+        "review_minutes_per_100_incidents": 880.0000000000001
+      },
+      {
+        "threshold": 1.0,
+        "coverage": 0.0,
+        "covered": 0,
+        "total": 600,
+        "reviewed": 600,
+        "selective_risk": null,
+        "selective_errors": 0,
+        "tp_total": 200,
+        "tp_miss": 0,
+        "tp_miss_rate": 0.0,
+        "review_minutes_per_100_incidents": 1000.0
+      }
+    ],
+    "operating_point": {
+      "threshold": 0.95,
+      "coverage": 0.12,
+      "covered": 72,
+      "total": 600,
+      "reviewed": 528,
+      "selective_risk": 0.027777777777777776,
+      "selective_errors": 2,
+      "tp_total": 200,
+      "tp_miss": 2,
+      "tp_miss_rate": 0.01,
+      "review_minutes_per_100_incidents": 880.0000000000001,
+      "target_coverage": 0.6,
+      "target_miss_rate": 0.01,
+      "meets_target": false,
+      "coverage_shortfall": 0.48,
+      "miss_shortfall": 0.0,
+      "budget_minutes_per_review": 10.0
+    }
+  },
+  "rag_proxy": {
+    "metrics": {
+      "accuracy": 0.49666666666666665,
+      "macro_f1": 0.49792395506082815,
+      "macro_f1_ci95": [
+        0.4631946958181183,
+        0.5312111818527111
+      ],
+      "accuracy_ci95": [
+        0.461625,
+        0.53
+      ]
+    },
+    "curve": [
+      {
+        "threshold": 0.5,
+        "coverage": 0.46,
+        "covered": 276,
+        "total": 600,
+        "reviewed": 324,
+        "selective_risk": 0.40942028985507245,
+        "selective_errors": 113,
+        "tp_total": 200,
+        "tp_miss": 38,
+        "tp_miss_rate": 0.19,
+        "review_minutes_per_100_incidents": 540.0
+      },
+      {
+        "threshold": 0.55,
+        "coverage": 0.24833333333333332,
+        "covered": 149,
+        "total": 600,
+        "reviewed": 451,
+        "selective_risk": 0.30201342281879195,
+        "selective_errors": 45,
+        "tp_total": 200,
+        "tp_miss": 5,
+        "tp_miss_rate": 0.025,
+        "review_minutes_per_100_incidents": 751.6666666666667
+      },
+      {
+        "threshold": 0.6,
+        "coverage": 0.23,
+        "covered": 138,
+        "total": 600,
+        "reviewed": 462,
+        "selective_risk": 0.3188405797101449,
+        "selective_errors": 44,
+        "tp_total": 200,
+        "tp_miss": 5,
+        "tp_miss_rate": 0.025,
+        "review_minutes_per_100_incidents": 770.0
+      },
+      {
+        "threshold": 0.65,
+        "coverage": 0.21666666666666667,
+        "covered": 130,
+        "total": 600,
+        "reviewed": 470,
+        "selective_risk": 0.3,
+        "selective_errors": 39,
+        "tp_total": 200,
+        "tp_miss": 1,
+        "tp_miss_rate": 0.005,
+        "review_minutes_per_100_incidents": 783.3333333333333
+      },
+      {
+        "threshold": 0.7,
+        "coverage": 0.10333333333333333,
+        "covered": 62,
+        "total": 600,
+        "reviewed": 538,
+        "selective_risk": 0.06451612903225806,
+        "selective_errors": 4,
+        "tp_total": 200,
+        "tp_miss": 0,
+        "tp_miss_rate": 0.0,
+        "review_minutes_per_100_incidents": 896.6666666666666
+      },
+      {
+        "threshold": 0.75,
+        "coverage": 0.09833333333333333,
+        "covered": 59,
+        "total": 600,
+        "reviewed": 541,
+        "selective_risk": 0.06779661016949153,
+        "selective_errors": 4,
+        "tp_total": 200,
+        "tp_miss": 0,
+        "tp_miss_rate": 0.0,
+        "review_minutes_per_100_incidents": 901.6666666666665
+      },
+      {
+        "threshold": 0.8,
+        "coverage": 0.09,
+        "covered": 54,
+        "total": 600,
+        "reviewed": 546,
+        "selective_risk": 0.037037037037037035,
+        "selective_errors": 2,
+        "tp_total": 200,
+        "tp_miss": 0,
+        "tp_miss_rate": 0.0,
+        "review_minutes_per_100_incidents": 910.0
+      },
+      {
+        "threshold": 0.85,
+        "coverage": 0.07166666666666667,
+        "covered": 43,
+        "total": 600,
+        "reviewed": 557,
+        "selective_risk": 0.046511627906976744,
+        "selective_errors": 2,
+        "tp_total": 200,
+        "tp_miss": 0,
+        "tp_miss_rate": 0.0,
+        "review_minutes_per_100_incidents": 928.3333333333334
+      },
+      {
+        "threshold": 0.9,
+        "coverage": 0.05,
+        "covered": 30,
+        "total": 600,
+        "reviewed": 570,
+        "selective_risk": 0.03333333333333333,
+        "selective_errors": 1,
+        "tp_total": 200,
+        "tp_miss": 0,
+        "tp_miss_rate": 0.0,
+        "review_minutes_per_100_incidents": 950.0
+      },
+      {
+        "threshold": 0.95,
+        "coverage": 0.03833333333333333,
+        "covered": 23,
+        "total": 600,
+        "reviewed": 577,
+        "selective_risk": 0.043478260869565216,
+        "selective_errors": 1,
+        "tp_total": 200,
+        "tp_miss": 0,
+        "tp_miss_rate": 0.0,
+        "review_minutes_per_100_incidents": 961.6666666666667
+      },
+      {
+        "threshold": 1.0,
+        "coverage": 0.03833333333333333,
+        "covered": 23,
+        "total": 600,
+        "reviewed": 577,
+        "selective_risk": 0.043478260869565216,
+        "selective_errors": 1,
+        "tp_total": 200,
+        "tp_miss": 0,
+        "tp_miss_rate": 0.0,
+        "review_minutes_per_100_incidents": 961.6666666666667
+      }
+    ],
+    "operating_point": {
+      "threshold": 0.65,
+      "coverage": 0.21666666666666667,
+      "covered": 130,
+      "total": 600,
+      "reviewed": 470,
+      "selective_risk": 0.3,
+      "selective_errors": 39,
+      "tp_total": 200,
+      "tp_miss": 1,
+      "tp_miss_rate": 0.005,
+      "review_minutes_per_100_incidents": 783.3333333333333,
+      "target_coverage": 0.6,
+      "target_miss_rate": 0.01,
+      "meets_target": false,
+      "coverage_shortfall": 0.3833333333333333,
+      "miss_shortfall": 0.0,
+      "budget_minutes_per_review": 10.0
+    },
+    "status": "deterministic retrieval vote proxy, not an LLM"
+  },
+  "zero_shot": {
+    "status": "not measured",
+    "reason": "No hosted LLM backend is configured; no result is reported."
+  },
+  "retrieval": {
+    "queries": 100,
+    "gold": "structured-overlap proxy; not human relevance labels",
+    "smoke": {
+      "queries": 20,
+      "passed": 19,
+      "rows": [
+        {
+          "incident_id": "335:167523",
+          "incident_citation": true,
+          "playbook_citation": true,
+          "passed": true
+        },
+        {
+          "incident_id": "107:141755",
+          "incident_citation": true,
+          "playbook_citation": true,
+          "passed": true
+        },
+        {
+          "incident_id": "172:70796",
+          "incident_citation": true,
+          "playbook_citation": true,
+          "passed": true
+        },
+        {
+          "incident_id": "26:116121",
+          "incident_citation": true,
+          "playbook_citation": true,
+          "passed": true
+        },
+        {
+          "incident_id": "329:97871",
+          "incident_citation": true,
+          "playbook_citation": true,
+          "passed": true
+        },
+        {
+          "incident_id": "98:347242",
+          "incident_citation": true,
+          "playbook_citation": true,
+          "passed": true
+        },
+        {
+          "incident_id": "284:357828",
+          "incident_citation": true,
+          "playbook_citation": true,
+          "passed": true
+        },
+        {
+          "incident_id": "4:2846",
+          "incident_citation": true,
+          "playbook_citation": true,
+          "passed": true
+        },
+        {
+          "incident_id": "267:328628",
+          "incident_citation": true,
+          "playbook_citation": true,
+          "passed": true
+        },
+        {
+          "incident_id": "150:182898",
+          "incident_citation": true,
+          "playbook_citation": true,
+          "passed": true
+        },
+        {
+          "incident_id": "24:460656",
+          "incident_citation": true,
+          "playbook_citation": true,
+          "passed": true
+        },
+        {
+          "incident_id": "402:9598",
+          "incident_citation": true,
+          "playbook_citation": true,
+          "passed": true
+        },
+        {
+          "incident_id": "17:224856",
+          "incident_citation": false,
+          "playbook_citation": false,
+          "passed": false
+        },
+        {
+          "incident_id": "643:72688",
+          "incident_citation": true,
+          "playbook_citation": true,
+          "passed": true
+        },
+        {
+          "incident_id": "308:10965",
+          "incident_citation": true,
+          "playbook_citation": true,
+          "passed": true
+        },
+        {
+          "incident_id": "10:74629",
+          "incident_citation": true,
+          "playbook_citation": true,
+          "passed": true
+        },
+        {
+          "incident_id": "1786:138814",
+          "incident_citation": true,
+          "playbook_citation": true,
+          "passed": true
+        },
+        {
+          "incident_id": "467:37030",
+          "incident_citation": true,
+          "playbook_citation": true,
+          "passed": true
+        },
+        {
+          "incident_id": "38:456922",
+          "incident_citation": true,
+          "playbook_citation": true,
+          "passed": true
+        },
+        {
+          "incident_id": "2250:103787",
+          "incident_citation": true,
+          "playbook_citation": true,
+          "passed": true
+        }
+      ]
+    },
+    "ablations": {
+      "bm25": {
+        "incident": {
+          "recall@5": 0.4066666666666668,
+          "recall@10": 0.6833333333333331,
+          "ndcg@10": 0.4917833519025092,
+          "mrr": 0.5322896825396825
+        },
+        "playbook": {
+          "recall@5": 0.3066666666666666,
+          "recall@10": 0.6216666666666666
+        },
+        "playbook_queries": 100,
+        "median_latency_ms": 22.434049999901617,
+        "queries": 100
+      },
+      "dense": {
+        "incident": {
+          "recall@5": 0.30666666666666664,
+          "recall@10": 0.6066666666666666,
+          "ndcg@10": 0.43984078495644197,
+          "mrr": 0.5035
+        },
+        "playbook": {
+          "recall@5": 0.5133333333333333,
+          "recall@10": 0.6758333333333333
+        },
+        "playbook_queries": 100,
+        "median_latency_ms": 6.34980000086216,
+        "queries": 100
+      },
+      "hybrid": {
+        "incident": {
+          "recall@5": 0.4266666666666667,
+          "recall@10": 0.6733333333333336,
+          "ndcg@10": 0.5013168084705444,
+          "mrr": 0.5747301587301588
+        },
+        "playbook": {
+          "recall@5": 0.4216666666666667,
+          "recall@10": 0.6750000000000002
+        },
+        "playbook_queries": 100,
+        "median_latency_ms": 34.999399998923764,
+        "queries": 100
+      },
+      "hybrid_rerank": {
+        "incident": {
+          "recall@5": 0.31666666666666665,
+          "recall@10": 0.5066666666666666,
+          "ndcg@10": 0.36538671851765747,
+          "mrr": 0.4263470418470419
+        },
+        "playbook": {
+          "recall@5": 0.3233333333333333,
+          "recall@10": 0.6225,
+          "ndcg@10": 0.4149411304161761,
+          "mrr": 0.42991666666666667
+        },
+        "playbook_queries": 100,
+        "median_latency_ms": 832.8534499987654,
+        "queries": 100,
+        "candidate_k": 20
+      }
+    }
+  },
+  "queue_ranking": {
+    "rows": 9980,
+    "orgs": 499,
+    "model_p_at_5": 0.3226452905811623,
+    "model_p_at_10": 0.2801603206412826,
+    "model_p_at_20": 0.2219438877755511,
+    "analyst_p_at_5": 0.22685370741482966,
+    "analyst_p_at_10": 0.2216432865731463,
+    "analyst_p_at_20": 0.2219438877755511,
+    "model_ndcg_at_10": 0.6877381928660624,
+    "analyst_ndcg_at_10": 0.5191664966769575,
+    "model_capture_at_2": 0.2563005876859145,
+    "analyst_capture_at_2": 0.16642495513306912,
+    "status": "measured"
+  },
+  "error_taxonomy": {
+    "errors": 182,
+    "labeled": 100,
+    "limit": 100,
+    "counts": {
+      "label_ambiguity": 33,
+      "missing_evidence": 0,
+      "retrieval_miss": 0,
+      "retrieval_noise": 49,
+      "reasoning_error": 82,
+      "citation_error": 0,
+      "schema_error": 0,
+      "abstention_error": 6,
+      "overconfidence": 12,
+      "tool_failure": 0
+    },
+    "examples": {
+      "abstention_error": [
+        {
+          "case_id": "w4:19:33744",
+          "incident_id": "19:33744",
+          "expected_label": "true_positive",
+          "predicted_label": "undetermined",
+          "route": "human",
+          "confidence": 0.35755731079416025,
+          "category": "abstention_error",
+          "needs_human": true
+        },
+        {
+          "case_id": "w4:200:142924",
+          "incident_id": "200:142924",
+          "expected_label": "false_positive",
+          "predicted_label": "undetermined",
+          "route": "human",
+          "confidence": 0.38130585273724116,
+          "category": "abstention_error",
+          "needs_human": true
+        },
+        {
+          "case_id": "w4:2279:67921",
+          "incident_id": "2279:67921",
+          "expected_label": "false_positive",
+          "predicted_label": "undetermined",
+          "route": "human",
+          "confidence": 0.39983136559032784,
+          "category": "abstention_error",
+          "needs_human": true
+        }
+      ],
+      "label_ambiguity": [
+        {
+          "case_id": "w4:106:110192",
+          "incident_id": "106:110192",
+          "expected_label": "false_positive",
+          "predicted_label": "benign_positive",
+          "route": "agent",
+          "confidence": 0.7083148710976201,
+          "category": "label_ambiguity",
+          "needs_human": true
+        },
+        {
+          "case_id": "w4:1092:39163",
+          "incident_id": "1092:39163",
+          "expected_label": "false_positive",
+          "predicted_label": "benign_positive",
+          "route": "human",
+          "confidence": 0.42293620077836624,
+          "category": "label_ambiguity",
+          "needs_human": true
+        },
+        {
+          "case_id": "w4:1375:92412",
+          "incident_id": "1375:92412",
+          "expected_label": "false_positive",
+          "predicted_label": "benign_positive",
+          "route": "agent",
+          "confidence": 0.7288245616548386,
+          "category": "label_ambiguity",
+          "needs_human": true
+        }
+      ],
+      "overconfidence": [
+        {
+          "case_id": "w4:0:342657",
+          "incident_id": "0:342657",
+          "expected_label": "true_positive",
+          "predicted_label": "false_positive",
+          "route": "agent",
+          "confidence": 0.9078707367021861,
+          "category": "overconfidence",
+          "needs_human": true
+        },
+        {
+          "case_id": "w4:1144:58492",
+          "incident_id": "1144:58492",
+          "expected_label": "false_positive",
+          "predicted_label": "true_positive",
+          "route": "auto_escalate",
+          "confidence": 0.8090143358534276,
+          "category": "overconfidence",
+          "needs_human": false
+        },
+        {
+          "case_id": "w4:114:26258",
+          "incident_id": "114:26258",
+          "expected_label": "false_positive",
+          "predicted_label": "benign_positive",
+          "route": "agent",
+          "confidence": 0.8552991075387116,
+          "category": "overconfidence",
+          "needs_human": true
+        }
+      ],
+      "reasoning_error": [
+        {
+          "case_id": "w4:1031:176294",
+          "incident_id": "1031:176294",
+          "expected_label": "true_positive",
+          "predicted_label": "benign_positive",
+          "route": "agent",
+          "confidence": 0.7157949767975008,
+          "category": "reasoning_error",
+          "needs_human": true
+        },
+        {
+          "case_id": "w4:1039:13753",
+          "incident_id": "1039:13753",
+          "expected_label": "benign_positive",
+          "predicted_label": "true_positive",
+          "route": "human",
+          "confidence": 0.49290275862998056,
+          "category": "reasoning_error",
+          "needs_human": true
+        },
+        {
+          "case_id": "w4:107:89875",
+          "incident_id": "107:89875",
+          "expected_label": "true_positive",
+          "predicted_label": "benign_positive",
+          "route": "agent",
+          "confidence": 0.7263370624923404,
+          "category": "reasoning_error",
+          "needs_human": true
+        }
+      ]
+    },
+    "rows": [
+      {
+        "case_id": "w4:19:33744",
+        "incident_id": "19:33744",
+        "expected_label": "true_positive",
+        "predicted_label": "undetermined",
+        "route": "human",
+        "confidence": 0.35755731079416025,
+        "category": "abstention_error",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:200:142924",
+        "incident_id": "200:142924",
+        "expected_label": "false_positive",
+        "predicted_label": "undetermined",
+        "route": "human",
+        "confidence": 0.38130585273724116,
+        "category": "abstention_error",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:2279:67921",
+        "incident_id": "2279:67921",
+        "expected_label": "false_positive",
+        "predicted_label": "undetermined",
+        "route": "human",
+        "confidence": 0.39983136559032784,
+        "category": "abstention_error",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:2349:20952",
+        "incident_id": "2349:20952",
+        "expected_label": "benign_positive",
+        "predicted_label": "undetermined",
+        "route": "human",
+        "confidence": 0.3809762187077742,
+        "category": "abstention_error",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:371:173913",
+        "incident_id": "371:173913",
+        "expected_label": "true_positive",
+        "predicted_label": "undetermined",
+        "route": "human",
+        "confidence": 0.38144070275685943,
+        "category": "abstention_error",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:741:47335",
+        "incident_id": "741:47335",
+        "expected_label": "true_positive",
+        "predicted_label": "undetermined",
+        "route": "human",
+        "confidence": 0.39568007028693036,
+        "category": "abstention_error",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:106:110192",
+        "incident_id": "106:110192",
+        "expected_label": "false_positive",
+        "predicted_label": "benign_positive",
+        "route": "agent",
+        "confidence": 0.7083148710976201,
+        "category": "label_ambiguity",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:1092:39163",
+        "incident_id": "1092:39163",
+        "expected_label": "false_positive",
+        "predicted_label": "benign_positive",
+        "route": "human",
+        "confidence": 0.42293620077836624,
+        "category": "label_ambiguity",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:1375:92412",
+        "incident_id": "1375:92412",
+        "expected_label": "false_positive",
+        "predicted_label": "benign_positive",
+        "route": "agent",
+        "confidence": 0.7288245616548386,
+        "category": "label_ambiguity",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:159:53157",
+        "incident_id": "159:53157",
+        "expected_label": "false_positive",
+        "predicted_label": "benign_positive",
+        "route": "agent",
+        "confidence": 0.5160220323964547,
+        "category": "label_ambiguity",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:17:814",
+        "incident_id": "17:814",
+        "expected_label": "false_positive",
+        "predicted_label": "benign_positive",
+        "route": "human",
+        "confidence": 0.49560565390764266,
+        "category": "label_ambiguity",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:184:183761",
+        "incident_id": "184:183761",
+        "expected_label": "false_positive",
+        "predicted_label": "benign_positive",
+        "route": "agent",
+        "confidence": 0.5473356166157659,
+        "category": "label_ambiguity",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:18:387776",
+        "incident_id": "18:387776",
+        "expected_label": "false_positive",
+        "predicted_label": "benign_positive",
+        "route": "agent",
+        "confidence": 0.5629483255200378,
+        "category": "label_ambiguity",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:18:388326",
+        "incident_id": "18:388326",
+        "expected_label": "false_positive",
+        "predicted_label": "benign_positive",
+        "route": "agent",
+        "confidence": 0.5945983598492492,
+        "category": "label_ambiguity",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:1910:19268",
+        "incident_id": "1910:19268",
+        "expected_label": "false_positive",
+        "predicted_label": "benign_positive",
+        "route": "human",
+        "confidence": 0.43675763803467543,
+        "category": "label_ambiguity",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:220:38612",
+        "incident_id": "220:38612",
+        "expected_label": "false_positive",
+        "predicted_label": "benign_positive",
+        "route": "agent",
+        "confidence": 0.7408223727522502,
+        "category": "label_ambiguity",
+        "needs_human": false
+      },
+      {
+        "case_id": "w4:220:74343",
+        "incident_id": "220:74343",
+        "expected_label": "false_positive",
+        "predicted_label": "benign_positive",
+        "route": "agent",
+        "confidence": 0.7790451669669252,
+        "category": "label_ambiguity",
+        "needs_human": false
+      },
+      {
+        "case_id": "w4:221:84732",
+        "incident_id": "221:84732",
+        "expected_label": "false_positive",
+        "predicted_label": "benign_positive",
+        "route": "human",
+        "confidence": 0.4626618562208852,
+        "category": "label_ambiguity",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:251:189011",
+        "incident_id": "251:189011",
+        "expected_label": "false_positive",
+        "predicted_label": "benign_positive",
+        "route": "agent",
+        "confidence": 0.7153036472658686,
+        "category": "label_ambiguity",
+        "needs_human": false
+      },
+      {
+        "case_id": "w4:251:205399",
+        "incident_id": "251:205399",
+        "expected_label": "false_positive",
+        "predicted_label": "benign_positive",
+        "route": "agent",
+        "confidence": 0.5395478309671621,
+        "category": "label_ambiguity",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:252:162367",
+        "incident_id": "252:162367",
+        "expected_label": "false_positive",
+        "predicted_label": "benign_positive",
+        "route": "agent",
+        "confidence": 0.5355172611437296,
+        "category": "label_ambiguity",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:37:77464",
+        "incident_id": "37:77464",
+        "expected_label": "false_positive",
+        "predicted_label": "benign_positive",
+        "route": "agent",
+        "confidence": 0.6389125583988908,
+        "category": "label_ambiguity",
+        "needs_human": false
+      },
+      {
+        "case_id": "w4:383:172454",
+        "incident_id": "383:172454",
+        "expected_label": "false_positive",
+        "predicted_label": "benign_positive",
+        "route": "agent",
+        "confidence": 0.5957243408785244,
+        "category": "label_ambiguity",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:408:284474",
+        "incident_id": "408:284474",
+        "expected_label": "benign_positive",
+        "predicted_label": "false_positive",
+        "route": "human",
+        "confidence": 0.46271447157147566,
+        "category": "label_ambiguity",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:45:168705",
+        "incident_id": "45:168705",
+        "expected_label": "false_positive",
+        "predicted_label": "benign_positive",
+        "route": "agent",
+        "confidence": 0.5637917636968491,
+        "category": "label_ambiguity",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:45:531627",
+        "incident_id": "45:531627",
+        "expected_label": "false_positive",
+        "predicted_label": "benign_positive",
+        "route": "agent",
+        "confidence": 0.5349104236552812,
+        "category": "label_ambiguity",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:45:59713",
+        "incident_id": "45:59713",
+        "expected_label": "false_positive",
+        "predicted_label": "benign_positive",
+        "route": "human",
+        "confidence": 0.41680117662954425,
+        "category": "label_ambiguity",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:45:67606",
+        "incident_id": "45:67606",
+        "expected_label": "false_positive",
+        "predicted_label": "benign_positive",
+        "route": "agent",
+        "confidence": 0.5140571587722313,
+        "category": "label_ambiguity",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:45:97581",
+        "incident_id": "45:97581",
+        "expected_label": "false_positive",
+        "predicted_label": "benign_positive",
+        "route": "human",
+        "confidence": 0.4544284350016833,
+        "category": "label_ambiguity",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:497:133111",
+        "incident_id": "497:133111",
+        "expected_label": "false_positive",
+        "predicted_label": "benign_positive",
+        "route": "human",
+        "confidence": 0.42097500238858937,
+        "category": "label_ambiguity",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:549:81486",
+        "incident_id": "549:81486",
+        "expected_label": "false_positive",
+        "predicted_label": "benign_positive",
+        "route": "human",
+        "confidence": 0.4918045240255996,
+        "category": "label_ambiguity",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:583:75322",
+        "incident_id": "583:75322",
+        "expected_label": "false_positive",
+        "predicted_label": "benign_positive",
+        "route": "agent",
+        "confidence": 0.530203629907059,
+        "category": "label_ambiguity",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:61:74569",
+        "incident_id": "61:74569",
+        "expected_label": "false_positive",
+        "predicted_label": "benign_positive",
+        "route": "agent",
+        "confidence": 0.7535036442153402,
+        "category": "label_ambiguity",
+        "needs_human": false
+      },
+      {
+        "case_id": "w4:642:42269",
+        "incident_id": "642:42269",
+        "expected_label": "false_positive",
+        "predicted_label": "benign_positive",
+        "route": "human",
+        "confidence": 0.4937512869137413,
+        "category": "label_ambiguity",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:73:535973",
+        "incident_id": "73:535973",
+        "expected_label": "false_positive",
+        "predicted_label": "benign_positive",
+        "route": "agent",
+        "confidence": 0.6126435910604554,
+        "category": "label_ambiguity",
+        "needs_human": false
+      },
+      {
+        "case_id": "w4:73:536116",
+        "incident_id": "73:536116",
+        "expected_label": "false_positive",
+        "predicted_label": "benign_positive",
+        "route": "agent",
+        "confidence": 0.6046156251199509,
+        "category": "label_ambiguity",
+        "needs_human": false
+      },
+      {
+        "case_id": "w4:73:74071",
+        "incident_id": "73:74071",
+        "expected_label": "false_positive",
+        "predicted_label": "benign_positive",
+        "route": "agent",
+        "confidence": 0.5762582357243493,
+        "category": "label_ambiguity",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:745:82101",
+        "incident_id": "745:82101",
+        "expected_label": "benign_positive",
+        "predicted_label": "false_positive",
+        "route": "agent",
+        "confidence": 0.5349586144751287,
+        "category": "label_ambiguity",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:774:56579",
+        "incident_id": "774:56579",
+        "expected_label": "false_positive",
+        "predicted_label": "benign_positive",
+        "route": "agent",
+        "confidence": 0.6671130967221074,
+        "category": "label_ambiguity",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:0:342657",
+        "incident_id": "0:342657",
+        "expected_label": "true_positive",
+        "predicted_label": "false_positive",
+        "route": "agent",
+        "confidence": 0.9078707367021861,
+        "category": "overconfidence",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:1144:58492",
+        "incident_id": "1144:58492",
+        "expected_label": "false_positive",
+        "predicted_label": "true_positive",
+        "route": "auto_escalate",
+        "confidence": 0.8090143358534276,
+        "category": "overconfidence",
+        "needs_human": false
+      },
+      {
+        "case_id": "w4:114:26258",
+        "incident_id": "114:26258",
+        "expected_label": "false_positive",
+        "predicted_label": "benign_positive",
+        "route": "agent",
+        "confidence": 0.8552991075387116,
+        "category": "overconfidence",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:114:28688",
+        "incident_id": "114:28688",
+        "expected_label": "false_positive",
+        "predicted_label": "benign_positive",
+        "route": "agent",
+        "confidence": 0.8584554280081748,
+        "category": "overconfidence",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:114:56593",
+        "incident_id": "114:56593",
+        "expected_label": "false_positive",
+        "predicted_label": "benign_positive",
+        "route": "agent",
+        "confidence": 0.9023286427043973,
+        "category": "overconfidence",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:1181:242408",
+        "incident_id": "1181:242408",
+        "expected_label": "true_positive",
+        "predicted_label": "false_positive",
+        "route": "agent",
+        "confidence": 0.9558185193859019,
+        "category": "overconfidence",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:233:151033",
+        "incident_id": "233:151033",
+        "expected_label": "true_positive",
+        "predicted_label": "benign_positive",
+        "route": "agent",
+        "confidence": 0.8627655226915021,
+        "category": "overconfidence",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:253:118329",
+        "incident_id": "253:118329",
+        "expected_label": "true_positive",
+        "predicted_label": "benign_positive",
+        "route": "agent",
+        "confidence": 0.8861710236755886,
+        "category": "overconfidence",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:312:77879",
+        "incident_id": "312:77879",
+        "expected_label": "true_positive",
+        "predicted_label": "benign_positive",
+        "route": "agent",
+        "confidence": 0.909002168955636,
+        "category": "overconfidence",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:345:35068",
+        "incident_id": "345:35068",
+        "expected_label": "true_positive",
+        "predicted_label": "benign_positive",
+        "route": "agent",
+        "confidence": 0.8831995239932404,
+        "category": "overconfidence",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:5:358894",
+        "incident_id": "5:358894",
+        "expected_label": "true_positive",
+        "predicted_label": "false_positive",
+        "route": "agent",
+        "confidence": 0.953122038952658,
+        "category": "overconfidence",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:8:275299",
+        "incident_id": "8:275299",
+        "expected_label": "true_positive",
+        "predicted_label": "benign_positive",
+        "route": "agent",
+        "confidence": 0.8309404187132714,
+        "category": "overconfidence",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:1031:176294",
+        "incident_id": "1031:176294",
+        "expected_label": "true_positive",
+        "predicted_label": "benign_positive",
+        "route": "agent",
+        "confidence": 0.7157949767975008,
+        "category": "reasoning_error",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:1039:13753",
+        "incident_id": "1039:13753",
+        "expected_label": "benign_positive",
+        "predicted_label": "true_positive",
+        "route": "human",
+        "confidence": 0.49290275862998056,
+        "category": "reasoning_error",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:107:89875",
+        "incident_id": "107:89875",
+        "expected_label": "true_positive",
+        "predicted_label": "benign_positive",
+        "route": "agent",
+        "confidence": 0.7263370624923404,
+        "category": "reasoning_error",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:1159:5681",
+        "incident_id": "1159:5681",
+        "expected_label": "true_positive",
+        "predicted_label": "benign_positive",
+        "route": "agent",
+        "confidence": 0.5098267261087742,
+        "category": "reasoning_error",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:115:336200",
+        "incident_id": "115:336200",
+        "expected_label": "true_positive",
+        "predicted_label": "benign_positive",
+        "route": "agent",
+        "confidence": 0.5353212246905621,
+        "category": "reasoning_error",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:1186:497924",
+        "incident_id": "1186:497924",
+        "expected_label": "false_positive",
+        "predicted_label": "true_positive",
+        "route": "agent",
+        "confidence": 0.6639245955499261,
+        "category": "reasoning_error",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:1226:58228",
+        "incident_id": "1226:58228",
+        "expected_label": "true_positive",
+        "predicted_label": "benign_positive",
+        "route": "human",
+        "confidence": 0.40497142952782006,
+        "category": "reasoning_error",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:1228:81993",
+        "incident_id": "1228:81993",
+        "expected_label": "true_positive",
+        "predicted_label": "benign_positive",
+        "route": "agent",
+        "confidence": 0.5621794479632002,
+        "category": "reasoning_error",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:122:88465",
+        "incident_id": "122:88465",
+        "expected_label": "true_positive",
+        "predicted_label": "benign_positive",
+        "route": "agent",
+        "confidence": 0.57348593889002,
+        "category": "reasoning_error",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:123:295347",
+        "incident_id": "123:295347",
+        "expected_label": "true_positive",
+        "predicted_label": "false_positive",
+        "route": "agent",
+        "confidence": 0.5573734707914747,
+        "category": "reasoning_error",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:126:345879",
+        "incident_id": "126:345879",
+        "expected_label": "benign_positive",
+        "predicted_label": "true_positive",
+        "route": "agent",
+        "confidence": 0.6350703191791625,
+        "category": "reasoning_error",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:1295:28449",
+        "incident_id": "1295:28449",
+        "expected_label": "true_positive",
+        "predicted_label": "false_positive",
+        "route": "human",
+        "confidence": 0.43161606591080737,
+        "category": "reasoning_error",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:130:161711",
+        "incident_id": "130:161711",
+        "expected_label": "true_positive",
+        "predicted_label": "benign_positive",
+        "route": "agent",
+        "confidence": 0.7877037762783013,
+        "category": "reasoning_error",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:136:509280",
+        "incident_id": "136:509280",
+        "expected_label": "benign_positive",
+        "predicted_label": "true_positive",
+        "route": "agent",
+        "confidence": 0.5921452026430357,
+        "category": "reasoning_error",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:136:509914",
+        "incident_id": "136:509914",
+        "expected_label": "benign_positive",
+        "predicted_label": "true_positive",
+        "route": "agent",
+        "confidence": 0.5733590357458453,
+        "category": "reasoning_error",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:138:219806",
+        "incident_id": "138:219806",
+        "expected_label": "true_positive",
+        "predicted_label": "benign_positive",
+        "route": "human",
+        "confidence": 0.45627331330340226,
+        "category": "reasoning_error",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:1430:82736",
+        "incident_id": "1430:82736",
+        "expected_label": "true_positive",
+        "predicted_label": "benign_positive",
+        "route": "human",
+        "confidence": 0.47531489402669835,
+        "category": "reasoning_error",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:153:70771",
+        "incident_id": "153:70771",
+        "expected_label": "true_positive",
+        "predicted_label": "benign_positive",
+        "route": "agent",
+        "confidence": 0.694375735139181,
+        "category": "reasoning_error",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:1594:35636",
+        "incident_id": "1594:35636",
+        "expected_label": "true_positive",
+        "predicted_label": "benign_positive",
+        "route": "agent",
+        "confidence": 0.5632930957263041,
+        "category": "reasoning_error",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:173:45547",
+        "incident_id": "173:45547",
+        "expected_label": "true_positive",
+        "predicted_label": "benign_positive",
+        "route": "agent",
+        "confidence": 0.7383106661733853,
+        "category": "reasoning_error",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:1817:20580",
+        "incident_id": "1817:20580",
+        "expected_label": "true_positive",
+        "predicted_label": "benign_positive",
+        "route": "agent",
+        "confidence": 0.7067252436835689,
+        "category": "reasoning_error",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:195:107932",
+        "incident_id": "195:107932",
+        "expected_label": "false_positive",
+        "predicted_label": "true_positive",
+        "route": "human",
+        "confidence": 0.4279738448792302,
+        "category": "reasoning_error",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:197:295945",
+        "incident_id": "197:295945",
+        "expected_label": "true_positive",
+        "predicted_label": "benign_positive",
+        "route": "agent",
+        "confidence": 0.7491554322892476,
+        "category": "reasoning_error",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:199:57353",
+        "incident_id": "199:57353",
+        "expected_label": "true_positive",
+        "predicted_label": "benign_positive",
+        "route": "agent",
+        "confidence": 0.7261737591325166,
+        "category": "reasoning_error",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:19:89608",
+        "incident_id": "19:89608",
+        "expected_label": "true_positive",
+        "predicted_label": "benign_positive",
+        "route": "agent",
+        "confidence": 0.5674700667473508,
+        "category": "reasoning_error",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:21:189326",
+        "incident_id": "21:189326",
+        "expected_label": "benign_positive",
+        "predicted_label": "true_positive",
+        "route": "auto_escalate",
+        "confidence": 0.7825423810996549,
+        "category": "reasoning_error",
+        "needs_human": false
+      },
+      {
+        "case_id": "w4:225:21951",
+        "incident_id": "225:21951",
+        "expected_label": "true_positive",
+        "predicted_label": "benign_positive",
+        "route": "agent",
+        "confidence": 0.7405024584439664,
+        "category": "reasoning_error",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:24:150881",
+        "incident_id": "24:150881",
+        "expected_label": "true_positive",
+        "predicted_label": "benign_positive",
+        "route": "agent",
+        "confidence": 0.6248520543190869,
+        "category": "reasoning_error",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:253:66411",
+        "incident_id": "253:66411",
+        "expected_label": "true_positive",
+        "predicted_label": "benign_positive",
+        "route": "agent",
+        "confidence": 0.622829937162504,
+        "category": "reasoning_error",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:259:121508",
+        "incident_id": "259:121508",
+        "expected_label": "false_positive",
+        "predicted_label": "true_positive",
+        "route": "agent",
+        "confidence": 0.5208213158539106,
+        "category": "reasoning_error",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:2739:156179",
+        "incident_id": "2739:156179",
+        "expected_label": "true_positive",
+        "predicted_label": "false_positive",
+        "route": "human",
+        "confidence": 0.4386981597948329,
+        "category": "reasoning_error",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:276:109246",
+        "incident_id": "276:109246",
+        "expected_label": "false_positive",
+        "predicted_label": "true_positive",
+        "route": "agent",
+        "confidence": 0.5818902995473622,
+        "category": "reasoning_error",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:276:122078",
+        "incident_id": "276:122078",
+        "expected_label": "false_positive",
+        "predicted_label": "true_positive",
+        "route": "agent",
+        "confidence": 0.5608462480188471,
+        "category": "reasoning_error",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:276:81283",
+        "incident_id": "276:81283",
+        "expected_label": "false_positive",
+        "predicted_label": "true_positive",
+        "route": "agent",
+        "confidence": 0.540222115504205,
+        "category": "reasoning_error",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:282:160839",
+        "incident_id": "282:160839",
+        "expected_label": "true_positive",
+        "predicted_label": "benign_positive",
+        "route": "agent",
+        "confidence": 0.7183173715554508,
+        "category": "reasoning_error",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:2878:43401",
+        "incident_id": "2878:43401",
+        "expected_label": "true_positive",
+        "predicted_label": "false_positive",
+        "route": "human",
+        "confidence": 0.4958937006823911,
+        "category": "reasoning_error",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:28:196787",
+        "incident_id": "28:196787",
+        "expected_label": "true_positive",
+        "predicted_label": "benign_positive",
+        "route": "human",
+        "confidence": 0.41549750213547726,
+        "category": "reasoning_error",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:28:211346",
+        "incident_id": "28:211346",
+        "expected_label": "true_positive",
+        "predicted_label": "benign_positive",
+        "route": "agent",
+        "confidence": 0.5830418604886077,
+        "category": "reasoning_error",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:28:227888",
+        "incident_id": "28:227888",
+        "expected_label": "true_positive",
+        "predicted_label": "benign_positive",
+        "route": "agent",
+        "confidence": 0.6851917267212507,
+        "category": "reasoning_error",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:28:321224",
+        "incident_id": "28:321224",
+        "expected_label": "true_positive",
+        "predicted_label": "benign_positive",
+        "route": "agent",
+        "confidence": 0.6756748963867247,
+        "category": "reasoning_error",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:28:64299",
+        "incident_id": "28:64299",
+        "expected_label": "true_positive",
+        "predicted_label": "benign_positive",
+        "route": "agent",
+        "confidence": 0.5400412526715574,
+        "category": "reasoning_error",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:336:30658",
+        "incident_id": "336:30658",
+        "expected_label": "true_positive",
+        "predicted_label": "benign_positive",
+        "route": "agent",
+        "confidence": 0.5731809885536605,
+        "category": "reasoning_error",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:354:44170",
+        "incident_id": "354:44170",
+        "expected_label": "true_positive",
+        "predicted_label": "benign_positive",
+        "route": "agent",
+        "confidence": 0.5741381372302482,
+        "category": "reasoning_error",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:355:42441",
+        "incident_id": "355:42441",
+        "expected_label": "true_positive",
+        "predicted_label": "false_positive",
+        "route": "human",
+        "confidence": 0.4203430582268995,
+        "category": "reasoning_error",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:36:325562",
+        "incident_id": "36:325562",
+        "expected_label": "true_positive",
+        "predicted_label": "benign_positive",
+        "route": "agent",
+        "confidence": 0.7199401322259353,
+        "category": "reasoning_error",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:38:550153",
+        "incident_id": "38:550153",
+        "expected_label": "true_positive",
+        "predicted_label": "false_positive",
+        "route": "human",
+        "confidence": 0.45138215450853847,
+        "category": "reasoning_error",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:395:5180",
+        "incident_id": "395:5180",
+        "expected_label": "true_positive",
+        "predicted_label": "benign_positive",
+        "route": "agent",
+        "confidence": 0.5397648125126809,
+        "category": "reasoning_error",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:475:24747",
+        "incident_id": "475:24747",
+        "expected_label": "true_positive",
+        "predicted_label": "benign_positive",
+        "route": "agent",
+        "confidence": 0.7146593808126829,
+        "category": "reasoning_error",
+        "needs_human": true
+      },
+      {
+        "case_id": "w4:479:229716",
+        "incident_id": "479:229716",
+        "expected_label": "true_positive",
+        "predicted_label": "benign_positive",
+        "route": "agent",
+        "confidence": 0.5553271287430835,
+        "category": "reasoning_error",
+        "needs_human": true
+      }
+    ],
+    "note": "System-assigned heuristic labels; not human review."
+  },
+  "policy_table": [
+    {
+      "policy": "classifier_only",
+      "incidents": 303220,
+      "coverage": 0.09893476683596068,
+      "selective_risk": 0.00980032667755592,
+      "tp_miss_rate": 0.002078669651423089,
+      "meets_target": false,
+      "status": "measured"
+    },
+    {
+      "policy": "rag_only_proxy",
+      "incidents": 600,
+      "coverage": 0.21666666666666667,
+      "selective_risk": 0.3,
+      "tp_miss_rate": 0.005,
+      "meets_target": false,
+      "status": "deterministic retrieval vote proxy"
+    },
+    {
+      "policy": "full_system",
+      "incidents": 600,
+      "coverage": 0.15,
+      "selective_risk": 0.022222222222222223,
+      "tp_miss_rate": 0.0,
+      "meets_target": false,
+      "status": "measured"
+    },
+    {
+      "policy": "zero_shot",
+      "incidents": 0,
+      "coverage": NaN,
+      "selective_risk": NaN,
+      "tp_miss_rate": NaN,
+      "meets_target": null,
+      "status": "not measured: no hosted LLM backend in this run"
+    }
+  ],
+  "runtime_seconds": 401.9903756999993,
+  "gates": {
+    "five_operating_points": true,
+    "budget_point_marked": true,
+    "classifier_only_compared": true,
+    "retrieval_baselines_measured": true,
+    "per_class_slices": true,
+    "per_org_slices": true,
+    "agent_improves_curve": true,
+    "not_tuned_on_test": true
+  }
+}
