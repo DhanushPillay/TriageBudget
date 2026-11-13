@@ -1,7 +1,7 @@
 UV ?= uv
 PYTHON ?= $(UV) run python
 
-.PHONY: setup test lint fixture-eval data split eval w2 w3-retrieval w3-agent w4 check ci clean
+.PHONY: setup test lint fixture-eval data split eval w2 w3-retrieval w3-agent w4 web-seed web check ci clean
 
 setup:
 	$(UV) sync --all-groups
@@ -35,6 +35,12 @@ w3-agent:
 
 w4:
 	$(PYTHON) -m triage.cli week4
+
+web-seed:
+	$(PYTHON) -m triage.web seed --if-empty
+
+web:
+	$(PYTHON) -m triage.web serve --reload
 
 check:
 	$(PYTHON) -m triage.cli check --incidents data/processed/incidents.parquet --manifest data/manifests/split_v1.json
