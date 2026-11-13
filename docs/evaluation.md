@@ -2,7 +2,7 @@
 
 This document defines how TriageBudget is measured. Metrics, splits, and baselines are fixed before results are reported so they cannot be chosen after seeing outcomes.
 
-**Current status: Week 2 calibrated classifier measured on the frozen GUIDE split.** TF-IDF + LightGBM reaches macro-F1 0.7199 raw and 0.7282 after vector calibration; ECE falls from 0.0184 to 0.0051. True-positive recall falls from 0.684 to 0.516, so the router must use calibrated `p_true_positive`, not only the predicted class. Week 1 baselines were 0.219 for majority and 0.191 for rules. Figures marked as targets or external facts are not results.
+**Current status: Week 3 retrieval and bounded agent measured on the frozen GUIDE split.** Hybrid BM25 + dense + RRF retrieval reaches incident Recall@5 0.4267, Recall@10 0.6733, nDCG@10 0.5013, and playbook Recall@5 0.4217 on 100 dev proxy queries. The index has 0 test incident overlap. The 20-case agent run is 20/20 schema-valid with 0 hard-constraint violations, 5.00 mean tool calls, and 7/7 true positives cited. Exact label agreement is 0.75; all 3 missed true positives are flagged for human review and none are auto-closed. Week 2 classifier: macro-F1 0.7199 raw and 0.7282 after vector calibration, ECE 0.0184 to 0.0051, true-positive recall 0.684 to 0.516. Week 1 baselines were 0.219 for majority and 0.191 for rules. Figures marked as targets or external facts are not results.
 
 ---
 
@@ -96,12 +96,12 @@ The GUIDE paper includes expert-ranked incidents. Treat priority as a ranking pr
 
 Baseline: random ranking and severity-only ranking.
 
-The public GUIDE CSV does not include the expert priority ranks or a severity column. Analyst P@5/10/20 is therefore not measurable on the frozen split. Week 2 reports a queue-level proxy instead:
+The public release includes `data/raw/GUIDE_Test_Queue_Rankings.csv` with `OrgId`, `IncidentId`, and `QueueRank` for 9,980 test incidents across 499 organizations. The count matches the ranked set reported in the paper. There is still no severity column. Week 2 predates this audit and reports a queue-level proxy instead:
 
 - Rank incidents within each organization queue by calibrated `p_true_positive`.
 - Report macro precision@5/10/20 and true-positive capture@10% across queues with at least 50 test incidents and at least 5 true positives.
 - Compare with a signal-only baseline that orders by malicious verdict, MITRE presence, suspicion, and alert count.
-- Label the result as a queue risk-ranking proxy, not analyst priority. The analyst ranking gate stays blocked until priority labels are available.
+- Label the Week 2 result as a queue risk-ranking proxy. Week 4 evaluates analyst P@5/10/20 against `QueueRank`.
 
 ### 4.3 Remediation
 
@@ -117,24 +117,25 @@ The action taxonomy will be fixed after the schema audit. No free-form actions i
 
 RAG is measured separately so a good verdict cannot hide bad retrieval.
 
-Retrieval set:
+Week 3 retrieval set:
 
-- 100 queries drawn from dev incidents.
-- Each query has gold evidence ids and gold playbook section ids.
-- The first 30 queries are labelled by two people. Report agreement.
+- 100 dev queries, stratified 34 true positive, 33 benign positive, 33 false positive.
+- Gold incident docs are the top 3 same-label train docs by Jaccard overlap over categories, MITRE techniques, and alert titles. Gold playbook docs are the Triage questions and Containment sections of playbooks whose category metadata intersects the query categories.
+- These gold sets are structured-overlap proxies. They are reproducible and independent of the retrieval model, but they are not human relevance labels. The planned double-labelling of 30 queries is still open, so citation support is not measured.
 - The test split is never used to build the index or tune retrieval.
 
 | Metric | Definition |
 |---|---|
-| Recall@5 | Fraction of gold items retrieved in the top 5, averaged over queries |
+| Recall@5 | Fraction of proxy gold items retrieved in the top 5, averaged over queries |
 | Recall@10 | Same for the top 10 |
-| nDCG@10 | Ranking quality with graded relevance |
-| MRR | Mean reciprocal rank of the first gold item |
+| nDCG@10 | Ranking quality with graded relevance against the proxy gold set |
+| MRR | Mean reciprocal rank of the first proxy gold item |
 | Citation support | Share of cited items that actually support the decision, human checked |
+| Leakage | Indexed train incident ids that also appear in the test split; must be zero |
 
-Baselines: BM25-only, dense-only with `bge-small-en-v1.5`, hybrid with reciprocal rank fusion, and hybrid plus a cross-encoder reranker.
+Measured Week 3 baselines: BM25-only, dense-only with `bge-small-en-v1.5`, and hybrid with reciprocal rank fusion. A cross-encoder reranker is planned but not measured.
 
-Report per query type: similar incident, playbook, and incident evidence. Include index size and retrieval latency.
+Report per source: similar incident and playbook. Include index size, doc count, and retrieval latency. Week 3 results are in `reports/w3_retrieval.md`.
 
 ### 4.5 Selective risk
 
@@ -181,7 +182,21 @@ For every decision with evidence:
 - Does the quoted text appear in the evidence item?
 - Does the quote support the verdict? This needs a human check.
 
-Procedure: sample 100 decisions stratified by verdict and route. Two reviewers rate each citation as supported, partially supported, or unsupported. Report agreement (Cohen's kappa) and the share of fully supported citations. Target: 90% fully supported, with kappa above 0.7. If only one reviewer is available, re-check a random 20% and report the disagreement rate.
+Procedure: sample 100 decisions stratified by verdict and route. Two reviewers rate each citation as supported, partially supported, or unsupported. Report agreement (Cohen's kappa) and the share of fully supported citations. Target: 90% fully supported, with kappa above 0.7. If only one reviewer is available, re-check a random 20% and report the disagreement rate. Week 3 does not measure citation support.
+
+### 4.8 Agent decision validity
+
+Week 3 uses 20 hand-picked dev exception cases: 7 true positive, 7 benign positive, and 6 false positive. They include weak positives, benign incidents with malicious signals, MITRE-present false positives, and high-volume false positives. Labels are used for evaluation and are hidden from the tools and policy.
+
+Report:
+
+- Schema validity and hard-constraint violations.
+- Tool calls per case, mean and maximum, against the six-call cap.
+- True-positive citation coverage.
+- Exact label agreement and abstention rate.
+- Route distribution and whether missed true positives were flagged for human review or auto-closed.
+
+The cases are not a random sample. Exact label agreement is descriptive and must not be presented as a test-set benchmark. Week 3 results are in `reports/w3_agent.md`.
 
 ---
 
