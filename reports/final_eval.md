@@ -42,13 +42,16 @@ than a hard capacity constraint.
   `BAAI/bge-small-en-v1.5` embeddings, fused with reciprocal rank fusion.
 - **Agent.** Deterministic bounded policy with five tool calls. It retrieves
   similar incidents and playbooks, maps ATT&CK, proposes actions, grounds
-  citations, and validates the decision. No hosted LLM is called.
+  citations, and validates the decision. The decision path calls no hosted LLM.
 - **Router.** A threshold on calibrated confidence. Only true-positive and
   false-positive predictions are eligible for automatic handling. Benign
   predictions always go to a human.
 - **Review console.** FastAPI API with SQLite locally and Postgres support,
   seeded from 20 tracked Week 3 traces. Reviewer actions are written to an audit
-  log. Deployment is deferred.
+  log. An optional Groq explanation endpoint summarizes an existing decision and
+  must cite retrieved evidence; it cannot change the verdict, close an incident,
+  or execute remediation. Vercel and Neon packaging is in the repo, but no hosted
+  deployment has been verified.
 
 ## 4. Main results
 
@@ -164,6 +167,7 @@ The local console exposes:
 - `GET /api/incidents/{id}`
 - `GET /api/decisions`
 - `POST /api/incidents/{id}/review`
+- `POST /api/incidents/{id}/explain`
 - `GET /api/audit`
 - `GET /api/metrics`
 
@@ -172,19 +176,33 @@ timeline. Reviewer actions require `X-Review-Token`, use an idempotency key, and
 write both a review row and an audit event. The console is demo-only until
 authentication, rate limiting, and production database operations are hardened.
 
+The explanation endpoint is optional and also requires `X-Review-Token`. It sends
+only the derived incident summary, classifier probabilities, retrieved evidence,
+and proposed remediation to Groq (`openai/gpt-oss-120b`, fallback
+`openai/gpt-oss-20b`). Responses must match a fixed JSON schema and may cite only
+retrieved evidence ids; an unknown id is rejected and nothing is stored.
+Explanations are cached by incident, model, prompt version, and a hash of the
+source fields. The UI labels the output as model-generated and requires review.
+No explanation quality, citation usefulness, or analyst time saving was measured
+with human raters.
+
 ## 5. What was not measured
 
-- **Zero-shot LLM baseline.** No hosted LLM backend is wired. It is reported as
-  not measured, not as a result.
+- **Zero-shot LLM baseline.** No LLM was evaluated as a classifier on the test
+  set. It is reported as not measured, not as a result.
 - **LLM-generated RAG.** The RAG-only baseline is a deterministic retrieval-vote
-  proxy, not generation.
+  proxy, not generation. The Groq layer explains decisions after the fact and is
+  not a decision baseline.
+- **Explanation quality.** No human rated whether explanations are correct,
+  useful, or supported by the cited evidence.
 - **Human citation support.** Citation grounding is checked against retrieved
   source text, but no human rated citation usefulness.
 - **Human error labels.** The 100-error table is heuristic.
 - **Alert-disjoint sensitivity.** 15,301 test incidents (5.0%) share at least one
   alert with the frozen train sample. Incident ids are disjoint; the alert-level
   sensitivity run is still pending.
-- **Live deployment.** Vercel and Neon are planned, but no live URL exists yet.
+- **Live deployment.** Vercel and Neon packaging is in the repo, but no live URL
+  exists yet. SQLite does not persist on Vercel, so Neon is required.
 
 ## 6. Limitations
 
@@ -195,7 +213,10 @@ authentication, rate limiting, and production database operations are hardened.
 - Retrieval gold sets and queue relevance are proxies.
 - The playbooks are synthetic and are not an organization's policy.
 - Raw GUIDE evidence text is unavailable, so citations use derived summaries.
-- The review console has a demo token, not a full identity system.
+- The review console has a demo token, not a full identity system. A shared
+  token limits cost abuse on the explanation endpoint but is not user-level auth.
+- AI explanations can be wrong even when the JSON is valid and every citation
+  exists. A citation check verifies provenance, not reasoning.
 - No production SOC readiness is claimed.
 
 ## 7. Reproduce
@@ -239,5 +260,6 @@ Open `http://127.0.0.1:8000`.
 | Week 5 deployment notes | `docs/deployment.md` |
 | Week 6 final report | `reports/final_eval.md` |
 
-The review console is a local-first demo. Vercel plus Neon is the planned hosted
-path, with Render as a fallback. No hosted result is claimed until it is live.
+The review console is a local-first demo. Vercel plus Neon is the packaged hosted
+path, with Render as a fallback. Deployment has not been verified, so no hosted
+result or URL is claimed.
