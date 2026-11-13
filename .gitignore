@@ -15,3 +15,4 @@ data/*.wal
 
 reports/fixture_run/
 reports/*_predictions.parquet
+indexes/
