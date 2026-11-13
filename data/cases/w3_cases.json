@@ -1,0 +1,127 @@
+{
+  "version": "w3_cases_v1",
+  "dataset": "GUIDE dev split, frozen split_v1",
+  "note": "Expected labels are for evaluation only and are not exposed to the agent tools.",
+  "cases": [
+    {
+      "case_id": "case_01",
+      "incident_id": "0:809",
+      "expected_label": "true_positive",
+      "reason": "true positive with 384 alerts and no malicious verdict"
+    },
+    {
+      "case_id": "case_02",
+      "incident_id": "36:1064",
+      "expected_label": "true_positive",
+      "reason": "true positive with 177 alerts and no malicious verdict"
+    },
+    {
+      "case_id": "case_03",
+      "incident_id": "236:5773",
+      "expected_label": "true_positive",
+      "reason": "true positive with 134 alerts and a single category"
+    },
+    {
+      "case_id": "case_04",
+      "incident_id": "14:219",
+      "expected_label": "true_positive",
+      "reason": "true positive with 78 alerts and 9390 evidence rows"
+    },
+    {
+      "case_id": "case_05",
+      "incident_id": "24:11168",
+      "expected_label": "true_positive",
+      "reason": "true positive with 40 alerts and 120 evidence rows"
+    },
+    {
+      "case_id": "case_06",
+      "incident_id": "122:29549",
+      "expected_label": "true_positive",
+      "reason": "true positive across discovery, execution, and lateral movement"
+    },
+    {
+      "case_id": "case_07",
+      "incident_id": "426:202664",
+      "expected_label": "true_positive",
+      "reason": "true positive with three categories and few rows"
+    },
+    {
+      "case_id": "case_08",
+      "incident_id": "790:3189",
+      "expected_label": "benign_positive",
+      "reason": "benign positive with 93 alerts, seven categories, and malicious verdicts"
+    },
+    {
+      "case_id": "case_09",
+      "incident_id": "96:5006",
+      "expected_label": "benign_positive",
+      "reason": "benign positive with 80 alerts and malicious verdicts"
+    },
+    {
+      "case_id": "case_10",
+      "incident_id": "26:20940",
+      "expected_label": "benign_positive",
+      "reason": "benign positive with 13 alerts and 55 malicious verdicts"
+    },
+    {
+      "case_id": "case_11",
+      "incident_id": "151:12115",
+      "expected_label": "benign_positive",
+      "reason": "benign positive with 7 alerts and 49 malicious verdicts"
+    },
+    {
+      "case_id": "case_12",
+      "incident_id": "26:14320",
+      "expected_label": "benign_positive",
+      "reason": "benign positive with 4 alerts and 46 malicious verdicts"
+    },
+    {
+      "case_id": "case_13",
+      "incident_id": "27:1050",
+      "expected_label": "benign_positive",
+      "reason": "benign positive spanning 14 categories"
+    },
+    {
+      "case_id": "case_14",
+      "incident_id": "361:43155",
+      "expected_label": "benign_positive",
+      "reason": "benign positive with 6 categories and few rows"
+    },
+    {
+      "case_id": "case_15",
+      "incident_id": "146:400",
+      "expected_label": "false_positive",
+      "reason": "false positive with 90 alerts, MITRE techniques, and 813 malicious verdicts"
+    },
+    {
+      "case_id": "case_16",
+      "incident_id": "55:1197",
+      "expected_label": "false_positive",
+      "reason": "false positive with 43 alerts and 185 malicious verdicts"
+    },
+    {
+      "case_id": "case_17",
+      "incident_id": "104:316",
+      "expected_label": "false_positive",
+      "reason": "false positive with 31 alerts and 5613 evidence rows"
+    },
+    {
+      "case_id": "case_18",
+      "incident_id": "274:17681",
+      "expected_label": "false_positive",
+      "reason": "false positive with 22 alerts and two categories"
+    },
+    {
+      "case_id": "case_19",
+      "incident_id": "355:15836",
+      "expected_label": "false_positive",
+      "reason": "false positive with 16 alerts and no malicious verdict"
+    },
+    {
+      "case_id": "case_20",
+      "incident_id": "87:3190",
+      "expected_label": "false_positive",
+      "reason": "false positive with 76 alerts and no malicious verdict"
+    }
+  ]
+}
