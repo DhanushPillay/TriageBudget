@@ -2,7 +2,7 @@
 
 A budget-aware RAG and agent system for security incident triage.
 
-**Status: Week 1 real baselines are in.** On GUIDE, TF-IDF + LightGBM reaches macro-F1 0.706 on the frozen official test split, versus 0.219 for majority and 0.191 for rules. The classifier is not calibrated yet, and the clean-clone reproduction check remains open.
+**Status: Week 2 calibrated classifier is in.** On the frozen GUIDE test split, TF-IDF + LightGBM reaches macro-F1 0.7199 before calibration and 0.7282 after vector scaling. ECE drops from 0.0184 to 0.0051. True-positive recall falls from 0.684 to 0.516 as the argmax moves, so the router must use calibrated `p_true_positive`, not only the predicted class. The clean-clone reproduction check remains open.
 
 ---
 
@@ -50,7 +50,7 @@ TriageBudget is built around that question.
 
 ## What it does
 
-1. **Loads incidents.** Ingests Microsoft GUIDE incident records: alerts, evidence, entities, labels, and analyst priority.
+1. **Loads incidents.** Ingests Microsoft GUIDE incident records: alerts, evidence, entities, labels, and organization queue metadata.
 2. **Classifies.** A calibrated TF-IDF + LightGBM baseline scores each incident for true positive, benign positive, and false positive.
 3. **Routes by confidence.** High-confidence incidents are auto-closed or auto-escalated. Low-confidence incidents go to a bounded agent.
 4. **Investigates with RAG.** The agent retrieves evidence, finds similar incidents, maps ATT&CK techniques, and checks asset and IOC context. It has a hard tool-call budget.
@@ -79,11 +79,13 @@ The headline artifact is not a chatbot. It is a **selective-risk curve**: covera
 
 ## What you can inspect
 
-Week 1 artifacts:
+Week 1 and Week 2 artifacts:
 
-- `src/triage/`: GUIDE ETL, frozen split manifest, baselines, and integrity checks.
-- `tests/`: fixture-backed data and baseline tests.
+- `src/triage/`: GUIDE ETL, frozen split manifest, baselines, calibrated classifier, and integrity checks.
+- `tests/`: fixture-backed data, baseline, and classifier tests.
 - `reports/w1_baselines.md` and `reports/w1_metrics.json`: real GUIDE baseline report and machine-readable metrics.
+- `reports/w2_classifier.md`, `reports/w2_metrics.json`, and `reports/w2_reliability.svg`: real GUIDE calibration report, metrics, and reliability diagram.
+- `models/classifier_v1/`: trained model, vectorizer, calibrator, metadata, and model card.
 - `data/manifests/split_v1.json`: frozen split manifest with source and split hashes.
 - `reports/fixture_run/`: fixture-only smoke report. Not a GUIDE result.
 - `.github/workflows/ci.yml`: lint, tests, and fixture smoke run.
@@ -98,7 +100,7 @@ Later weeks add:
 - `audit/`: append-only reviewer actions.
 - GitHub Actions run: tests, data checks, and the smoke evaluation gate.
 
-Week 1 GUIDE artifacts are real: the frozen split manifest, baseline report, and metrics. Later-week artifacts do not exist yet.
+Week 1 and Week 2 GUIDE artifacts are real: the frozen split manifest, baseline report, calibrated classifier report, metrics, reliability diagram, and model card. Later-week artifacts do not exist yet.
 
 ---
 
@@ -155,13 +157,13 @@ See [docs/architecture.md](docs/architecture.md) for components, data contracts,
 
 ## Evaluation
 
-All metrics are planned. None have been measured yet.
+Week 1 and Week 2 metrics are measured. Retrieval, agent, cost, and selective-risk metrics are planned.
 
 | Metric | What it measures | Baseline |
 |---|---|---|
 | Macro-F1 | Three-class triage quality | Majority class, rules, TF-IDF + LightGBM |
 | Per-class precision / recall | True positive, benign positive, false positive | Same |
-| P@5 / P@10 / P@20 | Priority ranking quality | Analyst priority, random |
+| Queue ranking proxy P@5 / P@10 / P@20 | True-positive ranking within organization queues | Signal-only score |
 | Remediation macro-F1 | Recommended action quality | Majority action |
 | Retrieval Recall@5 / Recall@10 | Did the right evidence or playbook appear in the top results? | BM25-only, dense-only, hybrid |
 | nDCG@10 | Ranking quality of retrieved evidence | BM25-only, dense-only, hybrid |
@@ -186,7 +188,7 @@ See [docs/evaluation.md](docs/evaluation.md) for metric definitions, splits, abl
 | Alerts | 1,600,000 |
 | Triage labels | True positive, benign positive, false positive |
 | Remediation labels | 26,000 |
-| Expert-ranked incidents | 9,980 across 499 organization queues |
+| Expert-ranked incidents (paper; not in the public CSVs) | 9,980 across 499 organization queues |
 | License | CDLA-Permissive-2.0 |
 | Size | About 3.5 GB |
 | Source | [Kaggle](https://www.kaggle.com/datasets/Microsoft/microsoft-security-incident-prediction) |
@@ -200,7 +202,7 @@ See [docs/data.md](docs/data.md) for schema, sampling, quality checks, and PII h
 
 ## Commands
 
-Week 1 commands:
+Week 1 and Week 2 commands:
 
 ```bash
 uv sync --all-groups
@@ -217,6 +219,7 @@ Real GUIDE run, after placing `GUIDE_Train.csv` and `GUIDE_Test.csv` in `data/ra
 uv run python -m triage.cli etl --raw-dir data/raw --out data/processed/incidents.parquet --stats data/processed/etl_stats.json
 uv run python -m triage.cli split --incidents data/processed/incidents.parquet --out-dir data/processed --manifest data/manifests/split_v1.json --sample-size 100000
 uv run python -m triage.cli baselines --train data/processed/train.parquet --dev data/processed/dev.parquet --test data/processed/test.parquet --manifest data/manifests/split_v1.json --report reports/w1_baselines.md --metrics reports/w1_metrics.json --dataset guide
+uv run python -m triage.cli classify --train data/processed/train.parquet --dev data/processed/dev.parquet --test data/processed/test.parquet --manifest data/manifests/split_v1.json --report reports/w2_classifier.md --metrics reports/w2_metrics.json --model-dir models/classifier_v1 --dataset guide
 uv run python -m triage.cli check --incidents data/processed/incidents.parquet --manifest data/manifests/split_v1.json
 ```
 
@@ -233,6 +236,7 @@ src/triage/
   config.py      constants and column contracts
   data.py        GUIDE ETL, manifest, integrity checks
   baselines.py   majority, rules, TF-IDF + LightGBM, metrics
+  classifier.py  tuned calibrated classifier, reliability, queue ranking
   fixture.py     synthetic GUIDE-shaped CSVs
   pipeline.py    end-to-end fixture run
   cli.py         command line entry point
@@ -293,6 +297,10 @@ See [docs/roadmap.md](docs/roadmap.md) for gates and the risk register.
 - Human approval is required for closures and escalations. The system does not take autonomous action.
 - This project is not affiliated with Microsoft.
 - Benchmark numbers come from one frozen GUIDE split. They are not production estimates.
+- Organization identity and organization frequency are excluded from the headline classifier because queue-specific labeling styles leak into the score. The org-frequency ablation is reported, not used.
+- The public GUIDE release has no analyst priority or severity ranks. The queue ranking result is a true-positive proxy, not the paper's expert-priority metric.
+- Calibration improves macro-F1 but lowers true-positive recall from 0.684 to 0.516. The router must use calibrated `p_true_positive` and a selective-risk curve.
+- Alert IDs overlap between raw train and test: 15,301 test incidents (5.0%) share at least one alert with the frozen train sample. Incident-level disjointness holds; an alert-disjoint sensitivity run is still pending.
 
 ---
 
