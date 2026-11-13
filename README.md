@@ -2,36 +2,36 @@
 
 A budget-aware RAG and agent system for security incident triage.
 
-**Status: Week 3 retrieval and bounded agent are in.** Hybrid BM25 + dense retrieval over 14,664 deduplicated train incidents and 63 synthetic playbook sections returns a relevant incident or playbook citation in 19/20 smoke queries. The test split is not indexed. A bounded offline agent produces schema-valid decisions on 20 hand-picked exception cases: 20/20 valid, 0 hard-constraint violations, 5.00 mean tool calls. It flags human review on all three missed true positives and auto-closes nothing. The Week 2 calibrated classifier remains the scoring layer: macro-F1 0.7199 before calibration and 0.7282 after vector scaling, ECE 0.0184 to 0.0051. True-positive recall falls from 0.684 to 0.516, so the router must use calibrated `p_true_positive`. The clean-clone reproduction check remains open.
+**Status: Week 5 local review console is in.** The calibrated classifier reaches macro-F1 0.7282 on 303,220 test incidents. The Week 4 selective-risk router reaches 9.9% coverage at a 0.2% true-positive miss rate, so the 60% coverage target is missed by 50.1 points. On a fixed 600-case test subset the full agent reaches 15.0% coverage at 0.0% true-positive miss versus 12.0% at 1.0% for classifier-only. Hybrid retrieval reaches incident Recall@5 0.4267 and Recall@10 0.6733; the tested cross-encoder reranker was worse and is not in the default path. The FastAPI review console, SQLite/Postgres storage, demo seed, audit log, Docker Compose, and tests run locally. Hosted deployment is deferred. The clean-clone reproduction check remains open because raw GUIDE data is gitignored.
 
 ---
 
 ## Skills at a glance
 
-Rows marked **planned** are not built yet. Week 1 to Week 3 rows have runnable artifacts.
+Rows marked **planned** are not built yet. Week 1 to Week 5 rows have runnable artifacts; hosted deployment is planned.
 
 | Skill | How TriageBudget uses it | Proof a reviewer can inspect |
 |---|---|---|
 | RAG | Retrieves similar train incidents and playbook sections before a decision; hybrid BM25 + dense + reciprocal rank fusion | `reports/w3_retrieval.md`, 19/20 smoke citations |
-| Vector database | Exact numpy inner product over 384-d `bge-small-en-v1.5` vectors locally; pgvector planned for the deployed demo | Index manifest, leakage check, Recall@k |
+| Vector database | Exact numpy inner product over 384-d `bge-small-en-v1.5` vectors locally; pgvector is not used | Index manifest, leakage check, Recall@k |
 | Data engineering | GUIDE ingestion, Parquet, DuckDB, split manifests, data-quality checks | `data/` pipeline, `tests/test_data.py` |
 | Agents and tool calling | Bounded offline policy over seven typed tools with a hard six-call cap | `reports/w3_agent.md`, tool traces |
-| Evaluation | Macro-F1, calibration, retrieval Recall@k and nDCG, schema validity, tool budget | Week 1 to Week 3 reports |
-| Prompt engineering | Versioned prompt templates, injection rules, schema constraints; not executed by an LLM in Week 3 | `prompts/`, validator tests |
-| FastAPI (**planned**) | Incident, decision, approval, and audit endpoints | Not built yet |
-| Postgres (**planned**) | Incidents, decisions, reviews, audit events | Not built yet |
-| SQL | DuckDB queries for features, metrics, and evaluation slices; Postgres planned | `src/triage/data.py`, `tests/test_data.py` |
+| Evaluation | Macro-F1, calibration, retrieval Recall@k and nDCG, selective risk, schema validity, tool budget | Week 1 to Week 5 reports |
+| Prompt engineering | Versioned prompt templates, injection rules, schema constraints; not executed by an LLM | `prompts/`, validator tests |
+| FastAPI | Incident, decision, review, audit, health, and metrics endpoints; local only | `src/triage/web/app.py`, `/docs`, `tests/test_web.py` |
+| Postgres | Incidents, decisions, reviews, audit events; SQLite locally, Postgres-ready, not deployed | `src/triage/web/db.py`, Docker Compose |
+| SQL | DuckDB queries for features, metrics, and evaluation slices; parameterized SQLite/Postgres for the console | `src/triage/data.py`, `src/triage/web/db.py` |
 | Structured outputs | Dataclass `TriageDecision`, schema validation, repair or abstain | `tests/test_agent.py` |
-| Human-in-the-loop (**planned**) | Reviewer queue with approve, edit, reject, and audit log | Not built yet |
+| Human-in-the-loop | Reviewer queue with approve, edit, reject, idempotency, and audit log; demo token only | `public/`, `reports/w5_demo.md` |
 | Classical ML | TF-IDF plus LightGBM with calibration | Model card, reliability diagram |
-| PyTorch (**planned**) | MiniLM or cross-encoder fine-tune | Not built yet |
-| Testing | pytest unit and data-integrity tests | `tests/`, CI test run |
-| Docker (**planned**) | Local stack and deployment | Not built yet |
+| PyTorch (**planned**) | MiniLM or cross-encoder fine-tune | Not built |
+| Testing | pytest unit, data-integrity, and web API tests | `tests/`, CI test run |
+| Docker | Local app plus Postgres stack; hosted deployment deferred | `Dockerfile`, `docker-compose.yml` |
 | CI/CD | Tests and fixture evaluation on every push | GitHub Actions workflow |
-| Cloud deployment (**planned**) | Render free web service, Neon Postgres, Cloudflare Pages | Not built yet |
+| Cloud deployment (**planned**) | Vercel plus Neon, with Render as fallback | `docs/deployment.md`, no live URL yet |
 | Git and GitHub | Public repo, small commits, issues, pull requests | Commit history and PRs |
-| Observability | Structured JSON traces with tool latency and prompt hashes; Langfuse planned | `reports/w3_traces.json` |
-| Security | Redaction, injection defense, no autonomous action | Validator tests, trace redaction |
+| Observability | Structured JSON request logs, tool latency, prompt hashes | `reports/w3_traces.json`, web logs |
+| Security | Redaction, injection defense, demo review token, no autonomous action | Validator tests, token tests |
 
 ---
 
@@ -57,7 +57,7 @@ TriageBudget is built around that question.
 3. **Routes by confidence.** The calibrated classifier scores each incident, and the Week 4 selective-risk router turns those scores into auto-close and auto-escalate decisions. At the 1% TP-miss constraint the best classifier operating point reaches 9.9% coverage at 0.2% TP miss, below the 60% target. The report states the shortfall rather than tuning on test.
 4. **Investigates with RAG.** The bounded agent retrieves similar incidents and playbook sections, maps ATT&CK techniques, and proposes remediation. It has a hard six-call budget and logs every tool call.
 5. **Produces a decision packet.** Every verdict includes a priority, proposed remediation, cited evidence, confidence, and a `needs_human` flag.
-6. **Hands off to a queue.** The reviewer queue and audit log are planned for Week 5. Week 3 writes a trace for every decision.
+6. **Hands off to a queue.** A local review console lists the queue, shows evidence and remediation, accepts approve/edit/reject actions, and writes every action to an audit log. Week 3 still writes a trace for every decision.
 
 The deterministic policy and tools produce the numbers and the decision in Weeks 3 and 4. The prompt templates exist, but no external LLM is called. Zero-shot and LLM-generated RAG are therefore reported as not measured, not as results.
 
@@ -81,10 +81,10 @@ The headline artifact is not a chatbot. It is a **selective-risk curve**: covera
 
 ## What you can inspect
 
-Week 1 to Week 4 artifacts:
+Week 1 to Week 5 artifacts:
 
-- `src/triage/`: GUIDE ETL, frozen split manifest, baselines, calibrated classifier, retrieval index, selective-risk router, bounded agent, and integrity checks.
-- `tests/`: fixture-backed data, baseline, classifier, retrieval, agent, and selective-risk tests.
+- `src/triage/`: GUIDE ETL, frozen split manifest, baselines, calibrated classifier, retrieval index, selective-risk router, bounded agent, local review console, and integrity checks.
+- `tests/`: fixture-backed data, baseline, classifier, retrieval, agent, selective-risk, and web API tests.
 - `reports/w1_baselines.md` and `reports/w1_metrics.json`: real GUIDE baseline report and machine-readable metrics.
 - `reports/w2_classifier.md`, `reports/w2_metrics.json`, and `reports/w2_reliability.svg`: real GUIDE calibration report, metrics, and reliability diagram.
 - `reports/w3_retrieval.md` and `reports/w3_retrieval_metrics.json`: hybrid retrieval metrics, index size, latency, and leakage check.
@@ -101,18 +101,13 @@ Week 1 to Week 4 artifacts:
 - `reports/w4_selective_risk.md`: measured risk-coverage curve, operating point, slices, queue ranking, and error taxonomy.
 - `reports/w4_retrieval.md`: BM25, dense, hybrid, and hybrid-plus-reranker ablations.
 - `reports/w4_final_report.md`: first full report with measured results and limitations.
+- `reports/final_eval.md`: consolidated Week 1-5 results, split details, confidence intervals, and limitations.
+- `reports/w5_demo.md`: three local demo scenarios with expected actions.
+- `docs/deployment.md`: local, Docker, Vercel, Neon, and Render deployment notes.
+- `public/`: review console HTML, CSS, and JavaScript.
 - `results/run_20261113T100909Z/`: run config and metrics. Predictions and traces stay gitignored.
 
-Later weeks add:
-
-- `reports/final_eval.md`: headline metrics, split details, and confidence intervals.
-- `reports/risk_coverage.png`: the selective-risk curve with the 10-minute operating point.
-- `reports/citations.md`: human citation support rate, disagreement examples, and the rubric.
-- `/docs`: OpenAPI documentation served by FastAPI.
-- `audit/`: append-only reviewer actions.
-- GitHub Actions run: tests, data checks, and the smoke evaluation gate.
-
-Week 1 to Week 3 GUIDE artifacts are real: the frozen split manifest, baseline report, calibrated classifier report, retrieval metrics, agent traces, and reliability diagram. Later-week artifacts do not exist yet.
+Week 1 to Week 5 GUIDE artifacts are measured on the frozen split. The Week 5 review console is runnable locally and in Docker. Hosted deployment is deferred until Vercel and Neon credentials are supplied.
 
 ---
 
@@ -133,7 +128,7 @@ flowchart TD
     G --> G5[map_attack]
     G --> G6[retrieve_playbook]
     G --> G7[propose_action]
-    G2 --> V[(Vector index: pgvector or FAISS)]
+    G2 --> V[(Exact numpy index over bge-small vectors)]
     G6 --> V
     V --> P[(Incident and playbook chunks)]
     F --> H[TriageDecision]
@@ -155,11 +150,11 @@ RAG is not a separate chatbot. It is the evidence layer the agent uses before it
 - The public GUIDE release has evidence ids but not raw evidence text. Week 3 cites the derived incident summary, the nearest train precedent, and the top playbook section. It cannot cite a raw log line.
 - The agent uses the retrieved material in a deterministic policy, cites the evidence ids it used, and abstains when the calibrated score is weak.
 
-Retrieval is hybrid: BM25 plus dense vectors fused with reciprocal rank fusion. A cross-encoder reranker is planned but not measured. The evaluation compares BM25-only, dense-only, and hybrid retrieval.
+Retrieval is hybrid: BM25 plus dense vectors fused with reciprocal rank fusion. A cross-encoder reranker was measured and made every retrieval metric worse while running about 24 times slower, so it is not used. The evaluation compares BM25-only, dense-only, hybrid, and hybrid-plus-reranker retrieval.
 
 ### Vector database
 
-Embeddings are generated locally with `bge-small-en-v1.5` (384 dimensions). Week 3 uses an exact numpy inner-product index over 14,727 documents. The deployed pgvector index is planned for Week 5.
+Embeddings are generated locally with `bge-small-en-v1.5` (384 dimensions). Retrieval uses an exact numpy inner-product index over 14,727 documents. The Week 5 review console stores decisions, reviews, and audit events in SQLite locally or Postgres when `DATABASE_URL` is set. A hosted vector index is not used.
 
 The index stores deduplicated incident summaries and playbook sections. It does not store raw evidence text. The test split is never added to the index; the build fails if an indexed train incident id appears in test. A retrieval run reports Recall@5, Recall@10, nDCG@10, mean reciprocal rank, index size, and latency.
 
@@ -249,6 +244,8 @@ uv run python -m triage.retrieval build --train data/processed/train.parquet --d
 uv run python -m triage.agent --case case_01
 uv run python -m triage.agent
 uv run python -m triage.cli week4
+uv run python -m triage.web seed --if-empty
+uv run python -m triage.web serve
 ```
 
 The Week 4 command scores the full test split, evaluates a 600-case stratified subset, builds the selective-risk curves, runs the retrieval ablations, computes queue-ranking metrics, and writes the reports under `reports/` plus run artifacts under `results/`.
@@ -273,8 +270,10 @@ src/triage/
   pipeline.py    end-to-end fixture run
   cli.py         command line entry point
   selective.py   confidence router, selective-risk curve, Week 4 evaluation
-tests/           data, classifier, retrieval, agent, and selective-risk tests
-docs/            architecture, data, evaluation, roadmap
+  web/           FastAPI review API, SQLite/Postgres storage, demo seed
+public/          review console HTML, CSS, and JavaScript
+tests/           data, classifier, retrieval, agent, selective-risk, and web tests
+docs/            architecture, data, evaluation, roadmap, deployment
 reports/         generated reports, metrics, and traces
 results/         Week 4 run configs and metrics (predictions/traces gitignored)
 prompts/         versioned agent prompt templates
@@ -294,10 +293,10 @@ indexes/         local retrieval index (gitignored)
 | 2 | Calibrated classifier, per-class metrics, optional MiniLM or cross-encoder fine-tune | Calibration and per-class table |
 | 3 | RAG index, hybrid retrieval, agent tools, structured output, trace logging | Agent demo on 20 incidents |
 | 4 | Confidence router, selective-risk curve, retrieval ablations, error taxonomy | Headline curve and ablation table |
-| 5 | FastAPI, queue UI, audit log, Docker, Render/Neon, CI | Live URL and API docs |
+| 5 | FastAPI, queue UI, audit log, Docker, SQLite/Postgres, CI | Local review console and demo script |
 | 6 | Frozen test, bootstrap intervals, per-organization slices, README, demo video | Final report and demo |
 
-Cut list, in order: 1M to 100k incidents, 499 to 50 queues, agent subset 2,000 to 500, skip the fine-tune, React to Streamlit, live URL to Docker Compose plus a recorded demo. The external labels, selective-risk curve, citations, and audit log stay.
+Cut list, in order: 1M to 100k incidents, 499 to 50 queues, agent subset 2,000 to 500, skip the fine-tune, React to Streamlit. Hosted deployment is deferred until Vercel and Neon credentials are supplied; Docker Compose plus a recorded demo is the current path. The external labels, selective-risk curve, citations, and audit log stay.
 
 See [docs/roadmap.md](docs/roadmap.md) for gates and the risk register.
 
@@ -306,7 +305,7 @@ See [docs/roadmap.md](docs/roadmap.md) for gates and the risk register.
 ## Skills in depth
 
 - RAG over incident evidence, playbooks, and similar past incidents, with hybrid retrieval and citations.
-- Vector search with pgvector and `bge-small-en-v1.5`, evaluated with Recall@5, Recall@10, and nDCG@10.
+- Vector search with exact numpy search over `bge-small-en-v1.5`, evaluated with Recall@5, Recall@10, and nDCG@10.
 - Data engineering with GUIDE ingestion, Parquet, DuckDB, split manifests, and data-quality tests.
 - Bounded agent tool use with a hard call budget and full tool traces.
 - External evaluation with real analyst labels, calibration, and selective prediction.
@@ -319,10 +318,10 @@ See [docs/roadmap.md](docs/roadmap.md) for gates and the risk register.
 - Testing with pytest unit tests, data-integrity checks, and API integration tests.
 - Human-in-the-loop review with approve, edit, reject, and an append-only audit log.
 - Docker for a reproducible local stack.
-- Cloud deployment on Render, Neon, and Cloudflare Pages free tiers.
+- Cloud deployment planned on Vercel plus Neon, with Render as a fallback. No live URL is claimed until deployed.
 - CI with tests, data checks, and an evaluation regression gate.
 - Git and GitHub with a public repo, small commits, and pull requests.
-- Observability with Langfuse or structured JSON logs.
+- Observability with structured JSON request logs and tool latency. Langfuse is not used.
 - Security-minded design: redaction, no autonomous action, citations, audit log, and PII handling.
 
 ---
