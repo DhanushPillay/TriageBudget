@@ -2,6 +2,8 @@
 
 TriageBudget is a budget-aware triage system for security incidents. This document describes the design before implementation. It is intentionally explicit about what the system does not do.
 
+**Implementation status after Week 3:** the classifier, exact local retrieval index, hybrid BM25 + dense search, typed tool layer, `TriageDecision` validator, bounded offline policy, prompt templates, and trace writer exist. The confidence router, FastAPI, Postgres/pgvector, review queue, audit log, and external LLM backend do not exist yet.
+
 ---
 
 ## 1. Goals
