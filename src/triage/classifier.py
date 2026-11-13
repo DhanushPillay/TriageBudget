@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import math
+from collections.abc import Sequence
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
@@ -9,6 +10,7 @@ from typing import Any
 
 import duckdb
 import joblib
+import lightgbm as lgb
 import numpy as np
 import pandas as pd
 from scipy.optimize import minimize
@@ -43,10 +45,15 @@ TP_INDEX = LABELS.index("true_positive")
 CLASSIFIER_COLUMNS = tuple(
     dict.fromkeys(
         (
+            "incident_id",
             "summary",
             "triage_label",
             "org_id",
             "created_at",
+            "title",
+            "alert_title",
+            "categories",
+            "mitre_techniques",
             *NUMERIC_FEATURES,
             "threat_families",
             "suspicion_levels",
@@ -98,6 +105,52 @@ PARAM_GRID = (
 )
 
 
+@dataclass
+class ClassifierArtifacts:
+    """Inference wrapper for the exported Week 2 model."""
+
+    booster: Any
+    vectorizer: Any
+    calibrator: Any
+    metadata: dict[str, Any]
+
+    @property
+    def model_version(self) -> str:
+        return str(self.metadata.get("model_version", MODEL_VERSION))
+
+    @property
+    def label_order(self) -> list[str]:
+        return list(self.metadata.get("label_order", LABELS))
+
+    def predict_frame(self, frame: pd.DataFrame) -> np.ndarray:
+        engineered = _add_engineered(frame, {})
+        text = self.vectorizer.transform(
+            engineered["summary"].fillna("").astype(str)
+        )
+        features = hstack([text, _numeric_matrix(engineered)], format="csr")
+        raw = np.asarray(self.booster.predict(features), dtype=float)
+        if raw.ndim != 2 or raw.shape[1] != len(LABELS):
+            raise ValueError(f"Unexpected model output shape: {raw.shape}")
+        probs = np.asarray(self.calibrator.predict_proba(raw), dtype=float)
+        if not np.allclose(probs.sum(axis=1), 1.0):
+            raise ValueError("Calibrated probabilities do not sum to one")
+        return probs
+
+
+def load_classifier(model_dir: Path) -> ClassifierArtifacts:
+    model_dir = Path(model_dir)
+    metadata = json.loads((model_dir / "metadata.json").read_text(encoding="utf-8"))
+    booster = lgb.Booster(model_file=str(model_dir / "model.txt"))
+    vectorizer = joblib.load(model_dir / "vectorizer.joblib")
+    calibrator = joblib.load(model_dir / "calibrator.joblib")
+    return ClassifierArtifacts(
+        booster=booster,
+        vectorizer=vectorizer,
+        calibrator=calibrator,
+        metadata=metadata,
+    )
+
+
 def _count_rows(path: Path) -> int:
     con = duckdb.connect()
     try:
@@ -110,12 +163,21 @@ def _count_rows(path: Path) -> int:
         con.close()
 
 
-def load_frame(path: Path) -> pd.DataFrame:
+def load_frame(
+    path: Path, incident_ids: Sequence[str] | None = None
+) -> pd.DataFrame:
     columns = ", ".join(CLASSIFIER_COLUMNS)
+    where = ""
+    params: list[str] = []
+    if incident_ids:
+        placeholders = ", ".join("?" for _ in incident_ids)
+        where = f" WHERE incident_id IN ({placeholders})"
+        params = [str(incident_id) for incident_id in incident_ids]
     con = duckdb.connect()
     try:
         return con.execute(
-            f"SELECT {columns} FROM read_parquet('{sql_path(Path(path))}')"
+            f"SELECT {columns} FROM read_parquet('{sql_path(Path(path))}'){where}",
+            params,
         ).df()
     finally:
         con.close()
@@ -936,7 +998,8 @@ def _render_report(metadata: dict[str, Any], reliability_name: str) -> str:
         f"({metadata['features']['text_features']} TF-IDF features).",
         "- Numeric: " + ", ".join(metadata["features"]["numeric_features"]) + ".",
         "- Excluded: severity (not in the public CSV), organization identity "
-        "(queue-policy leakage risk), and priority rank (not in the public CSV).",
+        "(queue-policy leakage risk), and priority rank (queue ranks are present "
+        "but are not used in this classifier; Week 4 evaluates them).",
         "",
         "### Organization frequency ablation",
         "",
@@ -1081,10 +1144,11 @@ def _render_report(metadata: dict[str, Any], reliability_name: str) -> str:
             "",
             "## Queue ranking proxy",
             "",
-            "The public GUIDE release has no analyst priority ranks, so P@5/10/20 "
-            "against an analyst top-5 cannot be computed. The proxy ranks incidents "
-            "within each organization queue by calibrated `p_true_positive`. It is "
-            "not a substitute for analyst priority.",
+            "Week 2 reports a queue ranking proxy. The public release includes "
+            "`GUIDE_Test_Queue_Rankings.csv` for 9,980 test incidents; Week 4 "
+            "evaluates analyst P@5/10/20 against that file. The proxy ranks "
+            "incidents within each organization queue by calibrated "
+            "`p_true_positive`. It is not a substitute for analyst priority.",
             "",
             f"Queues with at least {ranking['min_incidents']} incidents and "
             f"{ranking['min_positives']} true positives: {ranking['queues']}.",
@@ -1118,15 +1182,14 @@ def _render_report(metadata: dict[str, Any], reliability_name: str) -> str:
             "The queue ranking proxy beats the signal-only baseline at precision@10.",
             f"- [{'x' if gates['model_card_written'] else ' '}] "
             "The model card states training data, features, and limitations.",
-            f"- [{'x' if not gates['priority_labels_available'] else ' '}] "
-            "Analyst priority P@5/10/20 is marked blocked: the public release has "
-            "no priority labels.",
+            "- [x] Analyst priority P@5/10/20 is deferred to Week 4; the "
+            "queue-rank file is present, but Week 2 reports the proxy.",
             "",
             "## What this does not prove",
             "",
             "- This is not production SOC readiness.",
-            "- Severity and analyst priority are absent from the public data. "
-            "The queue ranking is a proxy, not the planned analyst metric.",
+            "- Severity is absent from the public data. Queue ranks are present "
+            "but are deferred to Week 4; the Week 2 queue ranking is a proxy.",
             "- Organization identity is excluded from the headline model. The test "
             "split contains the same organizations as train, so this is not a "
             "leave-one-queue-out generalization test.",
@@ -1201,7 +1264,8 @@ def _render_model_card(metadata: dict[str, Any]) -> str:
         f"({metadata['features']['text_features']} TF-IDF features).",
         "- Numeric: " + ", ".join(metadata["features"]["numeric_features"]) + ".",
         "- Excluded: severity (not in the public CSV), organization identity "
-        "(queue-policy leakage risk), and priority rank (not in the public CSV).",
+        "(queue-policy leakage risk), and priority rank (queue ranks are present "
+        "but are not used in this classifier; Week 4 evaluates them).",
         f"- Organization frequency was tested and excluded: adding it changed "
         f"default-config dev macro-F1 by "
         f"{_fmt(metadata['org_frequency_ablation']['delta'])}. It behaves as an "
@@ -1234,8 +1298,9 @@ def _render_model_card(metadata: dict[str, Any]) -> str:
         "",
         "- Labels are customer analyst judgments and may contain queue-specific "
         "policy differences.",
-        "- The public data has no severity or analyst priority. The queue ranking "
-        "proxy is not the planned analyst metric.",
+        "- The public data has no severity column. Queue ranks are present but are "
+        "deferred to Week 4; the Week 2 queue ranking proxy is not the planned "
+        "analyst metric.",
         "- Alert ids overlap between raw train and test. Incident ids are disjoint, "
         "but an alert-disjoint sensitivity run is pending.",
         "- The test split shares organizations with train. This is not a "
@@ -1509,7 +1574,7 @@ def run_classifier(
         "queue_ranking_beats_signal": bool(
             queue_ranking["beats_signal_at_10"]
         ),
-        "priority_labels_available": False,
+        "priority_ranks_available": True,
         "model_card_written": True,
     }
 
