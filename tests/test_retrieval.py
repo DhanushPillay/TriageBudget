@@ -6,6 +6,7 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+import pytest
 
 from triage.retrieval import (
     Doc,
@@ -244,3 +245,34 @@ def test_load_playbook_docs_skips_readme(tmp_path):
     docs = load_playbook_docs(tmp_path)
     assert len(docs) == 2
     assert all(doc.source == "playbook" for doc in docs)
+
+def test_load_index_rejects_manifest_mismatch(tmp_path):
+    train = tmp_path / "train.parquet"
+    pd.DataFrame(
+        {
+            "incident_id": ["1"],
+            "summary": ["credential access"],
+            "title": ["one"],
+            "triage_label": ["true_positive"],
+            "categories": ["CredentialAccess"],
+            "mitre_techniques": ["T1078"],
+        }
+    ).to_parquet(train, index=False)
+    playbooks = tmp_path / "playbooks"
+    playbooks.mkdir()
+    _playbook(playbooks / "credential.md")
+    out = tmp_path / "index"
+    build_index(train, playbooks, out, embedder=FakeEmbedder())
+
+    manifest_path = out / "manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["embedding_dim"] = 8
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+    with pytest.raises(ValueError, match="embedding dimension"):
+        RetrievalIndex.load(out, FakeEmbedder())
+
+    manifest["embedding_dim"] = 16
+    manifest["embedding_model"] = "other-model"
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+    with pytest.raises(ValueError, match="Index model"):
+        RetrievalIndex.load(out, FakeEmbedder())
