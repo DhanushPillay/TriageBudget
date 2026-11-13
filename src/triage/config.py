@@ -3,9 +3,13 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
+from dotenv import load_dotenv
+
 # Installed packages do not sit next to the repository, so containers set this
 # to the directory holding public/ and reports/.
 ROOT = Path(os.environ.get("TRIAGE_ROOT") or Path(__file__).resolve().parents[2]).resolve()
+# Real environment variables win, so hosting platforms are unaffected.
+load_dotenv(ROOT / ".env")
 DATA_DIR = ROOT / "data"
 RAW_DIR = DATA_DIR / "raw"
 PROCESSED_DIR = DATA_DIR / "processed"
