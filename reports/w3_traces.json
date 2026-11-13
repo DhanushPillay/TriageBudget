@@ -1,0 +1,2985 @@
+[
+  {
+    "case_id": "case_01",
+    "incident_id": "0:809",
+    "expected_label": "true_positive",
+    "decision": {
+      "incident_id": "0:809",
+      "verdict": "true_positive",
+      "priority": "critical",
+      "remediation": [
+        {
+          "action": "contain_host",
+          "target": "affected_host",
+          "rationale": "Evidence incident:0:809 supports contain_host at the incident level."
+        },
+        {
+          "action": "disable_account",
+          "target": "affected_account",
+          "rationale": "Evidence incident:0:809 supports disable_account at the incident level."
+        },
+        {
+          "action": "block_indicator",
+          "target": "network_indicator",
+          "rationale": "Evidence incident:0:809 supports block_indicator at the incident level."
+        },
+        {
+          "action": "escalate_to_incident_response",
+          "target": "incident_response",
+          "rationale": "Evidence incident:0:809 supports escalate_to_incident_response at the incident level."
+        }
+      ],
+      "evidence": [
+        {
+          "evidence_id": "incident:0:809",
+          "quote": "InitialAccess T1078;T1078.004 CloudLogonRequest CloudLogonSession Ip User Impacted Related 0 15 3 6",
+          "source": "incident"
+        },
+        {
+          "evidence_id": "train_incident:195:22839",
+          "quote": "InitialAccess T1078;T1078.004 CloudLogonRequest CloudLogonSession Ip User Impacted Related 0 15 3 6",
+          "source": "train_incident"
+        },
+        {
+          "evidence_id": "playbook:02-initial-access-phishing:eradication",
+          "quote": "Initial Access and Phishing Eradication. Remove dropped files, scheduled tasks, and mail rules. Reset the user session if credentials were entered on a lookalike page. Search for the same message across the tenant.",
+          "source": "playbook"
+        }
+      ],
+      "confidence": 0.938314767124385,
+      "needs_human": false,
+      "route": "auto_escalate",
+      "classifier_version": "tfidf_lgbm_calibrated_v1",
+      "prompt_version": "w3_agent_v1",
+      "tool_calls": 5,
+      "latency_ms": 733,
+      "cost_usd": 0.0
+    },
+    "probabilities": {
+      "true_positive": 0.938314767124385,
+      "benign_positive": 0.028978673782285885,
+      "false_positive": 0.0327065590933292
+    },
+    "top_label": "true_positive",
+    "tool_calls": [
+      {
+        "name": "get_incident",
+        "args": {
+          "incident_id": "0:809"
+        },
+        "ok": true,
+        "latency_ms": 0,
+        "result_size": 726,
+        "preview": "{\"incident_id\": \"0:809\", \"title\": \"6\", \"alert_title\": \"6\", \"summary\": \"InitialAccess T1078;T1078.004 CloudLogonRequest CloudLogonSession Ip User Impacted Related 0 15 3 6\", \"created_at\": \"2024-06-04 20:49:17\", \"org_hash\": \"5feceb66ffc8\", \"alert_count\": 384, \"evidence_count\": 1337, \"detector_count\": ",
+        "error": null
+      },
+      {
+        "name": "search_similar_incidents",
+        "args": {
+          "incident_id": "0:809",
+          "k": 5
+        },
+        "ok": true,
+        "latency_ms": 672,
+        "result_size": 2263,
+        "preview": "[{\"doc_id\": \"incident:195:22839\", \"source\": \"incident\", \"source_id\": \"195:22839\", \"title\": \"6\", \"text\": \"InitialAccess T1078;T1078.004 CloudLogonRequest CloudLogonSession Ip User Impacted Related 0 15 3 6\", \"score\": 0.03278688524590164, \"label\": \"false_positive\", \"categories\": [\"InitialAccess\"], \"mi",
+        "error": null
+      },
+      {
+        "name": "retrieve_playbook",
+        "args": {
+          "incident_id": "0:809",
+          "k": 5
+        },
+        "ok": true,
+        "latency_ms": 43,
+        "result_size": 4108,
+        "preview": "[{\"doc_id\": \"playbook:02-initial-access-phishing:eradication\", \"source\": \"playbook\", \"source_id\": \"playbook:02-initial-access-phishing:eradication\", \"title\": \"Initial Access and Phishing / Eradication\", \"text\": \"Initial Access and Phishing Eradication. Remove dropped files, scheduled tasks, and mail",
+        "error": null
+      },
+      {
+        "name": "map_attack",
+        "args": {
+          "incident_id": "0:809"
+        },
+        "ok": true,
+        "latency_ms": 0,
+        "result_size": 206,
+        "preview": "{\"observed_categories\": [\"InitialAccess\"], \"observed_techniques\": [\"T1078\", \"T1078.004\"], \"suggested_techniques\": [\"T1078\", \"T1190\", \"T1566\"], \"note\": \"heuristic category mapping, not an ATT&CK classifier\"}",
+        "error": null
+      },
+      {
+        "name": "propose_action",
+        "args": {
+          "incident_id": "0:809",
+          "verdict": "true_positive",
+          "evidence_ids": [
+            "incident:0:809",
+            "train_incident:195:22839",
+            "playbook:02-initial-access-phishing:eradication"
+          ],
+          "categories": [
+            "InitialAccess"
+          ],
+          "counts": {
+            "alert_count": 384,
+            "device_count": 1,
+            "account_count": 193,
+            "ip_count": 150,
+            "url_count": 1,
+            "sha256_count": 1,
+            "malicious_count": 0,
+            "suspicious_count": 0,
+            "has_mitre": 1
+          }
+        },
+        "ok": true,
+        "latency_ms": 0,
+        "result_size": 617,
+        "preview": "[{\"action\": \"contain_host\", \"target\": \"affected_host\", \"rationale\": \"Evidence incident:0:809 supports contain_host at the incident level.\"}, {\"action\": \"disable_account\", \"target\": \"affected_account\", \"rationale\": \"Evidence incident:0:809 supports disable_account at the incident level.\"}, {\"action\":",
+        "error": null
+      }
+    ],
+    "revision_count": 0,
+    "prompt_version": "w3_agent_v1",
+    "prompt_sha256": "78b19dad3ddef569b3085a009c3a51abef6a93b60ac910267f4292dba2b6121f",
+    "prompt_chars": 11547,
+    "llm_backend": "offline_policy",
+    "schema_valid": true,
+    "violations": [],
+    "latency_ms": 733,
+    "cost_usd": 0.0,
+    "notes": [
+      "No external LLM is called. The decision comes from a deterministic policy over the calibrated classifier and retrieved evidence."
+    ]
+  },
+  {
+    "case_id": "case_02",
+    "incident_id": "36:1064",
+    "expected_label": "true_positive",
+    "decision": {
+      "incident_id": "36:1064",
+      "verdict": "false_positive",
+      "priority": "low",
+      "remediation": [
+        {
+          "action": "close_no_action",
+          "target": "incident_queue",
+          "rationale": "Evidence incident:36:1064 supports close_no_action at the incident level."
+        }
+      ],
+      "evidence": [
+        {
+          "evidence_id": "incident:36:1064",
+          "quote": "CommandAndControl InitialAccess SuspiciousActivity Ip Machine Process Url User Impacted Related Suspicious Suspicious 118 121 139 165 2 2263 401",
+          "source": "incident"
+        },
+        {
+          "evidence_id": "train_incident:36:1151",
+          "quote": "CommandAndControl InitialAccess SuspiciousActivity Ip Machine Process Url User Impacted Related Suspicious Suspicious 118 121 139 165 2 2263 401",
+          "source": "train_incident"
+        },
+        {
+          "evidence_id": "playbook:06-c2-exfiltration:eradication",
+          "quote": "Command and Control and Exfiltration Eradication. Remove the beacon and the process that launched it. Remove staged archives and scheduled upload jobs. Rotate credentials or tokens exposed to the host.",
+          "source": "playbook"
+        }
+      ],
+      "confidence": 0.936812371757968,
+      "needs_human": true,
+      "route": "agent",
+      "classifier_version": "tfidf_lgbm_calibrated_v1",
+      "prompt_version": "w3_agent_v1",
+      "tool_calls": 5,
+      "latency_ms": 127,
+      "cost_usd": 0.0
+    },
+    "probabilities": {
+      "true_positive": 0.048526351131281474,
+      "benign_positive": 0.014661277110750543,
+      "false_positive": 0.936812371757968
+    },
+    "top_label": "false_positive",
+    "tool_calls": [
+      {
+        "name": "get_incident",
+        "args": {
+          "incident_id": "36:1064"
+        },
+        "ok": true,
+        "latency_ms": 0,
+        "result_size": 825,
+        "preview": "{\"incident_id\": \"36:1064\", \"title\": \"401\", \"alert_title\": \"401\", \"summary\": \"CommandAndControl InitialAccess SuspiciousActivity Ip Machine Process Url User Impacted Related Suspicious Suspicious 118 121 139 165 2 2263 401\", \"created_at\": \"2024-06-05 16:13:37\", \"org_hash\": \"76a50887d8f1\", \"alert_coun",
+        "error": null
+      },
+      {
+        "name": "search_similar_incidents",
+        "args": {
+          "incident_id": "36:1064",
+          "k": 5
+        },
+        "ok": true,
+        "latency_ms": 58,
+        "result_size": 2610,
+        "preview": "[{\"doc_id\": \"incident:36:1151\", \"source\": \"incident\", \"source_id\": \"36:1151\", \"title\": \"401\", \"text\": \"CommandAndControl InitialAccess SuspiciousActivity Ip Machine Process Url User Impacted Related Suspicious Suspicious 118 121 139 165 2 2263 401\", \"score\": 0.03252247488101534, \"label\": \"false_posi",
+        "error": null
+      },
+      {
+        "name": "retrieve_playbook",
+        "args": {
+          "incident_id": "36:1064",
+          "k": 5
+        },
+        "ok": true,
+        "latency_ms": 52,
+        "result_size": 3964,
+        "preview": "[{\"doc_id\": \"playbook:06-c2-exfiltration:eradication\", \"source\": \"playbook\", \"source_id\": \"playbook:06-c2-exfiltration:eradication\", \"title\": \"Command and Control and Exfiltration / Eradication\", \"text\": \"Command and Control and Exfiltration Eradication. Remove the beacon and the process that launch",
+        "error": null
+      },
+      {
+        "name": "map_attack",
+        "args": {
+          "incident_id": "36:1064"
+        },
+        "ok": true,
+        "latency_ms": 0,
+        "result_size": 261,
+        "preview": "{\"observed_categories\": [\"CommandAndControl\", \"InitialAccess\", \"SuspiciousActivity\"], \"observed_techniques\": [\"nan\"], \"suggested_techniques\": [\"T1071\", \"T1078\", \"T1105\", \"T1190\", \"T1566\", \"T1573\"], \"note\": \"heuristic category mapping, not an ATT&CK classifier\"}",
+        "error": null
+      },
+      {
+        "name": "propose_action",
+        "args": {
+          "incident_id": "36:1064",
+          "verdict": "false_positive",
+          "evidence_ids": [
+            "incident:36:1064",
+            "train_incident:36:1151",
+            "playbook:06-c2-exfiltration:eradication"
+          ],
+          "categories": [
+            "CommandAndControl",
+            "InitialAccess",
+            "SuspiciousActivity"
+          ],
+          "counts": {
+            "alert_count": 177,
+            "device_count": 151,
+            "account_count": 150,
+            "ip_count": 84,
+            "url_count": 19,
+            "sha256_count": 18,
+            "malicious_count": 0,
+            "suspicious_count": 853,
+            "has_mitre": 0
+          }
+        },
+        "ok": true,
+        "latency_ms": 0,
+        "result_size": 149,
+        "preview": "[{\"action\": \"close_no_action\", \"target\": \"incident_queue\", \"rationale\": \"Evidence incident:36:1064 supports close_no_action at the incident level.\"}]",
+        "error": null
+      }
+    ],
+    "revision_count": 0,
+    "prompt_version": "w3_agent_v1",
+    "prompt_sha256": "b4db16a6e870648d154d2ecb4aa0d9a2e6e5c94bb52ed429b264869f834c7bd3",
+    "prompt_chars": 11398,
+    "llm_backend": "offline_policy",
+    "schema_valid": true,
+    "violations": [],
+    "latency_ms": 127,
+    "cost_usd": 0.0,
+    "notes": [
+      "No external LLM is called. The decision comes from a deterministic policy over the calibrated classifier and retrieved evidence."
+    ]
+  },
+  {
+    "case_id": "case_03",
+    "incident_id": "236:5773",
+    "expected_label": "true_positive",
+    "decision": {
+      "incident_id": "236:5773",
+      "verdict": "true_positive",
+      "priority": "critical",
+      "remediation": [
+        {
+          "action": "contain_host",
+          "target": "affected_host",
+          "rationale": "Evidence incident:236:5773 supports contain_host at the incident level."
+        },
+        {
+          "action": "disable_account",
+          "target": "affected_account",
+          "rationale": "Evidence incident:236:5773 supports disable_account at the incident level."
+        },
+        {
+          "action": "block_indicator",
+          "target": "network_indicator",
+          "rationale": "Evidence incident:236:5773 supports block_indicator at the incident level."
+        },
+        {
+          "action": "escalate_to_incident_response",
+          "target": "incident_response",
+          "rationale": "Evidence incident:236:5773 supports escalate_to_incident_response at the incident level."
+        }
+      ],
+      "evidence": [
+        {
+          "evidence_id": "incident:236:5773",
+          "quote": "CredentialAccess T1110 Ip Related 754",
+          "source": "incident"
+        },
+        {
+          "evidence_id": "train_incident:236:11202",
+          "quote": "CredentialAccess T1110 Ip Related 754",
+          "source": "train_incident"
+        },
+        {
+          "evidence_id": "playbook:01-identity-credential:triage-questions",
+          "quote": "Identity and Credential Compromise Triage questions. Was the successful session interactive or token-based? Did the account reach a new resource? Is the source address expected for this user? Did the same address target several accounts? Is there a matching endpoint or mailbox alert?",
+          "source": "playbook"
+        }
+      ],
+      "confidence": 0.8631756881031157,
+      "needs_human": false,
+      "route": "auto_escalate",
+      "classifier_version": "tfidf_lgbm_calibrated_v1",
+      "prompt_version": "w3_agent_v1",
+      "tool_calls": 5,
+      "latency_ms": 52,
+      "cost_usd": 0.0
+    },
+    "probabilities": {
+      "true_positive": 0.8631756881031157,
+      "benign_positive": 0.09575279094485015,
+      "false_positive": 0.041071520952034084
+    },
+    "top_label": "true_positive",
+    "tool_calls": [
+      {
+        "name": "get_incident",
+        "args": {
+          "incident_id": "236:5773"
+        },
+        "ok": true,
+        "latency_ms": 0,
+        "result_size": 657,
+        "preview": "{\"incident_id\": \"236:5773\", \"title\": \"754\", \"alert_title\": \"754\", \"summary\": \"CredentialAccess T1110 Ip Related 754\", \"created_at\": \"2024-06-05 19:48:40\", \"org_hash\": \"9a049b03f6fc\", \"alert_count\": 134, \"evidence_count\": 154, \"detector_count\": 1, \"entity_type_count\": 1, \"category_count\": 1, \"has_mit",
+        "error": null
+      },
+      {
+        "name": "search_similar_incidents",
+        "args": {
+          "incident_id": "236:5773",
+          "k": 5
+        },
+        "ok": true,
+        "latency_ms": 19,
+        "result_size": 1640,
+        "preview": "[{\"doc_id\": \"incident:236:11202\", \"source\": \"incident\", \"source_id\": \"236:11202\", \"title\": \"754\", \"text\": \"CredentialAccess T1110 Ip Related 754\", \"score\": 0.03278688524590164, \"label\": \"true_positive\", \"categories\": [\"CredentialAccess\"], \"mitre\": [\"T1110\"], \"metadata\": {\"summary\": \"CredentialAccess",
+        "error": null
+      },
+      {
+        "name": "retrieve_playbook",
+        "args": {
+          "incident_id": "236:5773",
+          "k": 5
+        },
+        "ok": true,
+        "latency_ms": 21,
+        "result_size": 4251,
+        "preview": "[{\"doc_id\": \"playbook:01-identity-credential:triage-questions\", \"source\": \"playbook\", \"source_id\": \"playbook:01-identity-credential:triage-questions\", \"title\": \"Identity and Credential Compromise / Triage questions\", \"text\": \"Identity and Credential Compromise Triage questions. Was the successful se",
+        "error": null
+      },
+      {
+        "name": "map_attack",
+        "args": {
+          "incident_id": "236:5773"
+        },
+        "ok": true,
+        "latency_ms": 0,
+        "result_size": 196,
+        "preview": "{\"observed_categories\": [\"CredentialAccess\"], \"observed_techniques\": [\"T1110\"], \"suggested_techniques\": [\"T1003\", \"T1110\", \"T1528\"], \"note\": \"heuristic category mapping, not an ATT&CK classifier\"}",
+        "error": null
+      },
+      {
+        "name": "propose_action",
+        "args": {
+          "incident_id": "236:5773",
+          "verdict": "true_positive",
+          "evidence_ids": [
+            "incident:236:5773",
+            "train_incident:236:11202",
+            "playbook:01-identity-credential:triage-questions"
+          ],
+          "categories": [
+            "CredentialAccess"
+          ],
+          "counts": {
+            "alert_count": 134,
+            "device_count": 1,
+            "account_count": 1,
+            "ip_count": 21,
+            "url_count": 1,
+            "sha256_count": 1,
+            "malicious_count": 0,
+            "suspicious_count": 0,
+            "has_mitre": 1
+          }
+        },
+        "ok": true,
+        "latency_ms": 0,
+        "result_size": 629,
+        "preview": "[{\"action\": \"contain_host\", \"target\": \"affected_host\", \"rationale\": \"Evidence incident:236:5773 supports contain_host at the incident level.\"}, {\"action\": \"disable_account\", \"target\": \"affected_account\", \"rationale\": \"Evidence incident:236:5773 supports disable_account at the incident level.\"}, {\"ac",
+        "error": null
+      }
+    ],
+    "revision_count": 0,
+    "prompt_version": "w3_agent_v1",
+    "prompt_sha256": "ff835d34fcbd6be2196679c7f832b01004ff483296a0fb14f77dc137729c8dcd",
+    "prompt_chars": 10968,
+    "llm_backend": "offline_policy",
+    "schema_valid": true,
+    "violations": [],
+    "latency_ms": 52,
+    "cost_usd": 0.0,
+    "notes": [
+      "No external LLM is called. The decision comes from a deterministic policy over the calibrated classifier and retrieved evidence."
+    ]
+  },
+  {
+    "case_id": "case_04",
+    "incident_id": "14:219",
+    "expected_label": "true_positive",
+    "decision": {
+      "incident_id": "14:219",
+      "verdict": "false_positive",
+      "priority": "low",
+      "remediation": [
+        {
+          "action": "close_no_action",
+          "target": "incident_queue",
+          "rationale": "Evidence incident:14:219 supports close_no_action at the incident level."
+        }
+      ],
+      "evidence": [
+        {
+          "evidence_id": "incident:14:219",
+          "quote": "Impact Ip Related 1523 183 331 417 503 58 686 690 701 721 737 781 81 84 867 89",
+          "source": "incident"
+        },
+        {
+          "evidence_id": "train_incident:14:198",
+          "quote": "Impact Ip Related 1659 175 58 672 679 698 707 716 731 736 767 84 89",
+          "source": "train_incident"
+        },
+        {
+          "evidence_id": "playbook:07-ransomware-impact:escalation-criteria",
+          "quote": "Ransomware and Impact Escalation criteria. Escalate immediately to incident command, leadership, legal, and communications. Engage law enforcement according to organizational policy. Treat backup deletion or hypervisor impact as critical.",
+          "source": "playbook"
+        }
+      ],
+      "confidence": 0.5996798042165256,
+      "needs_human": true,
+      "route": "agent",
+      "classifier_version": "tfidf_lgbm_calibrated_v1",
+      "prompt_version": "w3_agent_v1",
+      "tool_calls": 5,
+      "latency_ms": 53,
+      "cost_usd": 0.0
+    },
+    "probabilities": {
+      "true_positive": 0.298473334935507,
+      "benign_positive": 0.10184686084796754,
+      "false_positive": 0.5996798042165256
+    },
+    "top_label": "false_positive",
+    "tool_calls": [
+      {
+        "name": "get_incident",
+        "args": {
+          "incident_id": "14:219"
+        },
+        "ok": true,
+        "latency_ms": 0,
+        "result_size": 684,
+        "preview": "{\"incident_id\": \"14:219\", \"title\": \"89\", \"alert_title\": \"89\", \"summary\": \"Impact Ip Related 1523 183 331 417 503 58 686 690 701 721 737 781 81 84 867 89\", \"created_at\": \"2024-05-26 14:21:10\", \"org_hash\": \"8527a891e224\", \"alert_count\": 78, \"evidence_count\": 9390, \"detector_count\": 1, \"entity_type_cou",
+        "error": null
+      },
+      {
+        "name": "search_similar_incidents",
+        "args": {
+          "incident_id": "14:219",
+          "k": 5
+        },
+        "ok": true,
+        "latency_ms": 18,
+        "result_size": 1522,
+        "preview": "[{\"doc_id\": \"incident:14:198\", \"source\": \"incident\", \"source_id\": \"14:198\", \"title\": \"89\", \"text\": \"Impact Ip Related 1659 175 58 672 679 698 707 716 731 736 767 84 89\", \"score\": 0.03278688524590164, \"label\": \"true_positive\", \"categories\": [\"Impact\"], \"mitre\": [\"nan\"], \"metadata\": {\"summary\": \"Impac",
+        "error": null
+      },
+      {
+        "name": "retrieve_playbook",
+        "args": {
+          "incident_id": "14:219",
+          "k": 5
+        },
+        "ok": true,
+        "latency_ms": 21,
+        "result_size": 3750,
+        "preview": "[{\"doc_id\": \"playbook:07-ransomware-impact:escalation-criteria\", \"source\": \"playbook\", \"source_id\": \"playbook:07-ransomware-impact:escalation-criteria\", \"title\": \"Ransomware and Impact / Escalation criteria\", \"text\": \"Ransomware and Impact Escalation criteria. Escalate immediately to incident comman",
+        "error": null
+      },
+      {
+        "name": "map_attack",
+        "args": {
+          "incident_id": "14:219"
+        },
+        "ok": true,
+        "latency_ms": 0,
+        "result_size": 175,
+        "preview": "{\"observed_categories\": [\"Impact\"], \"observed_techniques\": [\"nan\"], \"suggested_techniques\": [\"T1486\", \"T1490\"], \"note\": \"heuristic category mapping, not an ATT&CK classifier\"}",
+        "error": null
+      },
+      {
+        "name": "propose_action",
+        "args": {
+          "incident_id": "14:219",
+          "verdict": "false_positive",
+          "evidence_ids": [
+            "incident:14:219",
+            "train_incident:14:198",
+            "playbook:07-ransomware-impact:escalation-criteria"
+          ],
+          "categories": [
+            "Impact"
+          ],
+          "counts": {
+            "alert_count": 78,
+            "device_count": 1,
+            "account_count": 1,
+            "ip_count": 2938,
+            "url_count": 1,
+            "sha256_count": 1,
+            "malicious_count": 0,
+            "suspicious_count": 0,
+            "has_mitre": 0
+          }
+        },
+        "ok": true,
+        "latency_ms": 0,
+        "result_size": 148,
+        "preview": "[{\"action\": \"close_no_action\", \"target\": \"incident_queue\", \"rationale\": \"Evidence incident:14:219 supports close_no_action at the incident level.\"}]",
+        "error": null
+      }
+    ],
+    "revision_count": 0,
+    "prompt_version": "w3_agent_v1",
+    "prompt_sha256": "7530a76407f495b3aa256e4fd4e7b06eb6b9a7a75dbb9d20dac235632181e6a9",
+    "prompt_chars": 9741,
+    "llm_backend": "offline_policy",
+    "schema_valid": true,
+    "violations": [],
+    "latency_ms": 53,
+    "cost_usd": 0.0,
+    "notes": [
+      "No external LLM is called. The decision comes from a deterministic policy over the calibrated classifier and retrieved evidence."
+    ]
+  },
+  {
+    "case_id": "case_05",
+    "incident_id": "24:11168",
+    "expected_label": "true_positive",
+    "decision": {
+      "incident_id": "24:11168",
+      "verdict": "true_positive",
+      "priority": "medium",
+      "remediation": [
+        {
+          "action": "contain_host",
+          "target": "affected_host",
+          "rationale": "Evidence incident:24:11168 supports contain_host at the incident level."
+        },
+        {
+          "action": "disable_account",
+          "target": "affected_account",
+          "rationale": "Evidence incident:24:11168 supports disable_account at the incident level."
+        },
+        {
+          "action": "block_indicator",
+          "target": "network_indicator",
+          "rationale": "Evidence incident:24:11168 supports block_indicator at the incident level."
+        },
+        {
+          "action": "escalate_to_incident_response",
+          "target": "incident_response",
+          "rationale": "Evidence incident:24:11168 supports escalate_to_incident_response at the incident level."
+        }
+      ],
+      "evidence": [
+        {
+          "evidence_id": "incident:24:11168",
+          "quote": "SuspiciousActivity CloudApplication Ip User Impacted Related Contextual 21",
+          "source": "incident"
+        },
+        {
+          "evidence_id": "train_incident:1552:167572",
+          "quote": "SuspiciousActivity CloudApplication Ip User Impacted Related Contextual 21",
+          "source": "train_incident"
+        },
+        {
+          "evidence_id": "playbook:09-incident-response-escalation:escalation-criteria",
+          "quote": "Incident Response and Escalation Escalation criteria. Escalate to a human reviewer when confidence is low, evidence conflicts, the asset is business-critical, or the decision would disable a shared account. Escalate to incident command for ransomware, data loss, or multi-host spread.",
+          "source": "playbook"
+        }
+      ],
+      "confidence": 0.7801542476372768,
+      "needs_human": false,
+      "route": "auto_escalate",
+      "classifier_version": "tfidf_lgbm_calibrated_v1",
+      "prompt_version": "w3_agent_v1",
+      "tool_calls": 5,
+      "latency_ms": 106,
+      "cost_usd": 0.0
+    },
+    "probabilities": {
+      "true_positive": 0.7801542476372768,
+      "benign_positive": 0.2004947475745878,
+      "false_positive": 0.01935100478813552
+    },
+    "top_label": "true_positive",
+    "tool_calls": [
+      {
+        "name": "get_incident",
+        "args": {
+          "incident_id": "24:11168"
+        },
+        "ok": true,
+        "latency_ms": 0,
+        "result_size": 690,
+        "preview": "{\"incident_id\": \"24:11168\", \"title\": \"21\", \"alert_title\": \"21\", \"summary\": \"SuspiciousActivity CloudApplication Ip User Impacted Related Contextual 21\", \"created_at\": \"2024-06-05 17:42:14\", \"org_hash\": \"c2356069e9d1\", \"alert_count\": 40, \"evidence_count\": 120, \"detector_count\": 1, \"entity_type_count\"",
+        "error": null
+      },
+      {
+        "name": "search_similar_incidents",
+        "args": {
+          "incident_id": "24:11168",
+          "k": 5
+        },
+        "ok": true,
+        "latency_ms": 45,
+        "result_size": 1999,
+        "preview": "[{\"doc_id\": \"incident:1552:167572\", \"source\": \"incident\", \"source_id\": \"1552:167572\", \"title\": \"21\", \"text\": \"SuspiciousActivity CloudApplication Ip User Impacted Related Contextual 21\", \"score\": 0.029386529386529386, \"label\": \"true_positive\", \"categories\": [\"SuspiciousActivity\"], \"mitre\": [\"nan\"], ",
+        "error": null
+      },
+      {
+        "name": "retrieve_playbook",
+        "args": {
+          "incident_id": "24:11168",
+          "k": 5
+        },
+        "ok": true,
+        "latency_ms": 47,
+        "result_size": 4159,
+        "preview": "[{\"doc_id\": \"playbook:09-incident-response-escalation:escalation-criteria\", \"source\": \"playbook\", \"source_id\": \"playbook:09-incident-response-escalation:escalation-criteria\", \"title\": \"Incident Response and Escalation / Escalation criteria\", \"text\": \"Incident Response and Escalation Escalation crite",
+        "error": null
+      },
+      {
+        "name": "map_attack",
+        "args": {
+          "incident_id": "24:11168"
+        },
+        "ok": true,
+        "latency_ms": 0,
+        "result_size": 187,
+        "preview": "{\"observed_categories\": [\"SuspiciousActivity\"], \"observed_techniques\": [\"nan\"], \"suggested_techniques\": [\"T1078\", \"T1566\"], \"note\": \"heuristic category mapping, not an ATT&CK classifier\"}",
+        "error": null
+      },
+      {
+        "name": "propose_action",
+        "args": {
+          "incident_id": "24:11168",
+          "verdict": "true_positive",
+          "evidence_ids": [
+            "incident:24:11168",
+            "train_incident:1552:167572",
+            "playbook:09-incident-response-escalation:escalation-criteria"
+          ],
+          "categories": [
+            "SuspiciousActivity"
+          ],
+          "counts": {
+            "alert_count": 40,
+            "device_count": 1,
+            "account_count": 2,
+            "ip_count": 3,
+            "url_count": 1,
+            "sha256_count": 1,
+            "malicious_count": 0,
+            "suspicious_count": 0,
+            "has_mitre": 0
+          }
+        },
+        "ok": true,
+        "latency_ms": 0,
+        "result_size": 629,
+        "preview": "[{\"action\": \"contain_host\", \"target\": \"affected_host\", \"rationale\": \"Evidence incident:24:11168 supports contain_host at the incident level.\"}, {\"action\": \"disable_account\", \"target\": \"affected_account\", \"rationale\": \"Evidence incident:24:11168 supports disable_account at the incident level.\"}, {\"ac",
+        "error": null
+      }
+    ],
+    "revision_count": 0,
+    "prompt_version": "w3_agent_v1",
+    "prompt_sha256": "0a9593957e1b4d0e41288cfd32985d4fb8097c371878a76deb23d73ed789b47e",
+    "prompt_chars": 11291,
+    "llm_backend": "offline_policy",
+    "schema_valid": true,
+    "violations": [],
+    "latency_ms": 106,
+    "cost_usd": 0.0,
+    "notes": [
+      "No external LLM is called. The decision comes from a deterministic policy over the calibrated classifier and retrieved evidence."
+    ]
+  },
+  {
+    "case_id": "case_06",
+    "incident_id": "122:29549",
+    "expected_label": "true_positive",
+    "decision": {
+      "incident_id": "122:29549",
+      "verdict": "false_positive",
+      "priority": "low",
+      "remediation": [
+        {
+          "action": "close_no_action",
+          "target": "incident_queue",
+          "rationale": "Evidence incident:122:29549 supports close_no_action at the incident level."
+        },
+        {
+          "action": "tune_detection",
+          "target": "detection_rule",
+          "rationale": "Evidence incident:122:29549 supports tune_detection at the incident level."
+        }
+      ],
+      "evidence": [
+        {
+          "evidence_id": "incident:122:29549",
+          "quote": "Discovery Execution LateralMovement T1021;T1021.004;T1043 T1036;T1055;T1055.012;T1569.002 T1046 File Ip Machine Process User Impacted Related Suspicious Suspicious 1531 1966 445 814",
+          "source": "incident"
+        },
+        {
+          "evidence_id": "train_incident:721:7747",
+          "quote": "CredentialAccess Execution LateralMovement T1003;T1005;T1119;T1539;T1550.004;T1552.001;T1555.003;T1555.004 T1021;T1021.004;T1043 T1059;T1059.001 File Ip Machine Process User Impacted Related Suspicious Suspicious 13469 445 92",
+          "source": "train_incident"
+        },
+        {
+          "evidence_id": "playbook:03-endpoint-malware:detection-signals",
+          "quote": "Endpoint Malware and Execution Detection signals. Known-bad hash, unsigned binary in a user-writable path, Office or browser spawning a script host, credential dumping, suspicious parent-child process, and repeated execution attempts. A file name alone is weak evidence.",
+          "source": "playbook"
+        }
+      ],
+      "confidence": 0.6763312834990637,
+      "needs_human": true,
+      "route": "agent",
+      "classifier_version": "tfidf_lgbm_calibrated_v1",
+      "prompt_version": "w3_agent_v1",
+      "tool_calls": 5,
+      "latency_ms": 126,
+      "cost_usd": 0.0
+    },
+    "probabilities": {
+      "true_positive": 0.06241811763146195,
+      "benign_positive": 0.2612505988694744,
+      "false_positive": 0.6763312834990637
+    },
+    "top_label": "false_positive",
+    "tool_calls": [
+      {
+        "name": "get_incident",
+        "args": {
+          "incident_id": "122:29549"
+        },
+        "ok": true,
+        "latency_ms": 0,
+        "result_size": 916,
+        "preview": "{\"incident_id\": \"122:29549\", \"title\": \"814\", \"alert_title\": \"814\", \"summary\": \"Discovery Execution LateralMovement T1021;T1021.004;T1043 T1036;T1055;T1055.012;T1569.002 T1046 File Ip Machine Process User Impacted Related Suspicious Suspicious 1531 1966 445 814\", \"created_at\": \"2024-06-03 17:39:30\", ",
+        "error": null
+      },
+      {
+        "name": "search_similar_incidents",
+        "args": {
+          "incident_id": "122:29549",
+          "k": 5
+        },
+        "ok": true,
+        "latency_ms": 54,
+        "result_size": 4778,
+        "preview": "[{\"doc_id\": \"incident:721:7747\", \"source\": \"incident\", \"source_id\": \"721:7747\", \"title\": \"92\", \"text\": \"CredentialAccess Execution LateralMovement T1003;T1005;T1119;T1539;T1550.004;T1552.001;T1555.003;T1555.004 T1021;T1021.004;T1043 T1059;T1059.001 File Ip Machine Process User Impacted Related Suspi",
+        "error": null
+      },
+      {
+        "name": "retrieve_playbook",
+        "args": {
+          "incident_id": "122:29549",
+          "k": 5
+        },
+        "ok": true,
+        "latency_ms": 61,
+        "result_size": 4248,
+        "preview": "[{\"doc_id\": \"playbook:03-endpoint-malware:detection-signals\", \"source\": \"playbook\", \"source_id\": \"playbook:03-endpoint-malware:detection-signals\", \"title\": \"Endpoint Malware and Execution / Detection signals\", \"text\": \"Endpoint Malware and Execution Detection signals. Known-bad hash, unsigned binary",
+        "error": null
+      },
+      {
+        "name": "map_attack",
+        "args": {
+          "incident_id": "122:29549"
+        },
+        "ok": true,
+        "latency_ms": 0,
+        "result_size": 332,
+        "preview": "{\"observed_categories\": [\"Discovery\", \"Execution\", \"LateralMovement\"], \"observed_techniques\": [\"T1021\", \"T1021.004\", \"T1043\", \"T1036\", \"T1055\", \"T1055.012\", \"T1569.002\", \"T1046\"], \"suggested_techniques\": [\"T1021\", \"T1046\", \"T1059\", \"T1082\", \"T1087\", \"T1204\", \"T1570\"], \"note\": \"heuristic category map",
+        "error": null
+      },
+      {
+        "name": "propose_action",
+        "args": {
+          "incident_id": "122:29549",
+          "verdict": "false_positive",
+          "evidence_ids": [
+            "incident:122:29549",
+            "train_incident:721:7747",
+            "playbook:03-endpoint-malware:detection-signals"
+          ],
+          "categories": [
+            "Discovery",
+            "Execution",
+            "LateralMovement"
+          ],
+          "counts": {
+            "alert_count": 11,
+            "device_count": 2,
+            "account_count": 2,
+            "ip_count": 10,
+            "url_count": 1,
+            "sha256_count": 3,
+            "malicious_count": 0,
+            "suspicious_count": 52,
+            "has_mitre": 1
+          }
+        },
+        "ok": true,
+        "latency_ms": 0,
+        "result_size": 300,
+        "preview": "[{\"action\": \"close_no_action\", \"target\": \"incident_queue\", \"rationale\": \"Evidence incident:122:29549 supports close_no_action at the incident level.\"}, {\"action\": \"tune_detection\", \"target\": \"detection_rule\", \"rationale\": \"Evidence incident:122:29549 supports tune_detection at the incident level.\"}]",
+        "error": null
+      }
+    ],
+    "revision_count": 0,
+    "prompt_version": "w3_agent_v1",
+    "prompt_sha256": "8c9e15bb7b64a99c76803c882eb069d882e4482eb5e4567a99b7826fd078078f",
+    "prompt_chars": 14945,
+    "llm_backend": "offline_policy",
+    "schema_valid": true,
+    "violations": [],
+    "latency_ms": 126,
+    "cost_usd": 0.0,
+    "notes": [
+      "No external LLM is called. The decision comes from a deterministic policy over the calibrated classifier and retrieved evidence."
+    ]
+  },
+  {
+    "case_id": "case_07",
+    "incident_id": "426:202664",
+    "expected_label": "true_positive",
+    "decision": {
+      "incident_id": "426:202664",
+      "verdict": "true_positive",
+      "priority": "high",
+      "remediation": [
+        {
+          "action": "contain_host",
+          "target": "affected_host",
+          "rationale": "Evidence incident:426:202664 supports contain_host at the incident level."
+        },
+        {
+          "action": "disable_account",
+          "target": "affected_account",
+          "rationale": "Evidence incident:426:202664 supports disable_account at the incident level."
+        },
+        {
+          "action": "block_indicator",
+          "target": "network_indicator",
+          "rationale": "Evidence incident:426:202664 supports block_indicator at the incident level."
+        },
+        {
+          "action": "escalate_to_incident_response",
+          "target": "incident_response",
+          "rationale": "Evidence incident:426:202664 supports escalate_to_incident_response at the incident level."
+        }
+      ],
+      "evidence": [
+        {
+          "evidence_id": "incident:426:202664",
+          "quote": "DefenseEvasion InitialAccess SuspiciousActivity T1078;T1078.004 CloudApplication CloudLogonRequest Ip User Impacted Related Attacker Contextual 45892 77 804",
+          "source": "incident"
+        },
+        {
+          "evidence_id": "train_incident:283:149729",
+          "quote": "DefenseEvasion InitialAccess T1078;T1078.004 CloudApplication CloudLogonRequest CloudLogonSession Ip User Impacted Related Attacker Contextual 0 15 804",
+          "source": "train_incident"
+        },
+        {
+          "evidence_id": "playbook:08-cloud-email:detection-signals",
+          "quote": "Cloud and Email Compromise Detection signals. New inbox rule forwarding mail, OAuth consent to an unknown app, mass file download, external sharing change, token use from a new location, and audit events from an unfamiliar user agent.",
+          "source": "playbook"
+        }
+      ],
+      "confidence": 0.7967817295198825,
+      "needs_human": false,
+      "route": "auto_escalate",
+      "classifier_version": "tfidf_lgbm_calibrated_v1",
+      "prompt_version": "w3_agent_v1",
+      "tool_calls": 5,
+      "latency_ms": 110,
+      "cost_usd": 0.0
+    },
+    "probabilities": {
+      "true_positive": 0.7967817295198825,
+      "benign_positive": 0.11873730723891805,
+      "false_positive": 0.08448096324119954
+    },
+    "top_label": "true_positive",
+    "tool_calls": [
+      {
+        "name": "get_incident",
+        "args": {
+          "incident_id": "426:202664"
+        },
+        "ok": true,
+        "latency_ms": 0,
+        "result_size": 823,
+        "preview": "{\"incident_id\": \"426:202664\", \"title\": \"804\", \"alert_title\": \"804\", \"summary\": \"DefenseEvasion InitialAccess SuspiciousActivity T1078;T1078.004 CloudApplication CloudLogonRequest Ip User Impacted Related Attacker Contextual 45892 77 804\", \"created_at\": \"2024-06-11 21:16:39\", \"org_hash\": \"9be3da431e0",
+        "error": null
+      },
+      {
+        "name": "search_similar_incidents",
+        "args": {
+          "incident_id": "426:202664",
+          "k": 5
+        },
+        "ok": true,
+        "latency_ms": 49,
+        "result_size": 2856,
+        "preview": "[{\"doc_id\": \"incident:283:149729\", \"source\": \"incident\", \"source_id\": \"283:149729\", \"title\": \"804\", \"text\": \"DefenseEvasion InitialAccess T1078;T1078.004 CloudApplication CloudLogonRequest CloudLogonSession Ip User Impacted Related Attacker Contextual 0 15 804\", \"score\": 0.03225806451612903, \"label\"",
+        "error": null
+      },
+      {
+        "name": "retrieve_playbook",
+        "args": {
+          "incident_id": "426:202664",
+          "k": 5
+        },
+        "ok": true,
+        "latency_ms": 48,
+        "result_size": 4043,
+        "preview": "[{\"doc_id\": \"playbook:08-cloud-email:detection-signals\", \"source\": \"playbook\", \"source_id\": \"playbook:08-cloud-email:detection-signals\", \"title\": \"Cloud and Email Compromise / Detection signals\", \"text\": \"Cloud and Email Compromise Detection signals. New inbox rule forwarding mail, OAuth consent to ",
+        "error": null
+      },
+      {
+        "name": "map_attack",
+        "args": {
+          "incident_id": "426:202664"
+        },
+        "ok": true,
+        "latency_ms": 0,
+        "result_size": 273,
+        "preview": "{\"observed_categories\": [\"DefenseEvasion\", \"InitialAccess\", \"SuspiciousActivity\"], \"observed_techniques\": [\"T1078\", \"T1078.004\"], \"suggested_techniques\": [\"T1027\", \"T1070\", \"T1078\", \"T1190\", \"T1562\", \"T1566\"], \"note\": \"heuristic category mapping, not an ATT&CK classifier\"}",
+        "error": null
+      },
+      {
+        "name": "propose_action",
+        "args": {
+          "incident_id": "426:202664",
+          "verdict": "true_positive",
+          "evidence_ids": [
+            "incident:426:202664",
+            "train_incident:283:149729",
+            "playbook:08-cloud-email:detection-signals"
+          ],
+          "categories": [
+            "DefenseEvasion",
+            "InitialAccess",
+            "SuspiciousActivity"
+          ],
+          "counts": {
+            "alert_count": 3,
+            "device_count": 1,
+            "account_count": 2,
+            "ip_count": 2,
+            "url_count": 1,
+            "sha256_count": 1,
+            "malicious_count": 0,
+            "suspicious_count": 0,
+            "has_mitre": 1
+          }
+        },
+        "ok": true,
+        "latency_ms": 0,
+        "result_size": 637,
+        "preview": "[{\"action\": \"contain_host\", \"target\": \"affected_host\", \"rationale\": \"Evidence incident:426:202664 supports contain_host at the incident level.\"}, {\"action\": \"disable_account\", \"target\": \"affected_account\", \"rationale\": \"Evidence incident:426:202664 supports disable_account at the incident level.\"}, ",
+        "error": null
+      }
+    ],
+    "revision_count": 0,
+    "prompt_version": "w3_agent_v1",
+    "prompt_sha256": "299fca4b3e9e7465dbc8636bd83f544f07ed82426cdea6aa66c76a291d22b8d9",
+    "prompt_chars": 12346,
+    "llm_backend": "offline_policy",
+    "schema_valid": true,
+    "violations": [],
+    "latency_ms": 110,
+    "cost_usd": 0.0,
+    "notes": [
+      "No external LLM is called. The decision comes from a deterministic policy over the calibrated classifier and retrieved evidence."
+    ]
+  },
+  {
+    "case_id": "case_08",
+    "incident_id": "790:3189",
+    "expected_label": "benign_positive",
+    "decision": {
+      "incident_id": "790:3189",
+      "verdict": "benign_positive",
+      "priority": "medium",
+      "remediation": [
+        {
+          "action": "monitor",
+          "target": "incident_queue",
+          "rationale": "Evidence incident:790:3189 supports monitor at the incident level."
+        },
+        {
+          "action": "user_awareness_training",
+          "target": "user_group",
+          "rationale": "Evidence incident:790:3189 supports user_awareness_training at the incident level."
+        },
+        {
+          "action": "tune_detection",
+          "target": "detection_rule",
+          "rationale": "Evidence incident:790:3189 supports tune_detection at the incident level."
+        }
+      ],
+      "evidence": [
+        {
+          "evidence_id": "incident:790:3189",
+          "quote": "CommandAndControl CredentialAccess DefenseEvasion Discovery Execution Malware SuspiciousActivity T1007;T1010;T1016;T1018;T1049;T1059.001;T1087;T1135;T1518 T1010;T1059.001;T1518 T1016;T1059.001;T1106 T1055.001 T1055;T1055.001;T1055.002;T1055.003;T1055.004;T1055.012;T1059.001 T1055;T1057 T1057 T1057;T1059.001;T1106 T1059.001 T1059.001;T1059.005;T1059.007 T1102 T1218.002 T1598 File Ip Machine Process Url User Impacted Related Suspicious Malicious Suspicious CymRan Cymulate Cymulion Cymuta Execution",
+          "source": "incident"
+        },
+        {
+          "evidence_id": "train_incident:26:6704",
+          "quote": "CredentialAccess DefenseEvasion Discovery Execution Malware T1003;T1005;T1119;T1539;T1550.004;T1552.001;T1555.003;T1555.004 T1007;T1016;T1018;T1049;T1087;T1135 T1027;T1204.002 T1055;T1055.001;T1055.002;T1055.003;T1055.004;T1055.012;T1059.001 T1057;T1059.001;T1106 T1059.001 T1059.001;T1059.005;T1059.007 T1218.005 File Machine Process Url User Impacted Related Suspicious Suspicious 119 136 145 190 275 28 624 63 92",
+          "source": "train_incident"
+        },
+        {
+          "evidence_id": "playbook:03-endpoint-malware:detection-signals",
+          "quote": "Endpoint Malware and Execution Detection signals. Known-bad hash, unsigned binary in a user-writable path, Office or browser spawning a script host, credential dumping, suspicious parent-child process, and repeated execution attempts. A file name alone is weak evidence.",
+          "source": "playbook"
+        }
+      ],
+      "confidence": 0.6270509183847705,
+      "needs_human": true,
+      "route": "agent",
+      "classifier_version": "tfidf_lgbm_calibrated_v1",
+      "prompt_version": "w3_agent_v1",
+      "tool_calls": 5,
+      "latency_ms": 191,
+      "cost_usd": 0.0
+    },
+    "probabilities": {
+      "true_positive": 0.3689657733024494,
+      "benign_positive": 0.6270509183847705,
+      "false_positive": 0.003983308312780152
+    },
+    "top_label": "benign_positive",
+    "tool_calls": [
+      {
+        "name": "get_incident",
+        "args": {
+          "incident_id": "790:3189"
+        },
+        "ok": true,
+        "latency_ms": 0,
+        "result_size": 1865,
+        "preview": "{\"incident_id\": \"790:3189\", \"title\": \"944\", \"alert_title\": \"944\", \"summary\": \"CommandAndControl CredentialAccess DefenseEvasion Discovery Execution Malware SuspiciousActivity T1007;T1010;T1016;T1018;T1049;T1059.001;T1087;T1135;T1518 T1010;T1059.001;T1518 T1016;T1059.001;T1106 T1055.001 T1055;T1055.0",
+        "error": null
+      },
+      {
+        "name": "search_similar_incidents",
+        "args": {
+          "incident_id": "790:3189",
+          "k": 5
+        },
+        "ok": true,
+        "latency_ms": 94,
+        "result_size": 6695,
+        "preview": "[{\"doc_id\": \"incident:26:6704\", \"source\": \"incident\", \"source_id\": \"26:6704\", \"title\": \"92\", \"text\": \"CredentialAccess DefenseEvasion Discovery Execution Malware T1003;T1005;T1119;T1539;T1550.004;T1552.001;T1555.003;T1555.004 T1007;T1016;T1018;T1049;T1087;T1135 T1027;T1204.002 T1055;T1055.001;T1055.",
+        "error": null
+      },
+      {
+        "name": "retrieve_playbook",
+        "args": {
+          "incident_id": "790:3189",
+          "k": 5
+        },
+        "ok": true,
+        "latency_ms": 84,
+        "result_size": 4077,
+        "preview": "[{\"doc_id\": \"playbook:03-endpoint-malware:detection-signals\", \"source\": \"playbook\", \"source_id\": \"playbook:03-endpoint-malware:detection-signals\", \"title\": \"Endpoint Malware and Execution / Detection signals\", \"text\": \"Endpoint Malware and Execution Detection signals. Known-bad hash, unsigned binary",
+        "error": null
+      },
+      {
+        "name": "map_attack",
+        "args": {
+          "incident_id": "790:3189"
+        },
+        "ok": true,
+        "latency_ms": 0,
+        "result_size": 790,
+        "preview": "{\"observed_categories\": [\"CommandAndControl\", \"CredentialAccess\", \"DefenseEvasion\", \"Discovery\", \"Execution\", \"Malware\", \"SuspiciousActivity\"], \"observed_techniques\": [\"T1007\", \"T1010\", \"T1016\", \"T1018\", \"T1049\", \"T1059.001\", \"T1087\", \"T1135\", \"T1518\", \"T1010\", \"T1059.001\", \"T1518\", \"T1016\", \"T1059.",
+        "error": null
+      },
+      {
+        "name": "propose_action",
+        "args": {
+          "incident_id": "790:3189",
+          "verdict": "benign_positive",
+          "evidence_ids": [
+            "incident:790:3189",
+            "train_incident:26:6704",
+            "playbook:03-endpoint-malware:detection-signals"
+          ],
+          "categories": [
+            "CommandAndControl",
+            "CredentialAccess",
+            "DefenseEvasion",
+            "Discovery",
+            "Execution",
+            "Malware",
+            "SuspiciousActivity"
+          ],
+          "counts": {
+            "alert_count": 93,
+            "device_count": 2,
+            "account_count": 2,
+            "ip_count": 5,
+            "url_count": 7,
+            "sha256_count": 198,
+            "malicious_count": 194,
+            "suspicious_count": 404,
+            "has_mitre": 1
+          }
+        },
+        "ok": true,
+        "latency_ms": 0,
+        "result_size": 444,
+        "preview": "[{\"action\": \"monitor\", \"target\": \"incident_queue\", \"rationale\": \"Evidence incident:790:3189 supports monitor at the incident level.\"}, {\"action\": \"user_awareness_training\", \"target\": \"user_group\", \"rationale\": \"Evidence incident:790:3189 supports user_awareness_training at the incident level.\"}, {\"a",
+        "error": null
+      }
+    ],
+    "revision_count": 0,
+    "prompt_version": "w3_agent_v1",
+    "prompt_sha256": "307a895cfbad1e7373813474aadbd60c94eaef7f6a8dad8785d7be65447b8932",
+    "prompt_chars": 19041,
+    "llm_backend": "offline_policy",
+    "schema_valid": true,
+    "violations": [],
+    "latency_ms": 191,
+    "cost_usd": 0.0,
+    "notes": [
+      "No external LLM is called. The decision comes from a deterministic policy over the calibrated classifier and retrieved evidence."
+    ]
+  },
+  {
+    "case_id": "case_09",
+    "incident_id": "96:5006",
+    "expected_label": "benign_positive",
+    "decision": {
+      "incident_id": "96:5006",
+      "verdict": "benign_positive",
+      "priority": "medium",
+      "remediation": [
+        {
+          "action": "monitor",
+          "target": "incident_queue",
+          "rationale": "Evidence incident:96:5006 supports monitor at the incident level."
+        },
+        {
+          "action": "user_awareness_training",
+          "target": "user_group",
+          "rationale": "Evidence incident:96:5006 supports user_awareness_training at the incident level."
+        },
+        {
+          "action": "tune_detection",
+          "target": "detection_rule",
+          "rationale": "Evidence incident:96:5006 supports tune_detection at the incident level."
+        }
+      ],
+      "evidence": [
+        {
+          "evidence_id": "incident:96:5006",
+          "quote": "CommandAndControl CredentialAccess DefenseEvasion Discovery Malware Ransomware SuspiciousActivity T1007;T1016;T1018;T1049;T1082;T1087;T1135 T1016;T1047;T1482 T1021.002;T1047;T1550.002;T1569.002 T1055;T1055.001;T1055.002;T1055.003;T1055.004;T1055.012;T1059.001 T1055;T1105 T1218.003;T1220 T1546.011 T1555 File Ip Machine Process Url User Impacted Related Incriminated Suspicious Malicious Suspicious ApplicationShimming Depriz Gsecdump Hombot ISMInject Impacket LaZagne Mimikatz Noratops PWDump Poison",
+          "source": "incident"
+        },
+        {
+          "evidence_id": "train_incident:56:4193",
+          "quote": "CommandAndControl CredentialAccess DefenseEvasion Discovery Malware Persistence PrivilegeEscalation Ransomware SuspiciousActivity T1007;T1016;T1018;T1049;T1082;T1087;T1135 T1036;T1218.011 T1037;T1037.001 T1055;T1105 T1218.004 T1546.008;T1546.012 File Ip Machine Process RegistryKey RegistryValue Url User Impacted Related Suspicious Malicious Suspicious Depriz Hombot ISMInject Mimikatz Noratops PWDump PoisonFrog PowerView Rapid TDTESS Tarply Tnega Vrsten 1044 1091 199 265 3320 4061 5159 557 5822 6",
+          "source": "train_incident"
+        },
+        {
+          "evidence_id": "playbook:03-endpoint-malware:detection-signals",
+          "quote": "Endpoint Malware and Execution Detection signals. Known-bad hash, unsigned binary in a user-writable path, Office or browser spawning a script host, credential dumping, suspicious parent-child process, and repeated execution attempts. A file name alone is weak evidence.",
+          "source": "playbook"
+        }
+      ],
+      "confidence": 0.9046777214711613,
+      "needs_human": false,
+      "route": "agent",
+      "classifier_version": "tfidf_lgbm_calibrated_v1",
+      "prompt_version": "w3_agent_v1",
+      "tool_calls": 5,
+      "latency_ms": 187,
+      "cost_usd": 0.0
+    },
+    "probabilities": {
+      "true_positive": 0.09229060406326903,
+      "benign_positive": 0.9046777214711613,
+      "false_positive": 0.003031674465569749
+    },
+    "top_label": "benign_positive",
+    "tool_calls": [
+      {
+        "name": "get_incident",
+        "args": {
+          "incident_id": "96:5006"
+        },
+        "ok": true,
+        "latency_ms": 0,
+        "result_size": 1964,
+        "preview": "{\"incident_id\": \"96:5006\", \"title\": \"977\", \"alert_title\": \"977\", \"summary\": \"CommandAndControl CredentialAccess DefenseEvasion Discovery Malware Ransomware SuspiciousActivity T1007;T1016;T1018;T1049;T1082;T1087;T1135 T1016;T1047;T1482 T1021.002;T1047;T1550.002;T1569.002 T1055;T1055.001;T1055.002;T10",
+        "error": null
+      },
+      {
+        "name": "search_similar_incidents",
+        "args": {
+          "incident_id": "96:5006",
+          "k": 5
+        },
+        "ok": true,
+        "latency_ms": 90,
+        "result_size": 5721,
+        "preview": "[{\"doc_id\": \"incident:56:4193\", \"source\": \"incident\", \"source_id\": \"56:4193\", \"title\": \"977\", \"text\": \"CommandAndControl CredentialAccess DefenseEvasion Discovery Malware Persistence PrivilegeEscalation Ransomware SuspiciousActivity T1007;T1016;T1018;T1049;T1082;T1087;T1135 T1036;T1218.011 T1037;T10",
+        "error": null
+      },
+      {
+        "name": "retrieve_playbook",
+        "args": {
+          "incident_id": "96:5006",
+          "k": 5
+        },
+        "ok": true,
+        "latency_ms": 85,
+        "result_size": 4011,
+        "preview": "[{\"doc_id\": \"playbook:03-endpoint-malware:detection-signals\", \"source\": \"playbook\", \"source_id\": \"playbook:03-endpoint-malware:detection-signals\", \"title\": \"Endpoint Malware and Execution / Detection signals\", \"text\": \"Endpoint Malware and Execution Detection signals. Known-bad hash, unsigned binary",
+        "error": null
+      },
+      {
+        "name": "map_attack",
+        "args": {
+          "incident_id": "96:5006"
+        },
+        "ok": true,
+        "latency_ms": 0,
+        "result_size": 699,
+        "preview": "{\"observed_categories\": [\"CommandAndControl\", \"CredentialAccess\", \"DefenseEvasion\", \"Discovery\", \"Malware\", \"Ransomware\", \"SuspiciousActivity\"], \"observed_techniques\": [\"T1007\", \"T1016\", \"T1018\", \"T1049\", \"T1082\", \"T1087\", \"T1135\", \"T1016\", \"T1047\", \"T1482\", \"T1021.002\", \"T1047\", \"T1550.002\", \"T1569",
+        "error": null
+      },
+      {
+        "name": "propose_action",
+        "args": {
+          "incident_id": "96:5006",
+          "verdict": "benign_positive",
+          "evidence_ids": [
+            "incident:96:5006",
+            "train_incident:56:4193",
+            "playbook:03-endpoint-malware:detection-signals"
+          ],
+          "categories": [
+            "CommandAndControl",
+            "CredentialAccess",
+            "DefenseEvasion",
+            "Discovery",
+            "Malware",
+            "Ransomware",
+            "SuspiciousActivity"
+          ],
+          "counts": {
+            "alert_count": 80,
+            "device_count": 7,
+            "account_count": 2,
+            "ip_count": 3,
+            "url_count": 7,
+            "sha256_count": 35,
+            "malicious_count": 104,
+            "suspicious_count": 254,
+            "has_mitre": 1
+          }
+        },
+        "ok": true,
+        "latency_ms": 0,
+        "result_size": 441,
+        "preview": "[{\"action\": \"monitor\", \"target\": \"incident_queue\", \"rationale\": \"Evidence incident:96:5006 supports monitor at the incident level.\"}, {\"action\": \"user_awareness_training\", \"target\": \"user_group\", \"rationale\": \"Evidence incident:96:5006 supports user_awareness_training at the incident level.\"}, {\"act",
+        "error": null
+      }
+    ],
+    "revision_count": 0,
+    "prompt_version": "w3_agent_v1",
+    "prompt_sha256": "e97e185e8a9258311ecb6bfaee8a0a7f757c4d5b691f1521396bd98d71d51521",
+    "prompt_chars": 17575,
+    "llm_backend": "offline_policy",
+    "schema_valid": true,
+    "violations": [],
+    "latency_ms": 187,
+    "cost_usd": 0.0,
+    "notes": [
+      "No external LLM is called. The decision comes from a deterministic policy over the calibrated classifier and retrieved evidence."
+    ]
+  },
+  {
+    "case_id": "case_10",
+    "incident_id": "26:20940",
+    "expected_label": "benign_positive",
+    "decision": {
+      "incident_id": "26:20940",
+      "verdict": "benign_positive",
+      "priority": "medium",
+      "remediation": [
+        {
+          "action": "monitor",
+          "target": "incident_queue",
+          "rationale": "Evidence incident:26:20940 supports monitor at the incident level."
+        },
+        {
+          "action": "user_awareness_training",
+          "target": "user_group",
+          "rationale": "Evidence incident:26:20940 supports user_awareness_training at the incident level."
+        },
+        {
+          "action": "tune_detection",
+          "target": "detection_rule",
+          "rationale": "Evidence incident:26:20940 supports tune_detection at the incident level."
+        }
+      ],
+      "evidence": [
+        {
+          "evidence_id": "incident:26:20940",
+          "quote": "Malware File Machine Impacted Related Suspicious Malicious Suspicious AgentTesla BoomBox Dropper LazyStealer Leonem Malgent Nemucod Phish Phonzy SoreFang Tnega Zapchast 10549 10552 1113 1956 309 3153 3691 4261 597 606 7377 794 925",
+          "source": "incident"
+        },
+        {
+          "evidence_id": "train_incident:26:13637",
+          "quote": "Exploit Malware SuspiciousActivity File Machine Impacted Related Suspicious Malicious Suspicious AgentTesla BoomBox CVE-2017-11882 Dropper Leonem Malgent Nemucod Obfuse Phish SoreFang TinyProxy Tnega 10549 10552 1113 1194 1796 1839 309 3141 3153 3203 4261 5401 551 597 606 7377 925",
+          "source": "train_incident"
+        },
+        {
+          "evidence_id": "playbook:03-endpoint-malware:detection-signals",
+          "quote": "Endpoint Malware and Execution Detection signals. Known-bad hash, unsigned binary in a user-writable path, Office or browser spawning a script host, credential dumping, suspicious parent-child process, and repeated execution attempts. A file name alone is weak evidence.",
+          "source": "playbook"
+        }
+      ],
+      "confidence": 0.9758733422750796,
+      "needs_human": false,
+      "route": "agent",
+      "classifier_version": "tfidf_lgbm_calibrated_v1",
+      "prompt_version": "w3_agent_v1",
+      "tool_calls": 5,
+      "latency_ms": 101,
+      "cost_usd": 0.0
+    },
+    "probabilities": {
+      "true_positive": 0.023270883244339114,
+      "benign_positive": 0.9758733422750796,
+      "false_positive": 0.0008557744805813027
+    },
+    "top_label": "benign_positive",
+    "tool_calls": [
+      {
+        "name": "get_incident",
+        "args": {
+          "incident_id": "26:20940"
+        },
+        "ok": true,
+        "latency_ms": 0,
+        "result_size": 996,
+        "preview": "{\"incident_id\": \"26:20940\", \"title\": \"925\", \"alert_title\": \"925\", \"summary\": \"Malware File Machine Impacted Related Suspicious Malicious Suspicious AgentTesla BoomBox Dropper LazyStealer Leonem Malgent Nemucod Phish Phonzy SoreFang Tnega Zapchast 10549 10552 1113 1956 309 3153 3691 4261 597 606 7377",
+        "error": null
+      },
+      {
+        "name": "search_similar_incidents",
+        "args": {
+          "incident_id": "26:20940",
+          "k": 5
+        },
+        "ok": true,
+        "latency_ms": 41,
+        "result_size": 3109,
+        "preview": "[{\"doc_id\": \"incident:26:13637\", \"source\": \"incident\", \"source_id\": \"26:13637\", \"title\": \"925\", \"text\": \"Exploit Malware SuspiciousActivity File Machine Impacted Related Suspicious Malicious Suspicious AgentTesla BoomBox CVE-2017-11882 Dropper Leonem Malgent Nemucod Obfuse Phish SoreFang TinyProxy T",
+        "error": null
+      },
+      {
+        "name": "retrieve_playbook",
+        "args": {
+          "incident_id": "26:20940",
+          "k": 5
+        },
+        "ok": true,
+        "latency_ms": 46,
+        "result_size": 3912,
+        "preview": "[{\"doc_id\": \"playbook:03-endpoint-malware:detection-signals\", \"source\": \"playbook\", \"source_id\": \"playbook:03-endpoint-malware:detection-signals\", \"title\": \"Endpoint Malware and Execution / Detection signals\", \"text\": \"Endpoint Malware and Execution Detection signals. Known-bad hash, unsigned binary",
+        "error": null
+      },
+      {
+        "name": "map_attack",
+        "args": {
+          "incident_id": "26:20940"
+        },
+        "ok": true,
+        "latency_ms": 0,
+        "result_size": 176,
+        "preview": "{\"observed_categories\": [\"Malware\"], \"observed_techniques\": [\"nan\"], \"suggested_techniques\": [\"T1105\", \"T1204\"], \"note\": \"heuristic category mapping, not an ATT&CK classifier\"}",
+        "error": null
+      },
+      {
+        "name": "propose_action",
+        "args": {
+          "incident_id": "26:20940",
+          "verdict": "benign_positive",
+          "evidence_ids": [
+            "incident:26:20940",
+            "train_incident:26:13637",
+            "playbook:03-endpoint-malware:detection-signals"
+          ],
+          "categories": [
+            "Malware"
+          ],
+          "counts": {
+            "alert_count": 13,
+            "device_count": 2,
+            "account_count": 1,
+            "ip_count": 1,
+            "url_count": 1,
+            "sha256_count": 28,
+            "malicious_count": 55,
+            "suspicious_count": 68,
+            "has_mitre": 0
+          }
+        },
+        "ok": true,
+        "latency_ms": 0,
+        "result_size": 444,
+        "preview": "[{\"action\": \"monitor\", \"target\": \"incident_queue\", \"rationale\": \"Evidence incident:26:20940 supports monitor at the incident level.\"}, {\"action\": \"user_awareness_training\", \"target\": \"user_group\", \"rationale\": \"Evidence incident:26:20940 supports user_awareness_training at the incident level.\"}, {\"a",
+        "error": null
+      }
+    ],
+    "revision_count": 0,
+    "prompt_version": "w3_agent_v1",
+    "prompt_sha256": "a47fc43b06a48f2828f5f165b20e2a972fe674484fcdb1c263cee39224eea675",
+    "prompt_chars": 12320,
+    "llm_backend": "offline_policy",
+    "schema_valid": true,
+    "violations": [],
+    "latency_ms": 101,
+    "cost_usd": 0.0,
+    "notes": [
+      "No external LLM is called. The decision comes from a deterministic policy over the calibrated classifier and retrieved evidence."
+    ]
+  },
+  {
+    "case_id": "case_11",
+    "incident_id": "151:12115",
+    "expected_label": "benign_positive",
+    "decision": {
+      "incident_id": "151:12115",
+      "verdict": "benign_positive",
+      "priority": "medium",
+      "remediation": [
+        {
+          "action": "monitor",
+          "target": "incident_queue",
+          "rationale": "Evidence incident:151:12115 supports monitor at the incident level."
+        },
+        {
+          "action": "user_awareness_training",
+          "target": "user_group",
+          "rationale": "Evidence incident:151:12115 supports user_awareness_training at the incident level."
+        },
+        {
+          "action": "tune_detection",
+          "target": "detection_rule",
+          "rationale": "Evidence incident:151:12115 supports tune_detection at the incident level."
+        }
+      ],
+      "evidence": [
+        {
+          "evidence_id": "incident:151:12115",
+          "quote": "InitialAccess T1566.002 MailCluster MailMessage Mailbox Url User Impacted Related Malicious NoThreatsFound Inbound 1",
+          "source": "incident"
+        },
+        {
+          "evidence_id": "train_incident:1005:22121",
+          "quote": "InitialAccess T1566.002 MailCluster MailMessage Mailbox Url User Impacted Related Malicious NoThreatsFound Inbound 1",
+          "source": "train_incident"
+        },
+        {
+          "evidence_id": "playbook:02-initial-access-phishing:summary",
+          "quote": "Initial Access and Phishing Summary. Use this playbook for suspicious mail, malicious links, attachment delivery, or a first-stage payload that may open a broader intrusion. The goal is to decide whether the message reached a user and whether execution occurred.",
+          "source": "playbook"
+        }
+      ],
+      "confidence": 0.6516024123482238,
+      "needs_human": true,
+      "route": "agent",
+      "classifier_version": "tfidf_lgbm_calibrated_v1",
+      "prompt_version": "w3_agent_v1",
+      "tool_calls": 5,
+      "latency_ms": 106,
+      "cost_usd": 0.0
+    },
+    "probabilities": {
+      "true_positive": 0.27232046467016824,
+      "benign_positive": 0.6516024123482238,
+      "false_positive": 0.07607712298160796
+    },
+    "top_label": "benign_positive",
+    "tool_calls": [
+      {
+        "name": "get_incident",
+        "args": {
+          "incident_id": "151:12115"
+        },
+        "ok": true,
+        "latency_ms": 0,
+        "result_size": 758,
+        "preview": "{\"incident_id\": \"151:12115\", \"title\": \"1\", \"alert_title\": \"1\", \"summary\": \"InitialAccess T1566.002 MailCluster MailMessage Mailbox Url User Impacted Related Malicious NoThreatsFound Inbound 1\", \"created_at\": \"2024-06-11 10:07:02\", \"org_hash\": \"8e612bd1f5d1\", \"alert_count\": 7, \"evidence_count\": 112, ",
+        "error": null
+      },
+      {
+        "name": "search_similar_incidents",
+        "args": {
+          "incident_id": "151:12115",
+          "k": 5
+        },
+        "ok": true,
+        "latency_ms": 45,
+        "result_size": 2441,
+        "preview": "[{\"doc_id\": \"incident:1005:22121\", \"source\": \"incident\", \"source_id\": \"1005:22121\", \"title\": \"1\", \"text\": \"InitialAccess T1566.002 MailCluster MailMessage Mailbox Url User Impacted Related Malicious NoThreatsFound Inbound 1\", \"score\": 0.02738970588235294, \"label\": \"false_positive\", \"categories\": [\"I",
+        "error": null
+      },
+      {
+        "name": "retrieve_playbook",
+        "args": {
+          "incident_id": "151:12115",
+          "k": 5
+        },
+        "ok": true,
+        "latency_ms": 49,
+        "result_size": 3880,
+        "preview": "[{\"doc_id\": \"playbook:02-initial-access-phishing:summary\", \"source\": \"playbook\", \"source_id\": \"playbook:02-initial-access-phishing:summary\", \"title\": \"Initial Access and Phishing / Summary\", \"text\": \"Initial Access and Phishing Summary. Use this playbook for suspicious mail, malicious links, attachm",
+        "error": null
+      },
+      {
+        "name": "map_attack",
+        "args": {
+          "incident_id": "151:12115"
+        },
+        "ok": true,
+        "latency_ms": 0,
+        "result_size": 197,
+        "preview": "{\"observed_categories\": [\"InitialAccess\"], \"observed_techniques\": [\"T1566.002\"], \"suggested_techniques\": [\"T1078\", \"T1190\", \"T1566\"], \"note\": \"heuristic category mapping, not an ATT&CK classifier\"}",
+        "error": null
+      },
+      {
+        "name": "propose_action",
+        "args": {
+          "incident_id": "151:12115",
+          "verdict": "benign_positive",
+          "evidence_ids": [
+            "incident:151:12115",
+            "train_incident:1005:22121",
+            "playbook:02-initial-access-phishing:summary"
+          ],
+          "categories": [
+            "InitialAccess"
+          ],
+          "counts": {
+            "alert_count": 7,
+            "device_count": 1,
+            "account_count": 9,
+            "ip_count": 1,
+            "url_count": 16,
+            "sha256_count": 1,
+            "malicious_count": 49,
+            "suspicious_count": 0,
+            "has_mitre": 1
+          }
+        },
+        "ok": true,
+        "latency_ms": 0,
+        "result_size": 447,
+        "preview": "[{\"action\": \"monitor\", \"target\": \"incident_queue\", \"rationale\": \"Evidence incident:151:12115 supports monitor at the incident level.\"}, {\"action\": \"user_awareness_training\", \"target\": \"user_group\", \"rationale\": \"Evidence incident:151:12115 supports user_awareness_training at the incident level.\"}, {",
+        "error": null
+      }
+    ],
+    "revision_count": 0,
+    "prompt_version": "w3_agent_v1",
+    "prompt_sha256": "3049e223dacdbdbacf9872e340148efd373783b19187d22f75c698e111ffcbf9",
+    "prompt_chars": 11261,
+    "llm_backend": "offline_policy",
+    "schema_valid": true,
+    "violations": [],
+    "latency_ms": 106,
+    "cost_usd": 0.0,
+    "notes": [
+      "No external LLM is called. The decision comes from a deterministic policy over the calibrated classifier and retrieved evidence."
+    ]
+  },
+  {
+    "case_id": "case_12",
+    "incident_id": "26:14320",
+    "expected_label": "benign_positive",
+    "decision": {
+      "incident_id": "26:14320",
+      "verdict": "benign_positive",
+      "priority": "medium",
+      "remediation": [
+        {
+          "action": "monitor",
+          "target": "incident_queue",
+          "rationale": "Evidence incident:26:14320 supports monitor at the incident level."
+        },
+        {
+          "action": "user_awareness_training",
+          "target": "user_group",
+          "rationale": "Evidence incident:26:14320 supports user_awareness_training at the incident level."
+        },
+        {
+          "action": "tune_detection",
+          "target": "detection_rule",
+          "rationale": "Evidence incident:26:14320 supports tune_detection at the incident level."
+        }
+      ],
+      "evidence": [
+        {
+          "evidence_id": "incident:26:14320",
+          "quote": "Malware File Machine Impacted Related Suspicious Malicious Suspicious LazyStealer Malgent Phonzy Zapchast 1956 309 3691 794",
+          "source": "incident"
+        },
+        {
+          "evidence_id": "train_incident:415:53538",
+          "quote": "Malware File Machine Impacted Related Suspicious Malicious Suspicious Malgent 28793 309 488",
+          "source": "train_incident"
+        },
+        {
+          "evidence_id": "playbook:03-endpoint-malware:detection-signals",
+          "quote": "Endpoint Malware and Execution Detection signals. Known-bad hash, unsigned binary in a user-writable path, Office or browser spawning a script host, credential dumping, suspicious parent-child process, and repeated execution attempts. A file name alone is weak evidence.",
+          "source": "playbook"
+        }
+      ],
+      "confidence": 0.846157238307151,
+      "needs_human": true,
+      "route": "agent",
+      "classifier_version": "tfidf_lgbm_calibrated_v1",
+      "prompt_version": "w3_agent_v1",
+      "tool_calls": 5,
+      "latency_ms": 97,
+      "cost_usd": 0.0
+    },
+    "probabilities": {
+      "true_positive": 0.13984476592631673,
+      "benign_positive": 0.846157238307151,
+      "false_positive": 0.013997995766532318
+    },
+    "top_label": "benign_positive",
+    "tool_calls": [
+      {
+        "name": "get_incident",
+        "args": {
+          "incident_id": "26:14320"
+        },
+        "ok": true,
+        "latency_ms": 0,
+        "result_size": 801,
+        "preview": "{\"incident_id\": \"26:14320\", \"title\": \"794\", \"alert_title\": \"794\", \"summary\": \"Malware File Machine Impacted Related Suspicious Malicious Suspicious LazyStealer Malgent Phonzy Zapchast 1956 309 3691 794\", \"created_at\": \"2024-06-11 03:38:46\", \"org_hash\": \"5f9c4ab08cac\", \"alert_count\": 4, \"evidence_cou",
+        "error": null
+      },
+      {
+        "name": "search_similar_incidents",
+        "args": {
+          "incident_id": "26:14320",
+          "k": 5
+        },
+        "ok": true,
+        "latency_ms": 40,
+        "result_size": 2134,
+        "preview": "[{\"doc_id\": \"incident:415:53538\", \"source\": \"incident\", \"source_id\": \"415:53538\", \"title\": \"488\", \"text\": \"Malware File Machine Impacted Related Suspicious Malicious Suspicious Malgent 28793 309 488\", \"score\": 0.031544957774465976, \"label\": \"benign_positive\", \"categories\": [\"Malware\"], \"mitre\": [\"na",
+        "error": null
+      },
+      {
+        "name": "retrieve_playbook",
+        "args": {
+          "incident_id": "26:14320",
+          "k": 5
+        },
+        "ok": true,
+        "latency_ms": 45,
+        "result_size": 3913,
+        "preview": "[{\"doc_id\": \"playbook:03-endpoint-malware:detection-signals\", \"source\": \"playbook\", \"source_id\": \"playbook:03-endpoint-malware:detection-signals\", \"title\": \"Endpoint Malware and Execution / Detection signals\", \"text\": \"Endpoint Malware and Execution Detection signals. Known-bad hash, unsigned binary",
+        "error": null
+      },
+      {
+        "name": "map_attack",
+        "args": {
+          "incident_id": "26:14320"
+        },
+        "ok": true,
+        "latency_ms": 0,
+        "result_size": 176,
+        "preview": "{\"observed_categories\": [\"Malware\"], \"observed_techniques\": [\"nan\"], \"suggested_techniques\": [\"T1105\", \"T1204\"], \"note\": \"heuristic category mapping, not an ATT&CK classifier\"}",
+        "error": null
+      },
+      {
+        "name": "propose_action",
+        "args": {
+          "incident_id": "26:14320",
+          "verdict": "benign_positive",
+          "evidence_ids": [
+            "incident:26:14320",
+            "train_incident:415:53538",
+            "playbook:03-endpoint-malware:detection-signals"
+          ],
+          "categories": [
+            "Malware"
+          ],
+          "counts": {
+            "alert_count": 4,
+            "device_count": 2,
+            "account_count": 1,
+            "ip_count": 1,
+            "url_count": 1,
+            "sha256_count": 15,
+            "malicious_count": 46,
+            "suspicious_count": 50,
+            "has_mitre": 0
+          }
+        },
+        "ok": true,
+        "latency_ms": 0,
+        "result_size": 444,
+        "preview": "[{\"action\": \"monitor\", \"target\": \"incident_queue\", \"rationale\": \"Evidence incident:26:14320 supports monitor at the incident level.\"}, {\"action\": \"user_awareness_training\", \"target\": \"user_group\", \"rationale\": \"Evidence incident:26:14320 supports user_awareness_training at the incident level.\"}, {\"a",
+        "error": null
+      }
+    ],
+    "revision_count": 0,
+    "prompt_version": "w3_agent_v1",
+    "prompt_sha256": "d5d1ca5682655bb14c58b37b5d5f93a5c9ab841df216ca7ea3940333b2574753",
+    "prompt_chars": 11084,
+    "llm_backend": "offline_policy",
+    "schema_valid": true,
+    "violations": [],
+    "latency_ms": 97,
+    "cost_usd": 0.0,
+    "notes": [
+      "No external LLM is called. The decision comes from a deterministic policy over the calibrated classifier and retrieved evidence."
+    ]
+  },
+  {
+    "case_id": "case_13",
+    "incident_id": "27:1050",
+    "expected_label": "benign_positive",
+    "decision": {
+      "incident_id": "27:1050",
+      "verdict": "benign_positive",
+      "priority": "medium",
+      "remediation": [
+        {
+          "action": "monitor",
+          "target": "incident_queue",
+          "rationale": "Evidence incident:27:1050 supports monitor at the incident level."
+        },
+        {
+          "action": "user_awareness_training",
+          "target": "user_group",
+          "rationale": "Evidence incident:27:1050 supports user_awareness_training at the incident level."
+        },
+        {
+          "action": "tune_detection",
+          "target": "detection_rule",
+          "rationale": "Evidence incident:27:1050 supports tune_detection at the incident level."
+        }
+      ],
+      "evidence": [
+        {
+          "evidence_id": "incident:27:1050",
+          "quote": "CommandAndControl CredentialAccess DefenseEvasion Discovery Execution Exfiltration Impact InitialAccess LateralMovement Malware Persistence PrivilegeEscalation Ransomware SuspiciousActivity T1003;T1005;T1119;T1539;T1550.004;T1552.001;T1555.003;T1555.004 T1003;T1005;T1555;T1555.003;T1555.004 T1003;T1555 T1007;T1016;T1018;T1049;T1057;T1059.001;T1087;T1135 T1007;T1016;T1018;T1049;T1087;T1135 T1010;T1059.001;T1518 T1016;T1018;T1069.002;T1087.002;T1087.003;T1482 T1016;T1018;T1069;T1087;T1482 T1016;T1",
+          "source": "incident"
+        },
+        {
+          "evidence_id": "train_incident:27:344",
+          "quote": "Collection CommandAndControl CredentialAccess DefenseEvasion Discovery Execution Exfiltration Impact InitialAccess LateralMovement Malware Persistence PrivilegeEscalation Ransomware SuspiciousActivity UnwantedSoftware T1003 T1003;T1003.001 T1003;T1005;T1119;T1539;T1550.004;T1552.001;T1555.003;T1555.004 T1003;T1005;T1555;T1555.003;T1555.004 T1003;T1555 T1007;T1016;T1018;T1049;T1057;T1059.001;T1087;T1135 T1007;T1016;T1018;T1049;T1082;T1087;T1135 T1007;T1016;T1018;T1049;T1087;T1135 T1007;T1016;T101",
+          "source": "train_incident"
+        },
+        {
+          "evidence_id": "playbook:03-endpoint-malware:detection-signals",
+          "quote": "Endpoint Malware and Execution Detection signals. Known-bad hash, unsigned binary in a user-writable path, Office or browser spawning a script host, credential dumping, suspicious parent-child process, and repeated execution attempts. A file name alone is weak evidence.",
+          "source": "playbook"
+        }
+      ],
+      "confidence": 0.9992400881290817,
+      "needs_human": true,
+      "route": "agent",
+      "classifier_version": "tfidf_lgbm_calibrated_v1",
+      "prompt_version": "w3_agent_v1",
+      "tool_calls": 5,
+      "latency_ms": 235,
+      "cost_usd": 0.0
+    },
+    "probabilities": {
+      "true_positive": 0.00039718165006000293,
+      "benign_positive": 0.9992400881290817,
+      "false_positive": 0.0003627302208583733
+    },
+    "top_label": "benign_positive",
+    "tool_calls": [
+      {
+        "name": "get_incident",
+        "args": {
+          "incident_id": "27:1050"
+        },
+        "ok": true,
+        "latency_ms": 0,
+        "result_size": 4654,
+        "preview": "{\"incident_id\": \"27:1050\", \"title\": \"9822\", \"alert_title\": \"9822\", \"summary\": \"CommandAndControl CredentialAccess DefenseEvasion Discovery Execution Exfiltration Impact InitialAccess LateralMovement Malware Persistence PrivilegeEscalation Ransomware SuspiciousActivity T1003;T1005;T1119;T1539;T1550.0",
+        "error": null
+      },
+      {
+        "name": "search_similar_incidents",
+        "args": {
+          "incident_id": "27:1050",
+          "k": 5
+        },
+        "ok": true,
+        "latency_ms": 117,
+        "result_size": 16865,
+        "preview": "[{\"doc_id\": \"incident:27:344\", \"source\": \"incident\", \"source_id\": \"27:344\", \"title\": \"9941\", \"text\": \"Collection CommandAndControl CredentialAccess DefenseEvasion Discovery Execution Exfiltration Impact InitialAccess LateralMovement Malware Persistence PrivilegeEscalation Ransomware SuspiciousActivi",
+        "error": null
+      },
+      {
+        "name": "retrieve_playbook",
+        "args": {
+          "incident_id": "27:1050",
+          "k": 5
+        },
+        "ok": true,
+        "latency_ms": 103,
+        "result_size": 3993,
+        "preview": "[{\"doc_id\": \"playbook:03-endpoint-malware:detection-signals\", \"source\": \"playbook\", \"source_id\": \"playbook:03-endpoint-malware:detection-signals\", \"title\": \"Endpoint Malware and Execution / Detection signals\", \"text\": \"Endpoint Malware and Execution Detection signals. Known-bad hash, unsigned binary",
+        "error": null
+      },
+      {
+        "name": "map_attack",
+        "args": {
+          "incident_id": "27:1050"
+        },
+        "ok": true,
+        "latency_ms": 0,
+        "result_size": 2286,
+        "preview": "{\"observed_categories\": [\"CommandAndControl\", \"CredentialAccess\", \"DefenseEvasion\", \"Discovery\", \"Execution\", \"Exfiltration\", \"Impact\", \"InitialAccess\", \"LateralMovement\", \"Malware\", \"Persistence\", \"PrivilegeEscalation\", \"Ransomware\", \"SuspiciousActivity\"], \"observed_techniques\": [\"T1003\", \"T1005\", ",
+        "error": null
+      },
+      {
+        "name": "propose_action",
+        "args": {
+          "incident_id": "27:1050",
+          "verdict": "benign_positive",
+          "evidence_ids": [
+            "incident:27:1050",
+            "train_incident:27:344",
+            "playbook:03-endpoint-malware:detection-signals"
+          ],
+          "categories": [
+            "CommandAndControl",
+            "CredentialAccess",
+            "DefenseEvasion",
+            "Discovery",
+            "Execution",
+            "Exfiltration",
+            "Impact",
+            "InitialAccess",
+            "LateralMovement",
+            "Malware",
+            "Persistence",
+            "PrivilegeEscalation",
+            "Ransomware",
+            "SuspiciousActivity"
+          ],
+          "counts": {
+            "alert_count": 149,
+            "device_count": 5,
+            "account_count": 2,
+            "ip_count": 5,
+            "url_count": 10,
+            "sha256_count": 95,
+            "malicious_count": 11,
+            "suspicious_count": 655,
+            "has_mitre": 1
+          }
+        },
+        "ok": true,
+        "latency_ms": 0,
+        "result_size": 441,
+        "preview": "[{\"action\": \"monitor\", \"target\": \"incident_queue\", \"rationale\": \"Evidence incident:27:1050 supports monitor at the incident level.\"}, {\"action\": \"user_awareness_training\", \"target\": \"user_group\", \"rationale\": \"Evidence incident:27:1050 supports user_awareness_training at the incident level.\"}, {\"act",
+        "error": null
+      }
+    ],
+    "revision_count": 0,
+    "prompt_version": "w3_agent_v1",
+    "prompt_sha256": "89aee027c34d780a6aa0612e08b3b7d9ac97a55e55365a9f80e2e833ba1e6be3",
+    "prompt_chars": 37816,
+    "llm_backend": "offline_policy",
+    "schema_valid": true,
+    "violations": [],
+    "latency_ms": 235,
+    "cost_usd": 0.0,
+    "notes": [
+      "No external LLM is called. The decision comes from a deterministic policy over the calibrated classifier and retrieved evidence."
+    ]
+  },
+  {
+    "case_id": "case_14",
+    "incident_id": "361:43155",
+    "expected_label": "benign_positive",
+    "decision": {
+      "incident_id": "361:43155",
+      "verdict": "benign_positive",
+      "priority": "medium",
+      "remediation": [
+        {
+          "action": "monitor",
+          "target": "incident_queue",
+          "rationale": "Evidence incident:361:43155 supports monitor at the incident level."
+        },
+        {
+          "action": "user_awareness_training",
+          "target": "user_group",
+          "rationale": "Evidence incident:361:43155 supports user_awareness_training at the incident level."
+        },
+        {
+          "action": "tune_detection",
+          "target": "detection_rule",
+          "rationale": "Evidence incident:361:43155 supports tune_detection at the incident level."
+        }
+      ],
+      "evidence": [
+        {
+          "evidence_id": "incident:361:43155",
+          "quote": "CredentialAccess DefenseEvasion Malware Persistence Ransomware SuspiciousActivity T1003 T1003;T1003.002;T1003.005 T1003;T1003.002;T1003.005;T1012 T1003;T1555 T1055;T1055.001;T1055.002;T1055.003;T1055.004;T1055.012;T1059.001 T1546.008;T1546.012 T1555 File Machine Process RegistryValue Url User Impacted Related Suspicious Malicious Suspicious EICAR_Test_File Kwampirs LaZagne Maze Mikatz Mimikatz NukeSped 1030 1140 2590 265 275 32815 422 474 534 557 7507",
+          "source": "incident"
+        },
+        {
+          "evidence_id": "train_incident:42:238195",
+          "quote": "CredentialAccess SuspiciousActivity T1546.008;T1546.012 File Machine Process Impacted Related Suspicious Malicious Suspicious Mimikatz 265 5159",
+          "source": "train_incident"
+        },
+        {
+          "evidence_id": "playbook:05-persistence-defense-evasion:triage-questions",
+          "quote": "Persistence and Defense Evasion Triage questions. What process created the persistence? Was the parent a known installer? Does the entry point to a signed binary? Is the account change approved? Are there matching execution or network alerts?",
+          "source": "playbook"
+        }
+      ],
+      "confidence": 0.9965215930265207,
+      "needs_human": true,
+      "route": "agent",
+      "classifier_version": "tfidf_lgbm_calibrated_v1",
+      "prompt_version": "w3_agent_v1",
+      "tool_calls": 5,
+      "latency_ms": 158,
+      "cost_usd": 0.0
+    },
+    "probabilities": {
+      "true_positive": 0.0024227554053483343,
+      "benign_positive": 0.9965215930265207,
+      "false_positive": 0.0010556515681311072
+    },
+    "top_label": "benign_positive",
+    "tool_calls": [
+      {
+        "name": "get_incident",
+        "args": {
+          "incident_id": "361:43155"
+        },
+        "ok": true,
+        "latency_ms": 0,
+        "result_size": 1483,
+        "preview": "{\"incident_id\": \"361:43155\", \"title\": \"7507\", \"alert_title\": \"7507\", \"summary\": \"CredentialAccess DefenseEvasion Malware Persistence Ransomware SuspiciousActivity T1003 T1003;T1003.002;T1003.005 T1003;T1003.002;T1003.005;T1012 T1003;T1555 T1055;T1055.001;T1055.002;T1055.003;T1055.004;T1055.012;T1059",
+        "error": null
+      },
+      {
+        "name": "search_similar_incidents",
+        "args": {
+          "incident_id": "361:43155",
+          "k": 5
+        },
+        "ok": true,
+        "latency_ms": 74,
+        "result_size": 5261,
+        "preview": "[{\"doc_id\": \"incident:42:238195\", \"source\": \"incident\", \"source_id\": \"42:238195\", \"title\": \"5159\", \"text\": \"CredentialAccess SuspiciousActivity T1546.008;T1546.012 File Machine Process Impacted Related Suspicious Malicious Suspicious Mimikatz 265 5159\", \"score\": 0.027479766610201392, \"label\": \"benig",
+        "error": null
+      },
+      {
+        "name": "retrieve_playbook",
+        "args": {
+          "incident_id": "361:43155",
+          "k": 5
+        },
+        "ok": true,
+        "latency_ms": 70,
+        "result_size": 3969,
+        "preview": "[{\"doc_id\": \"playbook:05-persistence-defense-evasion:triage-questions\", \"source\": \"playbook\", \"source_id\": \"playbook:05-persistence-defense-evasion:triage-questions\", \"title\": \"Persistence and Defense Evasion / Triage questions\", \"text\": \"Persistence and Defense Evasion Triage questions. What proces",
+        "error": null
+      },
+      {
+        "name": "map_attack",
+        "args": {
+          "incident_id": "361:43155"
+        },
+        "ok": true,
+        "latency_ms": 0,
+        "result_size": 603,
+        "preview": "{\"observed_categories\": [\"CredentialAccess\", \"DefenseEvasion\", \"Malware\", \"Persistence\", \"Ransomware\", \"SuspiciousActivity\"], \"observed_techniques\": [\"T1003\", \"T1003\", \"T1003.002\", \"T1003.005\", \"T1003\", \"T1003.002\", \"T1003.005\", \"T1012\", \"T1003\", \"T1555\", \"T1055\", \"T1055.001\", \"T1055.002\", \"T1055.00",
+        "error": null
+      },
+      {
+        "name": "propose_action",
+        "args": {
+          "incident_id": "361:43155",
+          "verdict": "benign_positive",
+          "evidence_ids": [
+            "incident:361:43155",
+            "train_incident:42:238195",
+            "playbook:05-persistence-defense-evasion:triage-questions"
+          ],
+          "categories": [
+            "CredentialAccess",
+            "DefenseEvasion",
+            "Malware",
+            "Persistence",
+            "Ransomware",
+            "SuspiciousActivity"
+          ],
+          "counts": {
+            "alert_count": 13,
+            "device_count": 2,
+            "account_count": 1,
+            "ip_count": 1,
+            "url_count": 2,
+            "sha256_count": 16,
+            "malicious_count": 8,
+            "suspicious_count": 40,
+            "has_mitre": 1
+          }
+        },
+        "ok": true,
+        "latency_ms": 0,
+        "result_size": 447,
+        "preview": "[{\"action\": \"monitor\", \"target\": \"incident_queue\", \"rationale\": \"Evidence incident:361:43155 supports monitor at the incident level.\"}, {\"action\": \"user_awareness_training\", \"target\": \"user_group\", \"rationale\": \"Evidence incident:361:43155 supports user_awareness_training at the incident level.\"}, {",
+        "error": null
+      }
+    ],
+    "revision_count": 0,
+    "prompt_version": "w3_agent_v1",
+    "prompt_sha256": "70e0d82bd27fc8b62ca76cef7294a7d9b3bf14df92d38b71b84ffec3d963defd",
+    "prompt_chars": 16385,
+    "llm_backend": "offline_policy",
+    "schema_valid": true,
+    "violations": [],
+    "latency_ms": 158,
+    "cost_usd": 0.0,
+    "notes": [
+      "No external LLM is called. The decision comes from a deterministic policy over the calibrated classifier and retrieved evidence."
+    ]
+  },
+  {
+    "case_id": "case_15",
+    "incident_id": "146:400",
+    "expected_label": "false_positive",
+    "decision": {
+      "incident_id": "146:400",
+      "verdict": "false_positive",
+      "priority": "low",
+      "remediation": [
+        {
+          "action": "close_no_action",
+          "target": "incident_queue",
+          "rationale": "Evidence incident:146:400 supports close_no_action at the incident level."
+        },
+        {
+          "action": "tune_detection",
+          "target": "detection_rule",
+          "rationale": "Evidence incident:146:400 supports tune_detection at the incident level."
+        }
+      ],
+      "evidence": [
+        {
+          "evidence_id": "incident:146:400",
+          "quote": "InitialAccess T1566.002 MailCluster MailMessage Mailbox Url User Impacted Related Malicious NoThreatsFound Suspicious Inbound 1 30",
+          "source": "incident"
+        },
+        {
+          "evidence_id": "train_incident:53:15475",
+          "quote": "InitialAccess T1566 T1566.002 MailCluster MailMessage Mailbox Url User Impacted Related Malicious NoThreatsFound Inbound 1 30 9",
+          "source": "train_incident"
+        },
+        {
+          "evidence_id": "playbook:02-initial-access-phishing:summary",
+          "quote": "Initial Access and Phishing Summary. Use this playbook for suspicious mail, malicious links, attachment delivery, or a first-stage payload that may open a broader intrusion. The goal is to decide whether the message reached a user and whether execution occurred.",
+          "source": "playbook"
+        }
+      ],
+      "confidence": 0.8717805432766197,
+      "needs_human": true,
+      "route": "agent",
+      "classifier_version": "tfidf_lgbm_calibrated_v1",
+      "prompt_version": "w3_agent_v1",
+      "tool_calls": 5,
+      "latency_ms": 114,
+      "cost_usd": 0.0
+    },
+    "probabilities": {
+      "true_positive": 0.031540466506333645,
+      "benign_positive": 0.09667899021704665,
+      "false_positive": 0.8717805432766197
+    },
+    "top_label": "false_positive",
+    "tool_calls": [
+      {
+        "name": "get_incident",
+        "args": {
+          "incident_id": "146:400"
+        },
+        "ok": true,
+        "latency_ms": 0,
+        "result_size": 794,
+        "preview": "{\"incident_id\": \"146:400\", \"title\": \"30\", \"alert_title\": \"30\", \"summary\": \"InitialAccess T1566.002 MailCluster MailMessage Mailbox Url User Impacted Related Malicious NoThreatsFound Suspicious Inbound 1 30\", \"created_at\": \"2024-06-03 00:57:13\", \"org_hash\": \"0a5b046d07f6\", \"alert_count\": 90, \"evidenc",
+        "error": null
+      },
+      {
+        "name": "search_similar_incidents",
+        "args": {
+          "incident_id": "146:400",
+          "k": 5
+        },
+        "ok": true,
+        "latency_ms": 48,
+        "result_size": 2565,
+        "preview": "[{\"doc_id\": \"incident:53:15475\", \"source\": \"incident\", \"source_id\": \"53:15475\", \"title\": \"9\", \"text\": \"InitialAccess T1566 T1566.002 MailCluster MailMessage Mailbox Url User Impacted Related Malicious NoThreatsFound Inbound 1 30 9\", \"score\": 0.03009207275993712, \"label\": \"benign_positive\", \"categori",
+        "error": null
+      },
+      {
+        "name": "retrieve_playbook",
+        "args": {
+          "incident_id": "146:400",
+          "k": 5
+        },
+        "ok": true,
+        "latency_ms": 55,
+        "result_size": 3905,
+        "preview": "[{\"doc_id\": \"playbook:02-initial-access-phishing:summary\", \"source\": \"playbook\", \"source_id\": \"playbook:02-initial-access-phishing:summary\", \"title\": \"Initial Access and Phishing / Summary\", \"text\": \"Initial Access and Phishing Summary. Use this playbook for suspicious mail, malicious links, attachm",
+        "error": null
+      },
+      {
+        "name": "map_attack",
+        "args": {
+          "incident_id": "146:400"
+        },
+        "ok": true,
+        "latency_ms": 0,
+        "result_size": 197,
+        "preview": "{\"observed_categories\": [\"InitialAccess\"], \"observed_techniques\": [\"T1566.002\"], \"suggested_techniques\": [\"T1078\", \"T1190\", \"T1566\"], \"note\": \"heuristic category mapping, not an ATT&CK classifier\"}",
+        "error": null
+      },
+      {
+        "name": "propose_action",
+        "args": {
+          "incident_id": "146:400",
+          "verdict": "false_positive",
+          "evidence_ids": [
+            "incident:146:400",
+            "train_incident:53:15475",
+            "playbook:02-initial-access-phishing:summary"
+          ],
+          "categories": [
+            "InitialAccess"
+          ],
+          "counts": {
+            "alert_count": 90,
+            "device_count": 1,
+            "account_count": 462,
+            "ip_count": 1,
+            "url_count": 479,
+            "sha256_count": 1,
+            "malicious_count": 813,
+            "suspicious_count": 0,
+            "has_mitre": 1
+          }
+        },
+        "ok": true,
+        "latency_ms": 0,
+        "result_size": 296,
+        "preview": "[{\"action\": \"close_no_action\", \"target\": \"incident_queue\", \"rationale\": \"Evidence incident:146:400 supports close_no_action at the incident level.\"}, {\"action\": \"tune_detection\", \"target\": \"detection_rule\", \"rationale\": \"Evidence incident:146:400 supports tune_detection at the incident level.\"}]",
+        "error": null
+      }
+    ],
+    "revision_count": 0,
+    "prompt_version": "w3_agent_v1",
+    "prompt_sha256": "2cf8844ba7eb2587a6387d0799851b93e9fbf9b10e259e7d81773cfecb85afab",
+    "prompt_chars": 11280,
+    "llm_backend": "offline_policy",
+    "schema_valid": true,
+    "violations": [],
+    "latency_ms": 114,
+    "cost_usd": 0.0,
+    "notes": [
+      "No external LLM is called. The decision comes from a deterministic policy over the calibrated classifier and retrieved evidence."
+    ]
+  },
+  {
+    "case_id": "case_16",
+    "incident_id": "55:1197",
+    "expected_label": "false_positive",
+    "decision": {
+      "incident_id": "55:1197",
+      "verdict": "false_positive",
+      "priority": "low",
+      "remediation": [
+        {
+          "action": "close_no_action",
+          "target": "incident_queue",
+          "rationale": "Evidence incident:55:1197 supports close_no_action at the incident level."
+        },
+        {
+          "action": "tune_detection",
+          "target": "detection_rule",
+          "rationale": "Evidence incident:55:1197 supports tune_detection at the incident level."
+        }
+      ],
+      "evidence": [
+        {
+          "evidence_id": "incident:55:1197",
+          "quote": "InitialAccess T1566.002 MailCluster MailMessage Mailbox Url User Impacted Related Malicious NoThreatsFound Inbound 1 30 86",
+          "source": "incident"
+        },
+        {
+          "evidence_id": "train_incident:53:15475",
+          "quote": "InitialAccess T1566 T1566.002 MailCluster MailMessage Mailbox Url User Impacted Related Malicious NoThreatsFound Inbound 1 30 9",
+          "source": "train_incident"
+        },
+        {
+          "evidence_id": "playbook:02-initial-access-phishing:summary",
+          "quote": "Initial Access and Phishing Summary. Use this playbook for suspicious mail, malicious links, attachment delivery, or a first-stage payload that may open a broader intrusion. The goal is to decide whether the message reached a user and whether execution occurred.",
+          "source": "playbook"
+        }
+      ],
+      "confidence": 0.6857987900591341,
+      "needs_human": true,
+      "route": "agent",
+      "classifier_version": "tfidf_lgbm_calibrated_v1",
+      "prompt_version": "w3_agent_v1",
+      "tool_calls": 5,
+      "latency_ms": 108,
+      "cost_usd": 0.0
+    },
+    "probabilities": {
+      "true_positive": 0.22992844727554296,
+      "benign_positive": 0.08427276266532285,
+      "false_positive": 0.6857987900591341
+    },
+    "top_label": "false_positive",
+    "tool_calls": [
+      {
+        "name": "get_incident",
+        "args": {
+          "incident_id": "55:1197"
+        },
+        "ok": true,
+        "latency_ms": 0,
+        "result_size": 769,
+        "preview": "{\"incident_id\": \"55:1197\", \"title\": \"86\", \"alert_title\": \"86\", \"summary\": \"InitialAccess T1566.002 MailCluster MailMessage Mailbox Url User Impacted Related Malicious NoThreatsFound Inbound 1 30 86\", \"created_at\": \"2024-06-03 02:18:53\", \"org_hash\": \"02d20bbd7e39\", \"alert_count\": 43, \"evidence_count\"",
+        "error": null
+      },
+      {
+        "name": "search_similar_incidents",
+        "args": {
+          "incident_id": "55:1197",
+          "k": 5
+        },
+        "ok": true,
+        "latency_ms": 46,
+        "result_size": 2482,
+        "preview": "[{\"doc_id\": \"incident:53:15475\", \"source\": \"incident\", \"source_id\": \"53:15475\", \"title\": \"9\", \"text\": \"InitialAccess T1566 T1566.002 MailCluster MailMessage Mailbox Url User Impacted Related Malicious NoThreatsFound Inbound 1 30 9\", \"score\": 0.030679156908665108, \"label\": \"benign_positive\", \"categor",
+        "error": null
+      },
+      {
+        "name": "retrieve_playbook",
+        "args": {
+          "incident_id": "55:1197",
+          "k": 5
+        },
+        "ok": true,
+        "latency_ms": 46,
+        "result_size": 3879,
+        "preview": "[{\"doc_id\": \"playbook:02-initial-access-phishing:summary\", \"source\": \"playbook\", \"source_id\": \"playbook:02-initial-access-phishing:summary\", \"title\": \"Initial Access and Phishing / Summary\", \"text\": \"Initial Access and Phishing Summary. Use this playbook for suspicious mail, malicious links, attachm",
+        "error": null
+      },
+      {
+        "name": "map_attack",
+        "args": {
+          "incident_id": "55:1197"
+        },
+        "ok": true,
+        "latency_ms": 0,
+        "result_size": 197,
+        "preview": "{\"observed_categories\": [\"InitialAccess\"], \"observed_techniques\": [\"T1566.002\"], \"suggested_techniques\": [\"T1078\", \"T1190\", \"T1566\"], \"note\": \"heuristic category mapping, not an ATT&CK classifier\"}",
+        "error": null
+      },
+      {
+        "name": "propose_action",
+        "args": {
+          "incident_id": "55:1197",
+          "verdict": "false_positive",
+          "evidence_ids": [
+            "incident:55:1197",
+            "train_incident:53:15475",
+            "playbook:02-initial-access-phishing:summary"
+          ],
+          "categories": [
+            "InitialAccess"
+          ],
+          "counts": {
+            "alert_count": 43,
+            "device_count": 1,
+            "account_count": 47,
+            "ip_count": 1,
+            "url_count": 97,
+            "sha256_count": 1,
+            "malicious_count": 185,
+            "suspicious_count": 0,
+            "has_mitre": 1
+          }
+        },
+        "ok": true,
+        "latency_ms": 0,
+        "result_size": 296,
+        "preview": "[{\"action\": \"close_no_action\", \"target\": \"incident_queue\", \"rationale\": \"Evidence incident:55:1197 supports close_no_action at the incident level.\"}, {\"action\": \"tune_detection\", \"target\": \"detection_rule\", \"rationale\": \"Evidence incident:55:1197 supports tune_detection at the incident level.\"}]",
+        "error": null
+      }
+    ],
+    "revision_count": 0,
+    "prompt_version": "w3_agent_v1",
+    "prompt_sha256": "a6114a52debbbbd5b70e01ad235c88ff4f14f89c33cce1f7f45857a785c7b4a8",
+    "prompt_chars": 11141,
+    "llm_backend": "offline_policy",
+    "schema_valid": true,
+    "violations": [],
+    "latency_ms": 108,
+    "cost_usd": 0.0,
+    "notes": [
+      "No external LLM is called. The decision comes from a deterministic policy over the calibrated classifier and retrieved evidence."
+    ]
+  },
+  {
+    "case_id": "case_17",
+    "incident_id": "104:316",
+    "expected_label": "false_positive",
+    "decision": {
+      "incident_id": "104:316",
+      "verdict": "false_positive",
+      "priority": "low",
+      "remediation": [
+        {
+          "action": "close_no_action",
+          "target": "incident_queue",
+          "rationale": "Evidence incident:104:316 supports close_no_action at the incident level."
+        },
+        {
+          "action": "tune_detection",
+          "target": "detection_rule",
+          "rationale": "Evidence incident:104:316 supports tune_detection at the incident level."
+        }
+      ],
+      "evidence": [
+        {
+          "evidence_id": "incident:104:316",
+          "quote": "InitialAccess T1566 MailMessage Mailbox User Impacted Related 9",
+          "source": "incident"
+        },
+        {
+          "evidence_id": "train_incident:1001:118079",
+          "quote": "InitialAccess T1566 MailMessage Mailbox User Impacted Related 9",
+          "source": "train_incident"
+        },
+        {
+          "evidence_id": "playbook:02-initial-access-phishing:recovery",
+          "quote": "Initial Access and Phishing Recovery. Restore the mailbox and device after cleaning and verification. Keep the sender and indicator blocks until the campaign is understood.",
+          "source": "playbook"
+        }
+      ],
+      "confidence": 0.7341516830540334,
+      "needs_human": true,
+      "route": "agent",
+      "classifier_version": "tfidf_lgbm_calibrated_v1",
+      "prompt_version": "w3_agent_v1",
+      "tool_calls": 5,
+      "latency_ms": 104,
+      "cost_usd": 0.0
+    },
+    "probabilities": {
+      "true_positive": 0.009391334049265107,
+      "benign_positive": 0.2564569828967014,
+      "false_positive": 0.7341516830540334
+    },
+    "top_label": "false_positive",
+    "tool_calls": [
+      {
+        "name": "get_incident",
+        "args": {
+          "incident_id": "104:316"
+        },
+        "ok": true,
+        "latency_ms": 0,
+        "result_size": 677,
+        "preview": "{\"incident_id\": \"104:316\", \"title\": \"9\", \"alert_title\": \"9\", \"summary\": \"InitialAccess T1566 MailMessage Mailbox User Impacted Related 9\", \"created_at\": \"2024-06-10 07:22:28\", \"org_hash\": \"5ef6fdf32513\", \"alert_count\": 31, \"evidence_count\": 5613, \"detector_count\": 1, \"entity_type_count\": 3, \"categor",
+        "error": null
+      },
+      {
+        "name": "search_similar_incidents",
+        "args": {
+          "incident_id": "104:316",
+          "k": 5
+        },
+        "ok": true,
+        "latency_ms": 42,
+        "result_size": 1861,
+        "preview": "[{\"doc_id\": \"incident:1001:118079\", \"source\": \"incident\", \"source_id\": \"1001:118079\", \"title\": \"9\", \"text\": \"InitialAccess T1566 MailMessage Mailbox User Impacted Related 9\", \"score\": 0.032018442622950824, \"label\": \"benign_positive\", \"categories\": [\"InitialAccess\"], \"mitre\": [\"T1566\"], \"metadata\": {",
+        "error": null
+      },
+      {
+        "name": "retrieve_playbook",
+        "args": {
+          "incident_id": "104:316",
+          "k": 5
+        },
+        "ok": true,
+        "latency_ms": 49,
+        "result_size": 3953,
+        "preview": "[{\"doc_id\": \"playbook:02-initial-access-phishing:recovery\", \"source\": \"playbook\", \"source_id\": \"playbook:02-initial-access-phishing:recovery\", \"title\": \"Initial Access and Phishing / Recovery\", \"text\": \"Initial Access and Phishing Recovery. Restore the mailbox and device after cleaning and verificat",
+        "error": null
+      },
+      {
+        "name": "map_attack",
+        "args": {
+          "incident_id": "104:316"
+        },
+        "ok": true,
+        "latency_ms": 0,
+        "result_size": 193,
+        "preview": "{\"observed_categories\": [\"InitialAccess\"], \"observed_techniques\": [\"T1566\"], \"suggested_techniques\": [\"T1078\", \"T1190\", \"T1566\"], \"note\": \"heuristic category mapping, not an ATT&CK classifier\"}",
+        "error": null
+      },
+      {
+        "name": "propose_action",
+        "args": {
+          "incident_id": "104:316",
+          "verdict": "false_positive",
+          "evidence_ids": [
+            "incident:104:316",
+            "train_incident:1001:118079",
+            "playbook:02-initial-access-phishing:recovery"
+          ],
+          "categories": [
+            "InitialAccess"
+          ],
+          "counts": {
+            "alert_count": 31,
+            "device_count": 1,
+            "account_count": 1871,
+            "ip_count": 1,
+            "url_count": 1,
+            "sha256_count": 1,
+            "malicious_count": 0,
+            "suspicious_count": 0,
+            "has_mitre": 1
+          }
+        },
+        "ok": true,
+        "latency_ms": 0,
+        "result_size": 296,
+        "preview": "[{\"action\": \"close_no_action\", \"target\": \"incident_queue\", \"rationale\": \"Evidence incident:104:316 supports close_no_action at the incident level.\"}, {\"action\": \"tune_detection\", \"target\": \"detection_rule\", \"rationale\": \"Evidence incident:104:316 supports tune_detection at the incident level.\"}]",
+        "error": null
+      }
+    ],
+    "revision_count": 0,
+    "prompt_version": "w3_agent_v1",
+    "prompt_sha256": "ff86d9b686d896ea830bd6aa840ff4d6465253c545716a80d7dfe96422012653",
+    "prompt_chars": 10494,
+    "llm_backend": "offline_policy",
+    "schema_valid": true,
+    "violations": [],
+    "latency_ms": 104,
+    "cost_usd": 0.0,
+    "notes": [
+      "No external LLM is called. The decision comes from a deterministic policy over the calibrated classifier and retrieved evidence."
+    ]
+  },
+  {
+    "case_id": "case_18",
+    "incident_id": "274:17681",
+    "expected_label": "false_positive",
+    "decision": {
+      "incident_id": "274:17681",
+      "verdict": "false_positive",
+      "priority": "low",
+      "remediation": [
+        {
+          "action": "close_no_action",
+          "target": "incident_queue",
+          "rationale": "Evidence incident:274:17681 supports close_no_action at the incident level."
+        },
+        {
+          "action": "tune_detection",
+          "target": "detection_rule",
+          "rationale": "Evidence incident:274:17681 supports tune_detection at the incident level."
+        }
+      ],
+      "evidence": [
+        {
+          "evidence_id": "incident:274:17681",
+          "quote": "Discovery Execution T1007;T1059.001 T1016;T1049;T1059.001 T1053.002;T1053.005 T1053;T1053.005 T1057;T1059.001 File Machine Process User Impacted Related Suspicious Suspicious 145 260 262 280 355",
+          "source": "incident"
+        },
+        {
+          "evidence_id": "train_incident:274:115078",
+          "quote": "Discovery Execution T1007;T1059.001 T1016;T1049;T1059.001 T1053.002;T1053.005 T1053;T1053.005 T1057;T1059.001 File Machine Process User Impacted Related Suspicious Suspicious 145 260 262 280 355",
+          "source": "train_incident"
+        },
+        {
+          "evidence_id": "playbook:03-endpoint-malware:detection-signals",
+          "quote": "Endpoint Malware and Execution Detection signals. Known-bad hash, unsigned binary in a user-writable path, Office or browser spawning a script host, credential dumping, suspicious parent-child process, and repeated execution attempts. A file name alone is weak evidence.",
+          "source": "playbook"
+        }
+      ],
+      "confidence": 0.9762036617820127,
+      "needs_human": true,
+      "route": "agent",
+      "classifier_version": "tfidf_lgbm_calibrated_v1",
+      "prompt_version": "w3_agent_v1",
+      "tool_calls": 5,
+      "latency_ms": 123,
+      "cost_usd": 0.0
+    },
+    "probabilities": {
+      "true_positive": 0.00429402549045465,
+      "benign_positive": 0.019502312727532663,
+      "false_positive": 0.9762036617820127
+    },
+    "top_label": "false_positive",
+    "tool_calls": [
+      {
+        "name": "get_incident",
+        "args": {
+          "incident_id": "274:17681"
+        },
+        "ok": true,
+        "latency_ms": 0,
+        "result_size": 949,
+        "preview": "{\"incident_id\": \"274:17681\", \"title\": \"355\", \"alert_title\": \"355\", \"summary\": \"Discovery Execution T1007;T1059.001 T1016;T1049;T1059.001 T1053.002;T1053.005 T1053;T1053.005 T1057;T1059.001 File Machine Process User Impacted Related Suspicious Suspicious 145 260 262 280 355\", \"created_at\": \"2024-06-1",
+        "error": null
+      },
+      {
+        "name": "search_similar_incidents",
+        "args": {
+          "incident_id": "274:17681",
+          "k": 5
+        },
+        "ok": true,
+        "latency_ms": 52,
+        "result_size": 3686,
+        "preview": "[{\"doc_id\": \"incident:274:115078\", \"source\": \"incident\", \"source_id\": \"274:115078\", \"title\": \"355\", \"text\": \"Discovery Execution T1007;T1059.001 T1016;T1049;T1059.001 T1053.002;T1053.005 T1053;T1053.005 T1057;T1059.001 File Machine Process User Impacted Related Suspicious Suspicious 145 260 262 280 ",
+        "error": null
+      },
+      {
+        "name": "retrieve_playbook",
+        "args": {
+          "incident_id": "274:17681",
+          "k": 5
+        },
+        "ok": true,
+        "latency_ms": 57,
+        "result_size": 4092,
+        "preview": "[{\"doc_id\": \"playbook:03-endpoint-malware:detection-signals\", \"source\": \"playbook\", \"source_id\": \"playbook:03-endpoint-malware:detection-signals\", \"title\": \"Endpoint Malware and Execution / Detection signals\", \"text\": \"Endpoint Malware and Execution Detection signals. Known-bad hash, unsigned binary",
+        "error": null
+      },
+      {
+        "name": "map_attack",
+        "args": {
+          "incident_id": "274:17681"
+        },
+        "ok": true,
+        "latency_ms": 0,
+        "result_size": 334,
+        "preview": "{\"observed_categories\": [\"Discovery\", \"Execution\"], \"observed_techniques\": [\"T1007\", \"T1059.001\", \"T1016\", \"T1049\", \"T1059.001\", \"T1053.002\", \"T1053.005\", \"T1053\", \"T1053.005\", \"T1057\", \"T1059.001\"], \"suggested_techniques\": [\"T1046\", \"T1059\", \"T1082\", \"T1087\", \"T1204\"], \"note\": \"heuristic category m",
+        "error": null
+      },
+      {
+        "name": "propose_action",
+        "args": {
+          "incident_id": "274:17681",
+          "verdict": "false_positive",
+          "evidence_ids": [
+            "incident:274:17681",
+            "train_incident:274:115078",
+            "playbook:03-endpoint-malware:detection-signals"
+          ],
+          "categories": [
+            "Discovery",
+            "Execution"
+          ],
+          "counts": {
+            "alert_count": 22,
+            "device_count": 6,
+            "account_count": 1,
+            "ip_count": 1,
+            "url_count": 1,
+            "sha256_count": 12,
+            "malicious_count": 0,
+            "suspicious_count": 82,
+            "has_mitre": 1
+          }
+        },
+        "ok": true,
+        "latency_ms": 0,
+        "result_size": 300,
+        "preview": "[{\"action\": \"close_no_action\", \"target\": \"incident_queue\", \"rationale\": \"Evidence incident:274:17681 supports close_no_action at the incident level.\"}, {\"action\": \"tune_detection\", \"target\": \"detection_rule\", \"rationale\": \"Evidence incident:274:17681 supports tune_detection at the incident level.\"}]",
+        "error": null
+      }
+    ],
+    "revision_count": 0,
+    "prompt_version": "w3_agent_v1",
+    "prompt_sha256": "150ec49fc9b84f95f5e85402365bb61d9c43a7d74a16f1bac59b61044f353cc7",
+    "prompt_chars": 13494,
+    "llm_backend": "offline_policy",
+    "schema_valid": true,
+    "violations": [],
+    "latency_ms": 123,
+    "cost_usd": 0.0,
+    "notes": [
+      "No external LLM is called. The decision comes from a deterministic policy over the calibrated classifier and retrieved evidence."
+    ]
+  },
+  {
+    "case_id": "case_19",
+    "incident_id": "355:15836",
+    "expected_label": "false_positive",
+    "decision": {
+      "incident_id": "355:15836",
+      "verdict": "benign_positive",
+      "priority": "medium",
+      "remediation": [
+        {
+          "action": "monitor",
+          "target": "incident_queue",
+          "rationale": "Evidence incident:355:15836 supports monitor at the incident level."
+        },
+        {
+          "action": "user_awareness_training",
+          "target": "user_group",
+          "rationale": "Evidence incident:355:15836 supports user_awareness_training at the incident level."
+        }
+      ],
+      "evidence": [
+        {
+          "evidence_id": "incident:355:15836",
+          "quote": "DefenseEvasion T1027.004 File Machine Process Impacted Related Suspicious Suspicious 4926",
+          "source": "incident"
+        },
+        {
+          "evidence_id": "train_incident:310:70055",
+          "quote": "DefenseEvasion T1027.004 File Ip Machine Process Impacted Related Suspicious Suspicious 4926",
+          "source": "train_incident"
+        },
+        {
+          "evidence_id": "playbook:05-persistence-defense-evasion:triage-questions",
+          "quote": "Persistence and Defense Evasion Triage questions. What process created the persistence? Was the parent a known installer? Does the entry point to a signed binary? Is the account change approved? Are there matching execution or network alerts?",
+          "source": "playbook"
+        }
+      ],
+      "confidence": 0.8395788976343923,
+      "needs_human": true,
+      "route": "agent",
+      "classifier_version": "tfidf_lgbm_calibrated_v1",
+      "prompt_version": "w3_agent_v1",
+      "tool_calls": 5,
+      "latency_ms": 87,
+      "cost_usd": 0.0
+    },
+    "probabilities": {
+      "true_positive": 0.06380980162985699,
+      "benign_positive": 0.8395788976343923,
+      "false_positive": 0.09661130073575067
+    },
+    "top_label": "benign_positive",
+    "tool_calls": [
+      {
+        "name": "get_incident",
+        "args": {
+          "incident_id": "355:15836"
+        },
+        "ok": true,
+        "latency_ms": 0,
+        "result_size": 729,
+        "preview": "{\"incident_id\": \"355:15836\", \"title\": \"4926\", \"alert_title\": \"4926\", \"summary\": \"DefenseEvasion T1027.004 File Machine Process Impacted Related Suspicious Suspicious 4926\", \"created_at\": \"2024-06-06 23:14:27\", \"org_hash\": \"355d8c0ee4e5\", \"alert_count\": 16, \"evidence_count\": 79, \"detector_count\": 1, ",
+        "error": null
+      },
+      {
+        "name": "search_similar_incidents",
+        "args": {
+          "incident_id": "355:15836",
+          "k": 5
+        },
+        "ok": true,
+        "latency_ms": 35,
+        "result_size": 2255,
+        "preview": "[{\"doc_id\": \"incident:310:70055\", \"source\": \"incident\", \"source_id\": \"310:70055\", \"title\": \"4926\", \"text\": \"DefenseEvasion T1027.004 File Ip Machine Process Impacted Related Suspicious Suspicious 4926\", \"score\": 0.03252247488101534, \"label\": \"false_positive\", \"categories\": [\"DefenseEvasion\"], \"mitre",
+        "error": null
+      },
+      {
+        "name": "retrieve_playbook",
+        "args": {
+          "incident_id": "355:15836",
+          "k": 5
+        },
+        "ok": true,
+        "latency_ms": 39,
+        "result_size": 4043,
+        "preview": "[{\"doc_id\": \"playbook:05-persistence-defense-evasion:triage-questions\", \"source\": \"playbook\", \"source_id\": \"playbook:05-persistence-defense-evasion:triage-questions\", \"title\": \"Persistence and Defense Evasion / Triage questions\", \"text\": \"Persistence and Defense Evasion Triage questions. What proces",
+        "error": null
+      },
+      {
+        "name": "map_attack",
+        "args": {
+          "incident_id": "355:15836"
+        },
+        "ok": true,
+        "latency_ms": 0,
+        "result_size": 198,
+        "preview": "{\"observed_categories\": [\"DefenseEvasion\"], \"observed_techniques\": [\"T1027.004\"], \"suggested_techniques\": [\"T1027\", \"T1070\", \"T1562\"], \"note\": \"heuristic category mapping, not an ATT&CK classifier\"}",
+        "error": null
+      },
+      {
+        "name": "propose_action",
+        "args": {
+          "incident_id": "355:15836",
+          "verdict": "benign_positive",
+          "evidence_ids": [
+            "incident:355:15836",
+            "train_incident:310:70055",
+            "playbook:05-persistence-defense-evasion:triage-questions"
+          ],
+          "categories": [
+            "DefenseEvasion"
+          ],
+          "counts": {
+            "alert_count": 16,
+            "device_count": 2,
+            "account_count": 1,
+            "ip_count": 1,
+            "url_count": 1,
+            "sha256_count": 26,
+            "malicious_count": 0,
+            "suspicious_count": 79,
+            "has_mitre": 1
+          }
+        },
+        "ok": true,
+        "latency_ms": 0,
+        "result_size": 298,
+        "preview": "[{\"action\": \"monitor\", \"target\": \"incident_queue\", \"rationale\": \"Evidence incident:355:15836 supports monitor at the incident level.\"}, {\"action\": \"user_awareness_training\", \"target\": \"user_group\", \"rationale\": \"Evidence incident:355:15836 supports user_awareness_training at the incident level.\"}]",
+        "error": null
+      }
+    ],
+    "revision_count": 0,
+    "prompt_version": "w3_agent_v1",
+    "prompt_sha256": "305a867745641e7a7455f496e342eb273506255ebbb3c6827a5baf2992c7c413",
+    "prompt_chars": 11085,
+    "llm_backend": "offline_policy",
+    "schema_valid": true,
+    "violations": [],
+    "latency_ms": 87,
+    "cost_usd": 0.0,
+    "notes": [
+      "No external LLM is called. The decision comes from a deterministic policy over the calibrated classifier and retrieved evidence."
+    ]
+  },
+  {
+    "case_id": "case_20",
+    "incident_id": "87:3190",
+    "expected_label": "false_positive",
+    "decision": {
+      "incident_id": "87:3190",
+      "verdict": "benign_positive",
+      "priority": "medium",
+      "remediation": [
+        {
+          "action": "monitor",
+          "target": "incident_queue",
+          "rationale": "Evidence incident:87:3190 supports monitor at the incident level."
+        },
+        {
+          "action": "user_awareness_training",
+          "target": "user_group",
+          "rationale": "Evidence incident:87:3190 supports user_awareness_training at the incident level."
+        }
+      ],
+      "evidence": [
+        {
+          "evidence_id": "incident:87:3190",
+          "quote": "CommandAndControl SuspiciousActivity Ip Machine Process Url User Impacted Related Suspicious Suspicious 2 4",
+          "source": "incident"
+        },
+        {
+          "evidence_id": "train_incident:3:118588",
+          "quote": "CommandAndControl SuspiciousActivity Ip Machine Process Url User Impacted Related Suspicious Suspicious 137 2 4",
+          "source": "train_incident"
+        },
+        {
+          "evidence_id": "playbook:06-c2-exfiltration:eradication",
+          "quote": "Command and Control and Exfiltration Eradication. Remove the beacon and the process that launched it. Remove staged archives and scheduled upload jobs. Rotate credentials or tokens exposed to the host.",
+          "source": "playbook"
+        }
+      ],
+      "confidence": 0.5056689610402596,
+      "needs_human": true,
+      "route": "agent",
+      "classifier_version": "tfidf_lgbm_calibrated_v1",
+      "prompt_version": "w3_agent_v1",
+      "tool_calls": 5,
+      "latency_ms": 135,
+      "cost_usd": 0.0
+    },
+    "probabilities": {
+      "true_positive": 0.38484609130591485,
+      "benign_positive": 0.5056689610402596,
+      "false_positive": 0.10948494765382559
+    },
+    "top_label": "benign_positive",
+    "tool_calls": [
+      {
+        "name": "get_incident",
+        "args": {
+          "incident_id": "87:3190"
+        },
+        "ok": true,
+        "latency_ms": 0,
+        "result_size": 764,
+        "preview": "{\"incident_id\": \"87:3190\", \"title\": \"4\", \"alert_title\": \"4\", \"summary\": \"CommandAndControl SuspiciousActivity Ip Machine Process Url User Impacted Related Suspicious Suspicious 2 4\", \"created_at\": \"2024-05-30 15:53:34\", \"org_hash\": \"bdd2d3af3a5a\", \"alert_count\": 76, \"evidence_count\": 404, \"detector_",
+        "error": null
+      },
+      {
+        "name": "search_similar_incidents",
+        "args": {
+          "incident_id": "87:3190",
+          "k": 5
+        },
+        "ok": true,
+        "latency_ms": 49,
+        "result_size": 2456,
+        "preview": "[{\"doc_id\": \"incident:3:118588\", \"source\": \"incident\", \"source_id\": \"3:118588\", \"title\": \"4\", \"text\": \"CommandAndControl SuspiciousActivity Ip Machine Process Url User Impacted Related Suspicious Suspicious 137 2 4\", \"score\": 0.030090497737556562, \"label\": \"benign_positive\", \"categories\": [\"CommandA",
+        "error": null
+      },
+      {
+        "name": "retrieve_playbook",
+        "args": {
+          "incident_id": "87:3190",
+          "k": 5
+        },
+        "ok": true,
+        "latency_ms": 50,
+        "result_size": 3940,
+        "preview": "[{\"doc_id\": \"playbook:06-c2-exfiltration:eradication\", \"source\": \"playbook\", \"source_id\": \"playbook:06-c2-exfiltration:eradication\", \"title\": \"Command and Control and Exfiltration / Eradication\", \"text\": \"Command and Control and Exfiltration Eradication. Remove the beacon and the process that launch",
+        "error": null
+      },
+      {
+        "name": "map_attack",
+        "args": {
+          "incident_id": "87:3190"
+        },
+        "ok": true,
+        "latency_ms": 0,
+        "result_size": 235,
+        "preview": "{\"observed_categories\": [\"CommandAndControl\", \"SuspiciousActivity\"], \"observed_techniques\": [\"nan\"], \"suggested_techniques\": [\"T1071\", \"T1078\", \"T1105\", \"T1566\", \"T1573\"], \"note\": \"heuristic category mapping, not an ATT&CK classifier\"}",
+        "error": null
+      },
+      {
+        "name": "propose_action",
+        "args": {
+          "incident_id": "87:3190",
+          "verdict": "benign_positive",
+          "evidence_ids": [
+            "incident:87:3190",
+            "train_incident:3:118588",
+            "playbook:06-c2-exfiltration:eradication"
+          ],
+          "categories": [
+            "CommandAndControl",
+            "SuspiciousActivity"
+          ],
+          "counts": {
+            "alert_count": 76,
+            "device_count": 38,
+            "account_count": 38,
+            "ip_count": 14,
+            "url_count": 43,
+            "sha256_count": 16,
+            "malicious_count": 0,
+            "suspicious_count": 400,
+            "has_mitre": 0
+          }
+        },
+        "ok": true,
+        "latency_ms": 0,
+        "result_size": 294,
+        "preview": "[{\"action\": \"monitor\", \"target\": \"incident_queue\", \"rationale\": \"Evidence incident:87:3190 supports monitor at the incident level.\"}, {\"action\": \"user_awareness_training\", \"target\": \"user_group\", \"rationale\": \"Evidence incident:87:3190 supports user_awareness_training at the incident level.\"}]",
+        "error": null
+      }
+    ],
+    "revision_count": 0,
+    "prompt_version": "w3_agent_v1",
+    "prompt_sha256": "8c2bd81212013233af6a3cbb2ffb01875b442d88d0a0b6eb6753eed8109fb1c4",
+    "prompt_chars": 11297,
+    "llm_backend": "offline_policy",
+    "schema_valid": true,
+    "violations": [],
+    "latency_ms": 135,
+    "cost_usd": 0.0,
+    "notes": [
+      "No external LLM is called. The decision comes from a deterministic policy over the calibrated classifier and retrieved evidence."
+    ]
+  }
+]
