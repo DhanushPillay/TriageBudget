@@ -52,6 +52,24 @@ CREATE TABLE IF NOT EXISTS audit_events (
     details TEXT NOT NULL,
     created_at TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS explanations (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    incident_id TEXT NOT NULL,
+    cache_key TEXT NOT NULL,
+    model TEXT NOT NULL,
+    prompt_version TEXT NOT NULL,
+    explanation TEXT NOT NULL,
+    evidence_ids TEXT NOT NULL,
+    uncertainty TEXT NOT NULL,
+    next_step TEXT NOT NULL,
+    prompt_tokens INTEGER NOT NULL DEFAULT 0,
+    completion_tokens INTEGER NOT NULL DEFAULT 0,
+    latency_ms REAL NOT NULL DEFAULT 0,
+    created_at TEXT NOT NULL,
+    FOREIGN KEY (incident_id) REFERENCES incidents(incident_id) ON DELETE CASCADE
+);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_explanations_cache ON explanations(cache_key);
+CREATE INDEX IF NOT EXISTS idx_explanations_incident ON explanations(incident_id);
 CREATE INDEX IF NOT EXISTS idx_incidents_status ON incidents(status);
 CREATE INDEX IF NOT EXISTS idx_reviews_incident ON reviews(incident_id);
 CREATE INDEX IF NOT EXISTS idx_audit_incident ON audit_events(incident_id);
@@ -103,6 +121,25 @@ POSTGRES_SCHEMA = (
         created_at TEXT NOT NULL
     )
     """,
+    """
+    CREATE TABLE IF NOT EXISTS explanations (
+        id BIGSERIAL PRIMARY KEY,
+        incident_id TEXT NOT NULL REFERENCES incidents(incident_id) ON DELETE CASCADE,
+        cache_key TEXT NOT NULL,
+        model TEXT NOT NULL,
+        prompt_version TEXT NOT NULL,
+        explanation TEXT NOT NULL,
+        evidence_ids JSONB NOT NULL,
+        uncertainty TEXT NOT NULL,
+        next_step TEXT NOT NULL,
+        prompt_tokens INTEGER NOT NULL DEFAULT 0,
+        completion_tokens INTEGER NOT NULL DEFAULT 0,
+        latency_ms DOUBLE PRECISION NOT NULL DEFAULT 0,
+        created_at TEXT NOT NULL
+    )
+    """,
+    "CREATE UNIQUE INDEX IF NOT EXISTS idx_explanations_cache ON explanations(cache_key)",
+    "CREATE INDEX IF NOT EXISTS idx_explanations_incident ON explanations(incident_id)",
     "CREATE INDEX IF NOT EXISTS idx_incidents_status ON incidents(status)",
     "CREATE INDEX IF NOT EXISTS idx_reviews_incident ON reviews(incident_id)",
     "CREATE INDEX IF NOT EXISTS idx_audit_incident ON audit_events(incident_id)",
@@ -134,7 +171,11 @@ class Database:
             import psycopg
             from psycopg.rows import dict_row
 
-            connection = psycopg.connect(self.url, row_factory=dict_row)
+            # Neon's pooled endpoint runs PgBouncer in transaction mode, where
+            # server-side prepared statements do not survive between requests.
+            connection = psycopg.connect(
+                self.url, row_factory=dict_row, prepare_threshold=None
+            )
         else:
             path = self.url.removeprefix("sqlite:///")
             Path(path).parent.mkdir(parents=True, exist_ok=True)
