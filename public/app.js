@@ -223,12 +223,15 @@ async function runExplanation(button) {
   status.textContent = "";
   status.className = "ai-status";
   body.innerHTML = '<p class="ai-hint">Reading the decision and evidence…</p>';
+  const refresh = Boolean(state.detail.explanation);
+  const suffix = refresh ? "?refresh=true" : "";
   try {
     const payload = await request(
-      `/api/incidents/${encodeURIComponent(state.selectedId)}/explain`,
+      `/api/incidents/${encodeURIComponent(state.selectedId)}/explain${suffix}`,
       { method: "POST" },
     );
     body.innerHTML = explanationBody(payload.explanation, payload.cached);
+    state.detail.explanation = payload.explanation;
     button.textContent = "Regenerate";
     status.textContent = payload.cached
       ? "Served from cache. No new model call."
