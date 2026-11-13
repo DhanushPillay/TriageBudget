@@ -52,7 +52,7 @@
       "classifier_version": "tfidf_lgbm_calibrated_v1",
       "prompt_version": "w3_agent_v1",
       "tool_calls": 5,
-      "latency_ms": 733,
+      "latency_ms": 791,
       "cost_usd": 0.0
     },
     "probabilities": {
@@ -80,7 +80,7 @@
           "k": 5
         },
         "ok": true,
-        "latency_ms": 672,
+        "latency_ms": 730,
         "result_size": 2263,
         "preview": "[{\"doc_id\": \"incident:195:22839\", \"source\": \"incident\", \"source_id\": \"195:22839\", \"title\": \"6\", \"text\": \"InitialAccess T1078;T1078.004 CloudLogonRequest CloudLogonSession Ip User Impacted Related 0 15 3 6\", \"score\": 0.03278688524590164, \"label\": \"false_positive\", \"categories\": [\"InitialAccess\"], \"mi",
         "error": null
@@ -92,7 +92,7 @@
           "k": 5
         },
         "ok": true,
-        "latency_ms": 43,
+        "latency_ms": 45,
         "result_size": 4108,
         "preview": "[{\"doc_id\": \"playbook:02-initial-access-phishing:eradication\", \"source\": \"playbook\", \"source_id\": \"playbook:02-initial-access-phishing:eradication\", \"title\": \"Initial Access and Phishing / Eradication\", \"text\": \"Initial Access and Phishing Eradication. Remove dropped files, scheduled tasks, and mail",
         "error": null
@@ -147,7 +147,7 @@
     "llm_backend": "offline_policy",
     "schema_valid": true,
     "violations": [],
-    "latency_ms": 733,
+    "latency_ms": 791,
     "cost_usd": 0.0,
     "notes": [
       "No external LLM is called. The decision comes from a deterministic policy over the calibrated classifier and retrieved evidence."
@@ -191,7 +191,7 @@
       "classifier_version": "tfidf_lgbm_calibrated_v1",
       "prompt_version": "w3_agent_v1",
       "tool_calls": 5,
-      "latency_ms": 127,
+      "latency_ms": 147,
       "cost_usd": 0.0
     },
     "probabilities": {
@@ -219,7 +219,7 @@
           "k": 5
         },
         "ok": true,
-        "latency_ms": 58,
+        "latency_ms": 79,
         "result_size": 2610,
         "preview": "[{\"doc_id\": \"incident:36:1151\", \"source\": \"incident\", \"source_id\": \"36:1151\", \"title\": \"401\", \"text\": \"CommandAndControl InitialAccess SuspiciousActivity Ip Machine Process Url User Impacted Related Suspicious Suspicious 118 121 139 165 2 2263 401\", \"score\": 0.03252247488101534, \"label\": \"false_posi",
         "error": null
@@ -231,7 +231,7 @@
           "k": 5
         },
         "ok": true,
-        "latency_ms": 52,
+        "latency_ms": 50,
         "result_size": 3964,
         "preview": "[{\"doc_id\": \"playbook:06-c2-exfiltration:eradication\", \"source\": \"playbook\", \"source_id\": \"playbook:06-c2-exfiltration:eradication\", \"title\": \"Command and Control and Exfiltration / Eradication\", \"text\": \"Command and Control and Exfiltration Eradication. Remove the beacon and the process that launch",
         "error": null
@@ -288,7 +288,7 @@
     "llm_backend": "offline_policy",
     "schema_valid": true,
     "violations": [],
-    "latency_ms": 127,
+    "latency_ms": 147,
     "cost_usd": 0.0,
     "notes": [
       "No external LLM is called. The decision comes from a deterministic policy over the calibrated classifier and retrieved evidence."
@@ -347,7 +347,7 @@
       "classifier_version": "tfidf_lgbm_calibrated_v1",
       "prompt_version": "w3_agent_v1",
       "tool_calls": 5,
-      "latency_ms": 52,
+      "latency_ms": 55,
       "cost_usd": 0.0
     },
     "probabilities": {
@@ -375,7 +375,7 @@
           "k": 5
         },
         "ok": true,
-        "latency_ms": 19,
+        "latency_ms": 21,
         "result_size": 1640,
         "preview": "[{\"doc_id\": \"incident:236:11202\", \"source\": \"incident\", \"source_id\": \"236:11202\", \"title\": \"754\", \"text\": \"CredentialAccess T1110 Ip Related 754\", \"score\": 0.03278688524590164, \"label\": \"true_positive\", \"categories\": [\"CredentialAccess\"], \"mitre\": [\"T1110\"], \"metadata\": {\"summary\": \"CredentialAccess",
         "error": null
@@ -387,7 +387,7 @@
           "k": 5
         },
         "ok": true,
-        "latency_ms": 21,
+        "latency_ms": 22,
         "result_size": 4251,
         "preview": "[{\"doc_id\": \"playbook:01-identity-credential:triage-questions\", \"source\": \"playbook\", \"source_id\": \"playbook:01-identity-credential:triage-questions\", \"title\": \"Identity and Credential Compromise / Triage questions\", \"text\": \"Identity and Credential Compromise Triage questions. Was the successful se",
         "error": null
@@ -442,7 +442,7 @@
     "llm_backend": "offline_policy",
     "schema_valid": true,
     "violations": [],
-    "latency_ms": 52,
+    "latency_ms": 55,
     "cost_usd": 0.0,
     "notes": [
       "No external LLM is called. The decision comes from a deterministic policy over the calibrated classifier and retrieved evidence."
@@ -486,7 +486,7 @@
       "classifier_version": "tfidf_lgbm_calibrated_v1",
       "prompt_version": "w3_agent_v1",
       "tool_calls": 5,
-      "latency_ms": 53,
+      "latency_ms": 57,
       "cost_usd": 0.0
     },
     "probabilities": {
@@ -514,7 +514,7 @@
           "k": 5
         },
         "ok": true,
-        "latency_ms": 18,
+        "latency_ms": 20,
         "result_size": 1522,
         "preview": "[{\"doc_id\": \"incident:14:198\", \"source\": \"incident\", \"source_id\": \"14:198\", \"title\": \"89\", \"text\": \"Impact Ip Related 1659 175 58 672 679 698 707 716 731 736 767 84 89\", \"score\": 0.03278688524590164, \"label\": \"true_positive\", \"categories\": [\"Impact\"], \"mitre\": [\"nan\"], \"metadata\": {\"summary\": \"Impac",
         "error": null
@@ -526,7 +526,7 @@
           "k": 5
         },
         "ok": true,
-        "latency_ms": 21,
+        "latency_ms": 23,
         "result_size": 3750,
         "preview": "[{\"doc_id\": \"playbook:07-ransomware-impact:escalation-criteria\", \"source\": \"playbook\", \"source_id\": \"playbook:07-ransomware-impact:escalation-criteria\", \"title\": \"Ransomware and Impact / Escalation criteria\", \"text\": \"Ransomware and Impact Escalation criteria. Escalate immediately to incident comman",
         "error": null
@@ -581,7 +581,7 @@
     "llm_backend": "offline_policy",
     "schema_valid": true,
     "violations": [],
-    "latency_ms": 53,
+    "latency_ms": 57,
     "cost_usd": 0.0,
     "notes": [
       "No external LLM is called. The decision comes from a deterministic policy over the calibrated classifier and retrieved evidence."
@@ -668,7 +668,7 @@
           "k": 5
         },
         "ok": true,
-        "latency_ms": 45,
+        "latency_ms": 50,
         "result_size": 1999,
         "preview": "[{\"doc_id\": \"incident:1552:167572\", \"source\": \"incident\", \"source_id\": \"1552:167572\", \"title\": \"21\", \"text\": \"SuspiciousActivity CloudApplication Ip User Impacted Related Contextual 21\", \"score\": 0.029386529386529386, \"label\": \"true_positive\", \"categories\": [\"SuspiciousActivity\"], \"mitre\": [\"nan\"], ",
         "error": null
@@ -680,7 +680,7 @@
           "k": 5
         },
         "ok": true,
-        "latency_ms": 47,
+        "latency_ms": 42,
         "result_size": 4159,
         "preview": "[{\"doc_id\": \"playbook:09-incident-response-escalation:escalation-criteria\", \"source\": \"playbook\", \"source_id\": \"playbook:09-incident-response-escalation:escalation-criteria\", \"title\": \"Incident Response and Escalation / Escalation criteria\", \"text\": \"Incident Response and Escalation Escalation crite",
         "error": null
@@ -784,7 +784,7 @@
       "classifier_version": "tfidf_lgbm_calibrated_v1",
       "prompt_version": "w3_agent_v1",
       "tool_calls": 5,
-      "latency_ms": 126,
+      "latency_ms": 145,
       "cost_usd": 0.0
     },
     "probabilities": {
@@ -812,7 +812,7 @@
           "k": 5
         },
         "ok": true,
-        "latency_ms": 54,
+        "latency_ms": 61,
         "result_size": 4778,
         "preview": "[{\"doc_id\": \"incident:721:7747\", \"source\": \"incident\", \"source_id\": \"721:7747\", \"title\": \"92\", \"text\": \"CredentialAccess Execution LateralMovement T1003;T1005;T1119;T1539;T1550.004;T1552.001;T1555.003;T1555.004 T1021;T1021.004;T1043 T1059;T1059.001 File Ip Machine Process User Impacted Related Suspi",
         "error": null
@@ -824,7 +824,7 @@
           "k": 5
         },
         "ok": true,
-        "latency_ms": 61,
+        "latency_ms": 69,
         "result_size": 4248,
         "preview": "[{\"doc_id\": \"playbook:03-endpoint-malware:detection-signals\", \"source\": \"playbook\", \"source_id\": \"playbook:03-endpoint-malware:detection-signals\", \"title\": \"Endpoint Malware and Execution / Detection signals\", \"text\": \"Endpoint Malware and Execution Detection signals. Known-bad hash, unsigned binary",
         "error": null
@@ -881,7 +881,7 @@
     "llm_backend": "offline_policy",
     "schema_valid": true,
     "violations": [],
-    "latency_ms": 126,
+    "latency_ms": 145,
     "cost_usd": 0.0,
     "notes": [
       "No external LLM is called. The decision comes from a deterministic policy over the calibrated classifier and retrieved evidence."
@@ -940,7 +940,7 @@
       "classifier_version": "tfidf_lgbm_calibrated_v1",
       "prompt_version": "w3_agent_v1",
       "tool_calls": 5,
-      "latency_ms": 110,
+      "latency_ms": 118,
       "cost_usd": 0.0
     },
     "probabilities": {
@@ -980,7 +980,7 @@
           "k": 5
         },
         "ok": true,
-        "latency_ms": 48,
+        "latency_ms": 57,
         "result_size": 4043,
         "preview": "[{\"doc_id\": \"playbook:08-cloud-email:detection-signals\", \"source\": \"playbook\", \"source_id\": \"playbook:08-cloud-email:detection-signals\", \"title\": \"Cloud and Email Compromise / Detection signals\", \"text\": \"Cloud and Email Compromise Detection signals. New inbox rule forwarding mail, OAuth consent to ",
         "error": null
@@ -1037,7 +1037,7 @@
     "llm_backend": "offline_policy",
     "schema_valid": true,
     "violations": [],
-    "latency_ms": 110,
+    "latency_ms": 118,
     "cost_usd": 0.0,
     "notes": [
       "No external LLM is called. The decision comes from a deterministic policy over the calibrated classifier and retrieved evidence."
@@ -1091,7 +1091,7 @@
       "classifier_version": "tfidf_lgbm_calibrated_v1",
       "prompt_version": "w3_agent_v1",
       "tool_calls": 5,
-      "latency_ms": 191,
+      "latency_ms": 213,
       "cost_usd": 0.0
     },
     "probabilities": {
@@ -1119,7 +1119,7 @@
           "k": 5
         },
         "ok": true,
-        "latency_ms": 94,
+        "latency_ms": 102,
         "result_size": 6695,
         "preview": "[{\"doc_id\": \"incident:26:6704\", \"source\": \"incident\", \"source_id\": \"26:6704\", \"title\": \"92\", \"text\": \"CredentialAccess DefenseEvasion Discovery Execution Malware T1003;T1005;T1119;T1539;T1550.004;T1552.001;T1555.003;T1555.004 T1007;T1016;T1018;T1049;T1087;T1135 T1027;T1204.002 T1055;T1055.001;T1055.",
         "error": null
@@ -1131,7 +1131,7 @@
           "k": 5
         },
         "ok": true,
-        "latency_ms": 84,
+        "latency_ms": 97,
         "result_size": 4077,
         "preview": "[{\"doc_id\": \"playbook:03-endpoint-malware:detection-signals\", \"source\": \"playbook\", \"source_id\": \"playbook:03-endpoint-malware:detection-signals\", \"title\": \"Endpoint Malware and Execution / Detection signals\", \"text\": \"Endpoint Malware and Execution Detection signals. Known-bad hash, unsigned binary",
         "error": null
@@ -1192,7 +1192,7 @@
     "llm_backend": "offline_policy",
     "schema_valid": true,
     "violations": [],
-    "latency_ms": 191,
+    "latency_ms": 213,
     "cost_usd": 0.0,
     "notes": [
       "No external LLM is called. The decision comes from a deterministic policy over the calibrated classifier and retrieved evidence."
@@ -1246,7 +1246,7 @@
       "classifier_version": "tfidf_lgbm_calibrated_v1",
       "prompt_version": "w3_agent_v1",
       "tool_calls": 5,
-      "latency_ms": 187,
+      "latency_ms": 208,
       "cost_usd": 0.0
     },
     "probabilities": {
@@ -1274,7 +1274,7 @@
           "k": 5
         },
         "ok": true,
-        "latency_ms": 90,
+        "latency_ms": 103,
         "result_size": 5721,
         "preview": "[{\"doc_id\": \"incident:56:4193\", \"source\": \"incident\", \"source_id\": \"56:4193\", \"title\": \"977\", \"text\": \"CommandAndControl CredentialAccess DefenseEvasion Discovery Malware Persistence PrivilegeEscalation Ransomware SuspiciousActivity T1007;T1016;T1018;T1049;T1082;T1087;T1135 T1036;T1218.011 T1037;T10",
         "error": null
@@ -1286,7 +1286,7 @@
           "k": 5
         },
         "ok": true,
-        "latency_ms": 85,
+        "latency_ms": 92,
         "result_size": 4011,
         "preview": "[{\"doc_id\": \"playbook:03-endpoint-malware:detection-signals\", \"source\": \"playbook\", \"source_id\": \"playbook:03-endpoint-malware:detection-signals\", \"title\": \"Endpoint Malware and Execution / Detection signals\", \"text\": \"Endpoint Malware and Execution Detection signals. Known-bad hash, unsigned binary",
         "error": null
@@ -1347,7 +1347,7 @@
     "llm_backend": "offline_policy",
     "schema_valid": true,
     "violations": [],
-    "latency_ms": 187,
+    "latency_ms": 208,
     "cost_usd": 0.0,
     "notes": [
       "No external LLM is called. The decision comes from a deterministic policy over the calibrated classifier and retrieved evidence."
@@ -1401,7 +1401,7 @@
       "classifier_version": "tfidf_lgbm_calibrated_v1",
       "prompt_version": "w3_agent_v1",
       "tool_calls": 5,
-      "latency_ms": 101,
+      "latency_ms": 103,
       "cost_usd": 0.0
     },
     "probabilities": {
@@ -1429,7 +1429,7 @@
           "k": 5
         },
         "ok": true,
-        "latency_ms": 41,
+        "latency_ms": 44,
         "result_size": 3109,
         "preview": "[{\"doc_id\": \"incident:26:13637\", \"source\": \"incident\", \"source_id\": \"26:13637\", \"title\": \"925\", \"text\": \"Exploit Malware SuspiciousActivity File Machine Impacted Related Suspicious Malicious Suspicious AgentTesla BoomBox CVE-2017-11882 Dropper Leonem Malgent Nemucod Obfuse Phish SoreFang TinyProxy T",
         "error": null
@@ -1441,7 +1441,7 @@
           "k": 5
         },
         "ok": true,
-        "latency_ms": 46,
+        "latency_ms": 47,
         "result_size": 3912,
         "preview": "[{\"doc_id\": \"playbook:03-endpoint-malware:detection-signals\", \"source\": \"playbook\", \"source_id\": \"playbook:03-endpoint-malware:detection-signals\", \"title\": \"Endpoint Malware and Execution / Detection signals\", \"text\": \"Endpoint Malware and Execution Detection signals. Known-bad hash, unsigned binary",
         "error": null
@@ -1496,7 +1496,7 @@
     "llm_backend": "offline_policy",
     "schema_valid": true,
     "violations": [],
-    "latency_ms": 101,
+    "latency_ms": 103,
     "cost_usd": 0.0,
     "notes": [
       "No external LLM is called. The decision comes from a deterministic policy over the calibrated classifier and retrieved evidence."
@@ -1550,7 +1550,7 @@
       "classifier_version": "tfidf_lgbm_calibrated_v1",
       "prompt_version": "w3_agent_v1",
       "tool_calls": 5,
-      "latency_ms": 106,
+      "latency_ms": 121,
       "cost_usd": 0.0
     },
     "probabilities": {
@@ -1578,7 +1578,7 @@
           "k": 5
         },
         "ok": true,
-        "latency_ms": 45,
+        "latency_ms": 51,
         "result_size": 2441,
         "preview": "[{\"doc_id\": \"incident:1005:22121\", \"source\": \"incident\", \"source_id\": \"1005:22121\", \"title\": \"1\", \"text\": \"InitialAccess T1566.002 MailCluster MailMessage Mailbox Url User Impacted Related Malicious NoThreatsFound Inbound 1\", \"score\": 0.02738970588235294, \"label\": \"false_positive\", \"categories\": [\"I",
         "error": null
@@ -1590,7 +1590,7 @@
           "k": 5
         },
         "ok": true,
-        "latency_ms": 49,
+        "latency_ms": 57,
         "result_size": 3880,
         "preview": "[{\"doc_id\": \"playbook:02-initial-access-phishing:summary\", \"source\": \"playbook\", \"source_id\": \"playbook:02-initial-access-phishing:summary\", \"title\": \"Initial Access and Phishing / Summary\", \"text\": \"Initial Access and Phishing Summary. Use this playbook for suspicious mail, malicious links, attachm",
         "error": null
@@ -1645,7 +1645,7 @@
     "llm_backend": "offline_policy",
     "schema_valid": true,
     "violations": [],
-    "latency_ms": 106,
+    "latency_ms": 121,
     "cost_usd": 0.0,
     "notes": [
       "No external LLM is called. The decision comes from a deterministic policy over the calibrated classifier and retrieved evidence."
@@ -1699,7 +1699,7 @@
       "classifier_version": "tfidf_lgbm_calibrated_v1",
       "prompt_version": "w3_agent_v1",
       "tool_calls": 5,
-      "latency_ms": 97,
+      "latency_ms": 99,
       "cost_usd": 0.0
     },
     "probabilities": {
@@ -1727,7 +1727,7 @@
           "k": 5
         },
         "ok": true,
-        "latency_ms": 40,
+        "latency_ms": 41,
         "result_size": 2134,
         "preview": "[{\"doc_id\": \"incident:415:53538\", \"source\": \"incident\", \"source_id\": \"415:53538\", \"title\": \"488\", \"text\": \"Malware File Machine Impacted Related Suspicious Malicious Suspicious Malgent 28793 309 488\", \"score\": 0.031544957774465976, \"label\": \"benign_positive\", \"categories\": [\"Malware\"], \"mitre\": [\"na",
         "error": null
@@ -1739,7 +1739,7 @@
           "k": 5
         },
         "ok": true,
-        "latency_ms": 45,
+        "latency_ms": 44,
         "result_size": 3913,
         "preview": "[{\"doc_id\": \"playbook:03-endpoint-malware:detection-signals\", \"source\": \"playbook\", \"source_id\": \"playbook:03-endpoint-malware:detection-signals\", \"title\": \"Endpoint Malware and Execution / Detection signals\", \"text\": \"Endpoint Malware and Execution Detection signals. Known-bad hash, unsigned binary",
         "error": null
@@ -1794,7 +1794,7 @@
     "llm_backend": "offline_policy",
     "schema_valid": true,
     "violations": [],
-    "latency_ms": 97,
+    "latency_ms": 99,
     "cost_usd": 0.0,
     "notes": [
       "No external LLM is called. The decision comes from a deterministic policy over the calibrated classifier and retrieved evidence."
@@ -1848,7 +1848,7 @@
       "classifier_version": "tfidf_lgbm_calibrated_v1",
       "prompt_version": "w3_agent_v1",
       "tool_calls": 5,
-      "latency_ms": 235,
+      "latency_ms": 246,
       "cost_usd": 0.0
     },
     "probabilities": {
@@ -1876,7 +1876,7 @@
           "k": 5
         },
         "ok": true,
-        "latency_ms": 117,
+        "latency_ms": 124,
         "result_size": 16865,
         "preview": "[{\"doc_id\": \"incident:27:344\", \"source\": \"incident\", \"source_id\": \"27:344\", \"title\": \"9941\", \"text\": \"Collection CommandAndControl CredentialAccess DefenseEvasion Discovery Execution Exfiltration Impact InitialAccess LateralMovement Malware Persistence PrivilegeEscalation Ransomware SuspiciousActivi",
         "error": null
@@ -1888,7 +1888,7 @@
           "k": 5
         },
         "ok": true,
-        "latency_ms": 103,
+        "latency_ms": 106,
         "result_size": 3993,
         "preview": "[{\"doc_id\": \"playbook:03-endpoint-malware:detection-signals\", \"source\": \"playbook\", \"source_id\": \"playbook:03-endpoint-malware:detection-signals\", \"title\": \"Endpoint Malware and Execution / Detection signals\", \"text\": \"Endpoint Malware and Execution Detection signals. Known-bad hash, unsigned binary",
         "error": null
@@ -1956,7 +1956,7 @@
     "llm_backend": "offline_policy",
     "schema_valid": true,
     "violations": [],
-    "latency_ms": 235,
+    "latency_ms": 246,
     "cost_usd": 0.0,
     "notes": [
       "No external LLM is called. The decision comes from a deterministic policy over the calibrated classifier and retrieved evidence."
@@ -2010,7 +2010,7 @@
       "classifier_version": "tfidf_lgbm_calibrated_v1",
       "prompt_version": "w3_agent_v1",
       "tool_calls": 5,
-      "latency_ms": 158,
+      "latency_ms": 190,
       "cost_usd": 0.0
     },
     "probabilities": {
@@ -2038,7 +2038,7 @@
           "k": 5
         },
         "ok": true,
-        "latency_ms": 74,
+        "latency_ms": 111,
         "result_size": 5261,
         "preview": "[{\"doc_id\": \"incident:42:238195\", \"source\": \"incident\", \"source_id\": \"42:238195\", \"title\": \"5159\", \"text\": \"CredentialAccess SuspiciousActivity T1546.008;T1546.012 File Machine Process Impacted Related Suspicious Malicious Suspicious Mimikatz 265 5159\", \"score\": 0.027479766610201392, \"label\": \"benig",
         "error": null
@@ -2050,7 +2050,7 @@
           "k": 5
         },
         "ok": true,
-        "latency_ms": 70,
+        "latency_ms": 65,
         "result_size": 3969,
         "preview": "[{\"doc_id\": \"playbook:05-persistence-defense-evasion:triage-questions\", \"source\": \"playbook\", \"source_id\": \"playbook:05-persistence-defense-evasion:triage-questions\", \"title\": \"Persistence and Defense Evasion / Triage questions\", \"text\": \"Persistence and Defense Evasion Triage questions. What proces",
         "error": null
@@ -2110,7 +2110,7 @@
     "llm_backend": "offline_policy",
     "schema_valid": true,
     "violations": [],
-    "latency_ms": 158,
+    "latency_ms": 190,
     "cost_usd": 0.0,
     "notes": [
       "No external LLM is called. The decision comes from a deterministic policy over the calibrated classifier and retrieved evidence."
@@ -2159,7 +2159,7 @@
       "classifier_version": "tfidf_lgbm_calibrated_v1",
       "prompt_version": "w3_agent_v1",
       "tool_calls": 5,
-      "latency_ms": 114,
+      "latency_ms": 119,
       "cost_usd": 0.0
     },
     "probabilities": {
@@ -2187,7 +2187,7 @@
           "k": 5
         },
         "ok": true,
-        "latency_ms": 48,
+        "latency_ms": 57,
         "result_size": 2565,
         "preview": "[{\"doc_id\": \"incident:53:15475\", \"source\": \"incident\", \"source_id\": \"53:15475\", \"title\": \"9\", \"text\": \"InitialAccess T1566 T1566.002 MailCluster MailMessage Mailbox Url User Impacted Related Malicious NoThreatsFound Inbound 1 30 9\", \"score\": 0.03009207275993712, \"label\": \"benign_positive\", \"categori",
         "error": null
@@ -2199,7 +2199,7 @@
           "k": 5
         },
         "ok": true,
-        "latency_ms": 55,
+        "latency_ms": 51,
         "result_size": 3905,
         "preview": "[{\"doc_id\": \"playbook:02-initial-access-phishing:summary\", \"source\": \"playbook\", \"source_id\": \"playbook:02-initial-access-phishing:summary\", \"title\": \"Initial Access and Phishing / Summary\", \"text\": \"Initial Access and Phishing Summary. Use this playbook for suspicious mail, malicious links, attachm",
         "error": null
@@ -2254,7 +2254,7 @@
     "llm_backend": "offline_policy",
     "schema_valid": true,
     "violations": [],
-    "latency_ms": 114,
+    "latency_ms": 119,
     "cost_usd": 0.0,
     "notes": [
       "No external LLM is called. The decision comes from a deterministic policy over the calibrated classifier and retrieved evidence."
@@ -2303,7 +2303,7 @@
       "classifier_version": "tfidf_lgbm_calibrated_v1",
       "prompt_version": "w3_agent_v1",
       "tool_calls": 5,
-      "latency_ms": 108,
+      "latency_ms": 130,
       "cost_usd": 0.0
     },
     "probabilities": {
@@ -2331,7 +2331,7 @@
           "k": 5
         },
         "ok": true,
-        "latency_ms": 46,
+        "latency_ms": 57,
         "result_size": 2482,
         "preview": "[{\"doc_id\": \"incident:53:15475\", \"source\": \"incident\", \"source_id\": \"53:15475\", \"title\": \"9\", \"text\": \"InitialAccess T1566 T1566.002 MailCluster MailMessage Mailbox Url User Impacted Related Malicious NoThreatsFound Inbound 1 30 9\", \"score\": 0.030679156908665108, \"label\": \"benign_positive\", \"categor",
         "error": null
@@ -2343,7 +2343,7 @@
           "k": 5
         },
         "ok": true,
-        "latency_ms": 46,
+        "latency_ms": 57,
         "result_size": 3879,
         "preview": "[{\"doc_id\": \"playbook:02-initial-access-phishing:summary\", \"source\": \"playbook\", \"source_id\": \"playbook:02-initial-access-phishing:summary\", \"title\": \"Initial Access and Phishing / Summary\", \"text\": \"Initial Access and Phishing Summary. Use this playbook for suspicious mail, malicious links, attachm",
         "error": null
@@ -2398,7 +2398,7 @@
     "llm_backend": "offline_policy",
     "schema_valid": true,
     "violations": [],
-    "latency_ms": 108,
+    "latency_ms": 130,
     "cost_usd": 0.0,
     "notes": [
       "No external LLM is called. The decision comes from a deterministic policy over the calibrated classifier and retrieved evidence."
@@ -2447,7 +2447,7 @@
       "classifier_version": "tfidf_lgbm_calibrated_v1",
       "prompt_version": "w3_agent_v1",
       "tool_calls": 5,
-      "latency_ms": 104,
+      "latency_ms": 125,
       "cost_usd": 0.0
     },
     "probabilities": {
@@ -2475,7 +2475,7 @@
           "k": 5
         },
         "ok": true,
-        "latency_ms": 42,
+        "latency_ms": 50,
         "result_size": 1861,
         "preview": "[{\"doc_id\": \"incident:1001:118079\", \"source\": \"incident\", \"source_id\": \"1001:118079\", \"title\": \"9\", \"text\": \"InitialAccess T1566 MailMessage Mailbox User Impacted Related 9\", \"score\": 0.032018442622950824, \"label\": \"benign_positive\", \"categories\": [\"InitialAccess\"], \"mitre\": [\"T1566\"], \"metadata\": {",
         "error": null
@@ -2487,7 +2487,7 @@
           "k": 5
         },
         "ok": true,
-        "latency_ms": 49,
+        "latency_ms": 60,
         "result_size": 3953,
         "preview": "[{\"doc_id\": \"playbook:02-initial-access-phishing:recovery\", \"source\": \"playbook\", \"source_id\": \"playbook:02-initial-access-phishing:recovery\", \"title\": \"Initial Access and Phishing / Recovery\", \"text\": \"Initial Access and Phishing Recovery. Restore the mailbox and device after cleaning and verificat",
         "error": null
@@ -2542,7 +2542,7 @@
     "llm_backend": "offline_policy",
     "schema_valid": true,
     "violations": [],
-    "latency_ms": 104,
+    "latency_ms": 125,
     "cost_usd": 0.0,
     "notes": [
       "No external LLM is called. The decision comes from a deterministic policy over the calibrated classifier and retrieved evidence."
@@ -2591,7 +2591,7 @@
       "classifier_version": "tfidf_lgbm_calibrated_v1",
       "prompt_version": "w3_agent_v1",
       "tool_calls": 5,
-      "latency_ms": 123,
+      "latency_ms": 137,
       "cost_usd": 0.0
     },
     "probabilities": {
@@ -2619,7 +2619,7 @@
           "k": 5
         },
         "ok": true,
-        "latency_ms": 52,
+        "latency_ms": 56,
         "result_size": 3686,
         "preview": "[{\"doc_id\": \"incident:274:115078\", \"source\": \"incident\", \"source_id\": \"274:115078\", \"title\": \"355\", \"text\": \"Discovery Execution T1007;T1059.001 T1016;T1049;T1059.001 T1053.002;T1053.005 T1053;T1053.005 T1057;T1059.001 File Machine Process User Impacted Related Suspicious Suspicious 145 260 262 280 ",
         "error": null
@@ -2631,7 +2631,7 @@
           "k": 5
         },
         "ok": true,
-        "latency_ms": 57,
+        "latency_ms": 67,
         "result_size": 4092,
         "preview": "[{\"doc_id\": \"playbook:03-endpoint-malware:detection-signals\", \"source\": \"playbook\", \"source_id\": \"playbook:03-endpoint-malware:detection-signals\", \"title\": \"Endpoint Malware and Execution / Detection signals\", \"text\": \"Endpoint Malware and Execution Detection signals. Known-bad hash, unsigned binary",
         "error": null
@@ -2687,7 +2687,7 @@
     "llm_backend": "offline_policy",
     "schema_valid": true,
     "violations": [],
-    "latency_ms": 123,
+    "latency_ms": 137,
     "cost_usd": 0.0,
     "notes": [
       "No external LLM is called. The decision comes from a deterministic policy over the calibrated classifier and retrieved evidence."
@@ -2736,7 +2736,7 @@
       "classifier_version": "tfidf_lgbm_calibrated_v1",
       "prompt_version": "w3_agent_v1",
       "tool_calls": 5,
-      "latency_ms": 87,
+      "latency_ms": 90,
       "cost_usd": 0.0
     },
     "probabilities": {
@@ -2764,7 +2764,7 @@
           "k": 5
         },
         "ok": true,
-        "latency_ms": 35,
+        "latency_ms": 38,
         "result_size": 2255,
         "preview": "[{\"doc_id\": \"incident:310:70055\", \"source\": \"incident\", \"source_id\": \"310:70055\", \"title\": \"4926\", \"text\": \"DefenseEvasion T1027.004 File Ip Machine Process Impacted Related Suspicious Suspicious 4926\", \"score\": 0.03252247488101534, \"label\": \"false_positive\", \"categories\": [\"DefenseEvasion\"], \"mitre",
         "error": null
@@ -2831,7 +2831,7 @@
     "llm_backend": "offline_policy",
     "schema_valid": true,
     "violations": [],
-    "latency_ms": 87,
+    "latency_ms": 90,
     "cost_usd": 0.0,
     "notes": [
       "No external LLM is called. The decision comes from a deterministic policy over the calibrated classifier and retrieved evidence."
@@ -2880,7 +2880,7 @@
       "classifier_version": "tfidf_lgbm_calibrated_v1",
       "prompt_version": "w3_agent_v1",
       "tool_calls": 5,
-      "latency_ms": 135,
+      "latency_ms": 130,
       "cost_usd": 0.0
     },
     "probabilities": {
@@ -2908,7 +2908,7 @@
           "k": 5
         },
         "ok": true,
-        "latency_ms": 49,
+        "latency_ms": 50,
         "result_size": 2456,
         "preview": "[{\"doc_id\": \"incident:3:118588\", \"source\": \"incident\", \"source_id\": \"3:118588\", \"title\": \"4\", \"text\": \"CommandAndControl SuspiciousActivity Ip Machine Process Url User Impacted Related Suspicious Suspicious 137 2 4\", \"score\": 0.030090497737556562, \"label\": \"benign_positive\", \"categories\": [\"CommandA",
         "error": null
@@ -2920,7 +2920,7 @@
           "k": 5
         },
         "ok": true,
-        "latency_ms": 50,
+        "latency_ms": 64,
         "result_size": 3940,
         "preview": "[{\"doc_id\": \"playbook:06-c2-exfiltration:eradication\", \"source\": \"playbook\", \"source_id\": \"playbook:06-c2-exfiltration:eradication\", \"title\": \"Command and Control and Exfiltration / Eradication\", \"text\": \"Command and Control and Exfiltration Eradication. Remove the beacon and the process that launch",
         "error": null
@@ -2976,7 +2976,7 @@
     "llm_backend": "offline_policy",
     "schema_valid": true,
     "violations": [],
-    "latency_ms": 135,
+    "latency_ms": 130,
     "cost_usd": 0.0,
     "notes": [
       "No external LLM is called. The decision comes from a deterministic policy over the calibrated classifier and retrieved evidence."
