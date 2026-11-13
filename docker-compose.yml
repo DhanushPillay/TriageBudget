@@ -1,0 +1,33 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: triage
+      POSTGRES_USER: triage
+      POSTGRES_PASSWORD: triage
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U triage -d triage"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - triage_db:/var/lib/postgresql/data
+
+  app:
+    build: .
+    environment:
+      DATABASE_URL: postgresql://triage:triage@db:5432/triage
+      TRIAGE_DEMO_MODE: "1"
+      TRIAGE_REVIEW_TOKEN: demo-review-token
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    command:
+      - sh
+      - -c
+      - python -m triage.web seed --if-empty && uvicorn triage.web.app:app --host 0.0.0.0 --port 8000
+
+volumes:
+  triage_db:
