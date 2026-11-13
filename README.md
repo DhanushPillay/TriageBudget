@@ -2,7 +2,7 @@
 
 A budget-aware RAG and agent system for security incident triage.
 
-**Status: Week 3 retrieval and bounded agent are in.** Hybrid BM25 + dense retrieval over 14,664 deduplicated train incidents and 63 synthetic playbook sections returns a relevant incident or playbook citation in 20/20 smoke queries. The test split is not indexed. A bounded offline agent produces schema-valid decisions on 20 hand-picked exception cases: 20/20 valid, 0 hard-constraint violations, 5.00 mean tool calls. It flags human review on all three missed true positives and auto-closes nothing. The Week 2 calibrated classifier remains the scoring layer: macro-F1 0.7199 before calibration and 0.7282 after vector scaling, ECE 0.0184 to 0.0051. True-positive recall falls from 0.684 to 0.516, so the router must use calibrated `p_true_positive`. The clean-clone reproduction check remains open.
+**Status: Week 3 retrieval and bounded agent are in.** Hybrid BM25 + dense retrieval over 14,664 deduplicated train incidents and 63 synthetic playbook sections returns a relevant incident or playbook citation in 19/20 smoke queries. The test split is not indexed. A bounded offline agent produces schema-valid decisions on 20 hand-picked exception cases: 20/20 valid, 0 hard-constraint violations, 5.00 mean tool calls. It flags human review on all three missed true positives and auto-closes nothing. The Week 2 calibrated classifier remains the scoring layer: macro-F1 0.7199 before calibration and 0.7282 after vector scaling, ECE 0.0184 to 0.0051. True-positive recall falls from 0.684 to 0.516, so the router must use calibrated `p_true_positive`. The clean-clone reproduction check remains open.
 
 ---
 
@@ -12,7 +12,7 @@ Rows marked **planned** are not built yet. Week 1 to Week 3 rows have runnable a
 
 | Skill | How TriageBudget uses it | Proof a reviewer can inspect |
 |---|---|---|
-| RAG | Retrieves similar train incidents and playbook sections before a decision; hybrid BM25 + dense + reciprocal rank fusion | `reports/w3_retrieval.md`, 20/20 smoke citations |
+| RAG | Retrieves similar train incidents and playbook sections before a decision; hybrid BM25 + dense + reciprocal rank fusion | `reports/w3_retrieval.md`, 19/20 smoke citations |
 | Vector database | Exact numpy inner product over 384-d `bge-small-en-v1.5` vectors locally; pgvector planned for the deployed demo | Index manifest, leakage check, Recall@k |
 | Data engineering | GUIDE ingestion, Parquet, DuckDB, split manifests, data-quality checks | `data/` pipeline, `tests/test_data.py` |
 | Agents and tool calling | Bounded offline policy over seven typed tools with a hard six-call cap | `reports/w3_agent.md`, tool traces |
@@ -176,7 +176,7 @@ Week 3 retrieval, hybrid BM25 + dense + RRF, 100 dev proxy queries:
 | MRR | 0.5747 | n/a |
 | median latency | 41.3 ms | 41.3 ms |
 
-The gold sets are structured-overlap proxies, not human relevance labels. Smoke citations are 20/20. The index has 0 test incident overlap. Agent results: 20/20 schema-valid, 0 hard-constraint violations, 5.00 mean tool calls, 7/7 true positives cited, and 3/3 missed true positives flagged for human review.
+The gold sets are structured-overlap proxies, not human relevance labels. Smoke citations are 19/20. The index has 0 test incident overlap. Agent results: 20/20 schema-valid, 0 hard-constraint violations, 5.00 mean tool calls, 7/7 true positives with a retrieval citation, and 3/3 missed true positives flagged for human review.
 
 | Metric | What it measures | Baseline |
 |---|---|---|
@@ -240,7 +240,7 @@ uv run python -m triage.cli split --incidents data/processed/incidents.parquet -
 uv run python -m triage.cli baselines --train data/processed/train.parquet --dev data/processed/dev.parquet --test data/processed/test.parquet --manifest data/manifests/split_v1.json --report reports/w1_baselines.md --metrics reports/w1_metrics.json --dataset guide
 uv run python -m triage.cli classify --train data/processed/train.parquet --dev data/processed/dev.parquet --test data/processed/test.parquet --manifest data/manifests/split_v1.json --report reports/w2_classifier.md --metrics reports/w2_metrics.json --model-dir models/classifier_v1 --dataset guide
 uv run python -m triage.cli check --incidents data/processed/incidents.parquet --manifest data/manifests/split_v1.json
-uv run python -m triage.retrieval build --train data/processed/train.parquet --dev data/processed/dev.parquet --test data/processed/test.parquet --playbooks data/playbooks --index indexes/w3_retrieval --report reports/w3_retrieval.md --metrics reports/w3_retrieval_metrics.json --dataset guide
+uv run python -m triage.retrieval build --train data/processed/train.parquet --dev data/processed/dev.parquet --test data/processed/test.parquet --playbooks data/playbooks --out indexes/w3_retrieval --report reports/w3_retrieval.md --metrics reports/w3_retrieval_metrics.json --dataset guide
 uv run python -m triage.agent --case case_01
 uv run python -m triage.agent
 ```
@@ -328,6 +328,7 @@ See [docs/roadmap.md](docs/roadmap.md) for gates and the risk register.
 - Organization identity and organization frequency are excluded from the headline classifier because queue-specific labeling styles leak into the score. The org-frequency ablation is reported, not used.
 - The public GUIDE release includes queue ranks for 9,980 test incidents but no severity column. The Week 2 queue ranking result is a true-positive proxy; Week 4 will evaluate analyst P@5/10/20 against `QueueRank`.
 - Calibration improves macro-F1 but lowers true-positive recall from 0.684 to 0.516. The router must use calibrated `p_true_positive` and a selective-risk curve.
+- Hyperparameter tuning and calibrator selection both use the same dev rows. The test split is untouched, but the calibrator choice is optimistic; nested cross-validation or a separate calibration split is future work.
 - Week 3 retrieval gold sets are structured-overlap proxies. They are not human relevance labels, so the retrieval numbers measure a reproducible proxy, not analyst-judged quality.
 - Playbooks are synthetic and do not represent an organization's real policy. Raw GUIDE evidence text is unavailable, so citations use derived summaries and ids, not log lines.
 - The Week 3 agent is an offline deterministic policy, not an LLM. Prompt templates exist but were not executed. Exact label agreement on the 20 hand-picked cases is 0.75; that number is descriptive, not a benchmark.
