@@ -1,0 +1,14 @@
+.git
+.venv
+__pycache__
+*.pyc
+.pytest_cache
+.ruff_cache
+data
+indexes
+models
+results
+reports/fixture_run
+reports/*_predictions.parquet
+tests
+docs
