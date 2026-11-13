@@ -110,6 +110,38 @@ class FakeIndex:
         ]
 
 
+def _decision(**overrides: Any) -> TriageDecision:
+    payload: dict[str, Any] = {
+        "incident_id": "dev:1",
+        "verdict": "true_positive",
+        "priority": "high",
+        "remediation": [
+            Remediation(
+                action="escalate_to_incident_response",
+                target="incident_response",
+                rationale="Evidence incident:dev:1 supports escalation.",
+            )
+        ],
+        "evidence": [
+            EvidenceCitation(
+                evidence_id="incident:dev:1",
+                quote="summary",
+                source="incident",
+            )
+        ],
+        "confidence": 0.8,
+        "needs_human": False,
+        "route": "auto_escalate",
+        "classifier_version": "v1",
+        "prompt_version": "p1",
+        "tool_calls": 1,
+        "latency_ms": 1,
+        "cost_usd": 0.0,
+    }
+    payload.update(overrides)
+    return TriageDecision(**payload)
+
+
 def test_decision_validation_rejects_uncited_true_positive():
     decision = TriageDecision(
         incident_id="dev:1",
@@ -260,6 +292,138 @@ def test_summarize_and_report_include_gates():
     metrics = _summarize([trace], "fixture")
     assert metrics["schema_valid"] == 1
     assert metrics["gates"]["zero_hard_constraint_violations"] is True
+    assert metrics["gates"]["tp_retrieval_citation"] is False
     report = render_report(metrics, [trace])
     assert "Week 3 agent report" in report
     assert "case_01" in report
+
+
+def test_decision_validation_rejects_true_positive_auto_close():
+    problems = _decision(route="auto_close").validate()
+    assert "true_positive decisions cannot be auto-closed" in problems
+
+
+def test_decision_validation_rejects_true_positive_without_remediation():
+    problems = _decision(remediation=[]).validate()
+    assert "true_positive decisions must include remediation" in problems
+
+
+def test_decision_validation_rejects_true_positive_close_no_action():
+    problems = _decision(
+        remediation=[
+            Remediation(
+                action="close_no_action",
+                target="incident_queue",
+                rationale="Evidence incident:dev:1 supports closure.",
+            )
+        ]
+    ).validate()
+    assert "true_positive decisions cannot close with no action" in problems
+
+
+def test_decision_validation_rejects_wrong_route_for_verdict():
+    assert "auto_escalate requires a true_positive verdict" in _decision(
+        verdict="benign_positive", route="auto_escalate"
+    ).validate()
+    assert "auto_close requires a false_positive verdict" in _decision(
+        verdict="true_positive", route="auto_close"
+    ).validate()
+
+
+def test_decision_validation_rejects_containment_without_human_review():
+    problems = _decision(
+        route="agent",
+        needs_human=False,
+        remediation=[
+            Remediation(
+                action="contain_host",
+                target="affected_host",
+                rationale="Evidence incident:dev:1 supports containment.",
+            )
+        ],
+    ).validate()
+    assert "containment actions require human review" in problems
+
+
+def test_decision_validation_grounds_evidence_in_sources():
+    decision = _decision(
+        evidence=[
+            EvidenceCitation(
+                evidence_id="train_incident:missing",
+                quote="not in source",
+                source="train_incident",
+            )
+        ]
+    )
+    problems = decision.validate(
+        evidence_sources={"incident:dev:1": "summary"}
+    )
+    assert any("not found in tool results" in problem for problem in problems)
+
+    decision = _decision(
+        evidence=[
+            EvidenceCitation(
+                evidence_id="incident:dev:1",
+                quote="invented quote",
+                source="incident",
+            )
+        ]
+    )
+    problems = decision.validate(evidence_sources={"incident:dev:1": "summary"})
+    assert any("quote does not match source" in problem for problem in problems)
+
+
+def test_summarize_requires_retrieval_citation_for_true_positive():
+    trace = {
+        "case_id": "case_01",
+        "incident_id": "dev:1",
+        "expected_label": "true_positive",
+        "decision": {
+            "incident_id": "dev:1",
+            "verdict": "true_positive",
+            "priority": "high",
+            "remediation": [],
+            "evidence": [
+                {
+                    "evidence_id": "incident:dev:1",
+                    "quote": "summary",
+                    "source": "incident",
+                }
+            ],
+            "confidence": 0.8,
+            "needs_human": False,
+            "route": "auto_escalate",
+            "classifier_version": "v1",
+            "prompt_version": "p1",
+            "tool_calls": 5,
+            "latency_ms": 10,
+            "cost_usd": 0.0,
+        },
+        "probabilities": {"true_positive": 0.8},
+        "top_label": "true_positive",
+        "tool_calls": [],
+        "revision_count": 0,
+        "prompt_version": "p1",
+        "prompt_sha256": "abc",
+        "prompt_chars": 10,
+        "llm_backend": "offline_policy",
+        "schema_valid": True,
+        "violations": [],
+        "latency_ms": 10,
+        "cost_usd": 0.0,
+        "notes": [],
+    }
+    metrics = _summarize([trace], "fixture")
+    assert metrics["tp_retrieval_cited"] == 0
+    assert metrics["gates"]["tp_retrieval_citation"] is False
+
+    trace["decision"]["evidence"].append(
+        {
+            "evidence_id": "train_incident:1",
+            "quote": "similar",
+            "source": "train_incident",
+        }
+    )
+    metrics = _summarize([trace], "fixture")
+    assert metrics["tp_retrieval_cited"] == 1
+    assert metrics["gates"]["tp_retrieval_citation"] is True
