@@ -15,4 +15,6 @@ data/*.wal
 
 reports/fixture_run/
 reports/*_predictions.parquet
+results/run_*/predictions.parquet
+results/run_*/traces.jsonl
 indexes/
