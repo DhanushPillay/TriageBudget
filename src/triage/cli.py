@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 
 from triage.baselines import run_baselines
+from triage.classifier import run_classifier
 from triage.config import SAMPLE_SIZE, SEED
 from triage.data import build_manifest, quality_report, run_etl
 from triage.fixture import write_fixture
@@ -84,6 +85,44 @@ def _cmd_baselines(args: argparse.Namespace) -> int:
     return 0 if passed else 1
 
 
+def _cmd_classify(args: argparse.Namespace) -> int:
+    metadata = run_classifier(
+        train_path=Path(args.train),
+        dev_path=Path(args.dev) if args.dev else None,
+        test_path=Path(args.test),
+        manifest_path=Path(args.manifest),
+        report_path=Path(args.report),
+        metrics_path=Path(args.metrics),
+        model_dir=Path(args.model_dir),
+        reliability_path=Path(args.reliability) if args.reliability else None,
+        dataset_label=args.dataset,
+        seed=args.seed,
+        grid=args.grid,
+    )
+    _emit(
+        {
+            "dataset": metadata["dataset"],
+            "report": args.report,
+            "metrics": args.metrics,
+            "model_dir": args.model_dir,
+            "calibration": metadata["calibration"]["selected"],
+            "macro_f1": {
+                name: round(result["macro_f1"], 4)
+                for name, result in metadata["models"].items()
+            },
+            "ece": {
+                name: round(result["scores"]["ece"], 4)
+                for name, result in metadata["models"].items()
+            },
+            "gates": metadata["gates"],
+        }
+    )
+    passed = (
+        metadata["manifest"]["validation_passed"] and metadata["data_checks"]["passed"]
+    )
+    return 0 if passed else 1
+
+
 def _cmd_fixture(args: argparse.Namespace) -> int:
     info = write_fixture(
         raw_dir=Path(args.raw_dir),
@@ -136,6 +175,27 @@ def build_parser() -> argparse.ArgumentParser:
     baselines.add_argument("--dataset", choices=["guide", "fixture"], default="guide")
     baselines.add_argument("--seed", type=int, default=SEED)
     baselines.set_defaults(func=_cmd_baselines)
+
+    classify = subparsers.add_parser(
+        "classify", help="Train, calibrate, and evaluate the Week 2 classifier"
+    )
+    classify.add_argument("--train", default="data/processed/train.parquet")
+    classify.add_argument("--dev", default="data/processed/dev.parquet")
+    classify.add_argument("--test", default="data/processed/test.parquet")
+    classify.add_argument("--manifest", default="data/manifests/split_v1.json")
+    classify.add_argument("--report", default="reports/w2_classifier.md")
+    classify.add_argument("--metrics", default="reports/w2_metrics.json")
+    classify.add_argument("--model-dir", default="models/classifier_v1")
+    classify.add_argument("--reliability", default=None)
+    classify.add_argument("--dataset", choices=["guide", "fixture"], default="guide")
+    classify.add_argument("--seed", type=int, default=SEED)
+    classify.add_argument(
+        "--no-grid",
+        action="store_false",
+        dest="grid",
+        help="Skip the dev hyperparameter grid",
+    )
+    classify.set_defaults(func=_cmd_classify)
 
     fixture = subparsers.add_parser("fixture", help="Generate synthetic GUIDE-shaped CSVs")
     fixture.add_argument("--raw-dir", default="tests/fixtures/guide_tiny")
