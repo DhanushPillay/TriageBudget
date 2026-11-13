@@ -14,6 +14,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from triage.config import ROOT
+from triage.web import ai
 from triage.web.db import Database, incident_row, utc_now
 
 LOGGER = logging.getLogger("triage.web")
@@ -60,6 +61,14 @@ def require_review_token(x_review_token: str | None = Header(default=None)) -> N
         raise HTTPException(status_code=503, detail="Review token is not configured")
     if not x_review_token or not secrets.compare_digest(x_review_token, expected):
         raise HTTPException(status_code=401, detail="Invalid review token")
+
+
+def _cached_explanation(db: Database, incident: dict[str, Any]) -> dict[str, Any] | None:
+    row = db.fetch_one(
+        "SELECT * FROM explanations WHERE cache_key = ?",
+        [ai.cache_key(incident, ai.model_name())],
+    )
+    return ai.row_to_explanation(row) if row else None
 
 
 def create_app(database: Database | None = None) -> FastAPI:
@@ -110,6 +119,7 @@ def create_app(database: Database | None = None) -> FastAPI:
             "version": "w5_demo_v1",
             "database": db.backend,
             "demo_mode": _demo_mode(),
+            "ai_configured": ai.api_key() is not None,
         }
 
     @app.get("/api/incidents")
@@ -162,6 +172,7 @@ def create_app(database: Database | None = None) -> FastAPI:
             "incident": incident_row(row),
             "reviews": reviews,
             "audit": audit,
+            "explanation": _cached_explanation(db, incident_row(row)),
         }
 
     @app.get("/api/decisions")
@@ -295,6 +306,68 @@ def create_app(database: Database | None = None) -> FastAPI:
             )
         return {"review": review, "status": status, "duplicate": False}
 
+    @app.post("/api/incidents/{incident_id}/explain")
+    def explain_incident(
+        incident_id: str,
+        refresh: bool = Query(default=False),
+        _: None = Depends(require_review_token),
+    ) -> dict[str, Any]:
+        row = db.fetch_one("SELECT * FROM incidents WHERE incident_id = ?", [incident_id])
+        if not row:
+            raise HTTPException(status_code=404, detail="Incident not found")
+        incident = incident_row(row)
+        model = ai.model_name()
+        key = ai.cache_key(incident, model)
+
+        if not refresh:
+            cached = db.fetch_one(
+                "SELECT * FROM explanations WHERE cache_key = ?", [key]
+            )
+            if cached:
+                return {"explanation": ai.row_to_explanation(cached), "cached": True}
+
+        try:
+            result = ai.explain_incident(incident, model=model)
+        except ai.ExplanationError as exc:
+            LOGGER.info(
+                json.dumps(
+                    {
+                        "event": "ai_explanation_failed",
+                        "incident_id": incident_id,
+                        "status": exc.status,
+                        "reason": str(exc),
+                    }
+                )
+            )
+            raise HTTPException(status_code=exc.status, detail=str(exc)) from exc
+
+        now = utc_now()
+        db.execute(
+            """
+            INSERT INTO explanations (
+                incident_id, cache_key, model, prompt_version, explanation,
+                evidence_ids, uncertainty, next_step, prompt_tokens,
+                completion_tokens, latency_ms, created_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT (cache_key) DO NOTHING
+            """,
+            [
+                incident_id,
+                key,
+                result["model"],
+                result["prompt_version"],
+                result["explanation"],
+                _json_value(result["evidence_ids"], db.is_postgres),
+                result["uncertainty"],
+                result["next_step"],
+                result["prompt_tokens"],
+                result["completion_tokens"],
+                result["latency_ms"],
+                now,
+            ],
+        )
+        return {"explanation": {**result, "created_at": now}, "cached": False}
+
     @app.get("/api/audit")
     def audit(
         incident_id: str | None = None,
@@ -329,7 +402,7 @@ def create_app(database: Database | None = None) -> FastAPI:
             "note": "Demo decisions are precomputed from reports/w3_traces.json.",
         }
 
-    if PUBLIC_DIR.exists():
+    if PUBLIC_DIR.exists() and not os.environ.get("VERCEL"):
         app.mount("/", StaticFiles(directory=PUBLIC_DIR, html=True), name="ui")
 
     return app
