@@ -265,6 +265,11 @@ uv run python -m triage.web seed --if-empty
 uv run python -m triage.web serve
 ```
 
+Both commands load `.env` from the repo root when it exists. Real environment
+variables take precedence, so hosting platform settings are unaffected.
+`docker compose up` also reads `.env` for the review token, demo mode, and Groq
+settings.
+
 The Week 4 command scores the full test split, evaluates a 600-case stratified subset, builds the selective-risk curves, runs the retrieval ablations, computes queue-ranking metrics, and writes the reports under `reports/` plus run artifacts under `results/`.
 
 The `Makefile` mirrors these commands for Unix and CI. `make` is not installed on the current Windows machine, so the CLI commands above are canonical. The first retrieval build downloads `bge-small-en-v1.5` and embeds the train corpus; later runs reuse the local index.
