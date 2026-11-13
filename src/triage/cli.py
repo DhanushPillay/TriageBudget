@@ -10,6 +10,7 @@ from triage.config import SAMPLE_SIZE, SEED
 from triage.data import build_manifest, quality_report, run_etl
 from triage.fixture import write_fixture
 from triage.pipeline import run_fixture_eval
+from triage.selective import run_week4
 
 
 def _emit(payload: object) -> None:
@@ -147,6 +148,34 @@ def _cmd_fixture_eval(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_week4(args: argparse.Namespace) -> int:
+    metrics = run_week4(
+        test_path=Path(args.test),
+        dev_path=Path(args.dev),
+        model_dir=Path(args.model_dir),
+        index_dir=Path(args.index),
+        prompts_dir=Path(args.prompts),
+        results_dir=Path(args.results_dir),
+        reports_dir=Path(args.reports_dir),
+        per_label=args.per_label,
+        seed=args.seed,
+        n_queries=args.queries,
+        run_reranker=args.run_reranker,
+    )
+    _emit(
+        {
+            "run_dir": metrics["run_dir"],
+            "classifier_coverage": metrics["classifier"]["operating_point"]["coverage"],
+            "classifier_tp_miss": metrics["classifier"]["operating_point"]["tp_miss_rate"],
+            "target_met": metrics["classifier"]["operating_point"]["meets_target"],
+            "subset_rows": metrics["subset"]["rows"],
+            "errors": metrics["error_taxonomy"]["errors"],
+            "gates": metrics["gates"],
+        }
+    )
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="triage")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -217,6 +246,27 @@ def build_parser() -> argparse.ArgumentParser:
     fixture_eval.add_argument("--work-dir", default="reports/fixture_run")
     fixture_eval.add_argument("--seed", type=int, default=SEED)
     fixture_eval.set_defaults(func=_cmd_fixture_eval)
+
+    week4 = subparsers.add_parser(
+        "week4", help="Run selective-risk, router, retrieval, and baseline evaluation"
+    )
+    week4.add_argument("--test", default="data/processed/test.parquet")
+    week4.add_argument("--dev", default="data/processed/dev.parquet")
+    week4.add_argument("--model-dir", default="models/classifier_v1")
+    week4.add_argument("--index", default="indexes/w3_retrieval")
+    week4.add_argument("--prompts", default="prompts")
+    week4.add_argument("--results-dir", default="results")
+    week4.add_argument("--reports-dir", default="reports")
+    week4.add_argument("--per-label", type=int, default=200)
+    week4.add_argument("--seed", type=int, default=SEED)
+    week4.add_argument("--queries", type=int, default=100)
+    week4.add_argument(
+        "--no-reranker",
+        action="store_false",
+        dest="run_reranker",
+        help="Skip the optional cross-encoder reranker",
+    )
+    week4.set_defaults(func=_cmd_week4, run_reranker=True)
 
     return parser
 
