@@ -2,7 +2,7 @@
 
 This document defines how TriageBudget is measured. Metrics, splits, and baselines are fixed before results are reported so they cannot be chosen after seeing outcomes.
 
-**Current status: Week 3 retrieval and bounded agent measured on the frozen GUIDE split.** Hybrid BM25 + dense + RRF retrieval reaches incident Recall@5 0.4267, Recall@10 0.6733, nDCG@10 0.5013, and playbook Recall@5 0.4217 on 100 dev proxy queries. The index has 0 test incident overlap. The 20-case agent run is 20/20 schema-valid with 0 hard-constraint violations, 5.00 mean tool calls, and 7/7 true positives with a retrieval citation. Exact label agreement is 0.75; all 3 missed true positives are flagged for human review and none are auto-closed. Week 2 classifier: macro-F1 0.7199 raw and 0.7282 after vector calibration, ECE 0.0184 to 0.0051, true-positive recall 0.684 to 0.516. Week 1 baselines were 0.219 for majority and 0.191 for rules. Figures marked as targets or external facts are not results.
+**Current status: Week 4 selective-risk evaluation measured on the frozen GUIDE split.** The calibrated classifier's best safe operating point is threshold 0.95, with 9.9% coverage at a 0.2% true-positive miss rate and 1.0% selective risk. The 60% coverage target at 1% miss is not met; the report states the 50.1-point coverage shortfall rather than tuning on test. On the fixed 600-case stratified test subset, the full agent reaches 15.0% coverage at 0.0% true-positive miss versus 12.0% at 1.0% for classifier-only. Hybrid retrieval reaches incident Recall@5 0.4267 and Recall@10 0.6733; the cross-encoder reranker is worse on every metric and much slower. Queue ranking beats the analyst queue at P@5 and nDCG@10. Error analysis labels 100 of 182 errors with system-assigned categories. Zero-shot LLM and LLM-generated RAG baselines are not measured and are not reported as results. Week 2 classifier: macro-F1 0.7199 raw and 0.7282 after vector calibration, ECE 0.0184 to 0.0051.
 
 ---
 
@@ -78,7 +78,7 @@ Calibration rules:
 
 - The calibrator is fit on dev only. It is never fit on test.
 - Candidate methods are temperature scaling, vector scaling (temperature plus a per-class bias), and per-class isotonic regression. The method is selected by two-fold cross-validation on dev, then refit on all of dev. A method is eligible only if its cross-validated macro-F1 is within 0.005 of raw.
-- Known limitation: the same dev rows tune LightGBM and select the calibrator. The test split stays untouched, so the headline test metrics remain valid, but calibrator selection is optimistic. Week 4 can use nested cross-validation or a separate calibration split.
+- Known limitation: the same dev rows tune LightGBM and select the calibrator. The test split stays untouched, so the headline test metrics remain valid, but calibrator selection is optimistic. Week 4 did not address this; nested cross-validation or a separate calibration split is future work.
 - ECE is computed on the top-label confidence. The reliability diagram plots observed accuracy against mean confidence for the same bins. Class-wise one-vs-rest ECE is reported separately.
 - A calibrated classifier must report raw and calibrated ECE, Brier, and NLL on the same split. Calibration must not be assumed from the training objective.
 - Calibration can change the argmax. Raw and calibrated per-class metrics are both reported, and the router consumes `p_true_positive` rather than assuming the predicted class is unchanged.
@@ -102,7 +102,7 @@ The public release includes `data/raw/GUIDE_Test_Queue_Rankings.csv` with `OrgId
 - Rank incidents within each organization queue by calibrated `p_true_positive`.
 - Report macro precision@5/10/20 and true-positive capture@10% across queues with at least 50 test incidents and at least 5 true positives.
 - Compare with a signal-only baseline that orders by malicious verdict, MITRE presence, suspicion, and alert count.
-- Label the Week 2 result as a queue risk-ranking proxy. Week 4 evaluates analyst P@5/10/20 against `QueueRank`.
+- Label the Week 2 result as a queue risk-ranking proxy. Week 4 measured model versus analyst queue ranking on 9,980 incidents across 499 organizations: P@5 0.3226 vs 0.2269, P@10 0.2802 vs 0.2216, P@20 0.2219 vs 0.2219, and nDCG@10 0.6877 vs 0.5192.
 
 ### 4.3 Remediation
 
@@ -134,7 +134,7 @@ Week 3 retrieval set:
 | Citation support | Share of cited items that actually support the decision, human checked |
 | Leakage | Indexed train incident ids that also appear in the test split; must be zero |
 
-Measured Week 3 baselines: BM25-only, dense-only with `bge-small-en-v1.5`, and hybrid with reciprocal rank fusion. A cross-encoder reranker is planned but not measured.
+Measured Week 3 baselines: BM25-only, dense-only with `bge-small-en-v1.5`, and hybrid with reciprocal rank fusion. Week 4 also measured a cross-encoder reranker (`Xenova/ms-marco-MiniLM-L-6-v2`) over the hybrid top 20. It was worse on every metric: incident Recall@5 fell from 0.4267 to 0.3167 and Recall@10 from 0.6733 to 0.5067, while median latency rose from 35.0 ms to 832.9 ms. The report treats this as a negative result, not a win.
 
 Report per source: similar incident and playbook. Include index size, doc count, and retrieval latency. Week 3 results are in `reports/w3_retrieval.md`.
 
@@ -161,6 +161,8 @@ Procedure:
 The 10-minute budget is an assumption, not a measurement. State it explicitly: each human-reviewed incident is assumed to cost 10 analyst minutes. The cost model can be varied in a sensitivity table at 5, 10, and 20 minutes.
 
 Target claim to test: at a 10-minute budget, coverage of at least 60% with a true-positive miss rate no higher than 1%. If the curve cannot reach that point, report the best achievable point and the shortfall.
+
+Measured Week 4 outcome: the classifier-only router reaches 9.9% coverage at a 0.2% true-positive miss rate and 1.0% selective risk (threshold 0.95). The 60% coverage target is not met; the shortfall is 50.1 percentage points. On the fixed 600-case stratified test subset, the full agent reaches 15.0% coverage at a 0.0% true-positive miss rate, against 12.0% coverage at a 1.0% miss rate for the classifier-only router on the same subset. The deterministic RAG-vote proxy reaches 21.7% coverage at a 0.5% miss rate but has 30.0% selective risk. Zero-shot LLM and LLM-generated RAG are not measured because no hosted model backend is wired. The curve is reported as measured; thresholds were not selected on test.
 
 ### 4.6 Cost and latency
 
