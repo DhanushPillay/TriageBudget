@@ -131,7 +131,7 @@ Artifact:
 
 Gate:
 
-- [x] The 20-query retrieval smoke test returns relevant citations. Measured 20/20.
+- [x] The 20-query retrieval smoke test returns relevant citations. Measured 19/20.
 - [x] The index contains no test incident ids. Measured 0 overlap.
 - [x] 18 of 20 decisions are schema-valid. Measured 20/20.
 - [x] Zero hard-constraint violations. Measured 0.
