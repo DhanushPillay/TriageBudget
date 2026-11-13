@@ -215,6 +215,8 @@ class Database:
     def execute(self, statement: str, params: Sequence[Any] = ()) -> int | None:
         with self.connect() as connection:
             cursor = connection.execute(self._sql(statement), params)
+            if self.is_postgres:
+                return cursor.rowcount
             return int(cursor.lastrowid) if cursor.lastrowid is not None else None
 
     def execute_returning(
