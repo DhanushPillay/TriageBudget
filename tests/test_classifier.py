@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -9,15 +10,19 @@ import pytest
 
 from triage import cli as cli_module
 from triage.classifier import (
+    MODEL_VERSION,
     TP_INDEX,
+    ClassifierArtifacts,
     IsotonicCalibrator,
     TemperatureCalibrator,
     VectorCalibrator,
     _add_engineered,
     _ece,
     _queue_ranking,
+    load_classifier,
     run_classifier,
 )
+from triage.config import LABELS
 from triage.pipeline import run_fixture_eval
 
 
@@ -180,3 +185,39 @@ def test_classify_command_returns_failure_when_checks_fail(monkeypatch) -> None:
     assert cli_module._cmd_classify(args) == 1
     metadata["data_checks"]["passed"] = True
     assert cli_module._cmd_classify(args) == 0
+
+def test_predict_frame_rejects_wrong_label_order() -> None:
+    artifacts = ClassifierArtifacts(
+        booster=None,
+        vectorizer=None,
+        calibrator=None,
+        metadata={
+            "model_version": MODEL_VERSION,
+            "label_order": ["false_positive", "benign_positive", "true_positive"],
+        },
+    )
+    with pytest.raises(ValueError, match="label order"):
+        artifacts.predict_frame(pd.DataFrame())
+
+
+def test_load_classifier_rejects_stale_version(tmp_path: Path) -> None:
+    (tmp_path / "metadata.json").write_text(
+        json.dumps({"model_version": "old", "label_order": list(LABELS)}),
+        encoding="utf-8",
+    )
+    with pytest.raises(ValueError, match="Unsupported classifier version"):
+        load_classifier(tmp_path)
+
+
+def test_load_classifier_rejects_wrong_label_order(tmp_path: Path) -> None:
+    (tmp_path / "metadata.json").write_text(
+        json.dumps(
+            {
+                "model_version": MODEL_VERSION,
+                "label_order": ["false_positive", "benign_positive", "true_positive"],
+            }
+        ),
+        encoding="utf-8",
+    )
+    with pytest.raises(ValueError, match="label order"):
+        load_classifier(tmp_path)
