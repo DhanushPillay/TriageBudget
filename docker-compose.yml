@@ -17,8 +17,10 @@ services:
     build: .
     environment:
       DATABASE_URL: postgresql://triage:triage@db:5432/triage
-      TRIAGE_DEMO_MODE: "1"
-      TRIAGE_REVIEW_TOKEN: demo-review-token
+      TRIAGE_DEMO_MODE: ${TRIAGE_DEMO_MODE:-1}
+      TRIAGE_REVIEW_TOKEN: ${TRIAGE_REVIEW_TOKEN:-demo-review-token}
+      GROQ_API_KEY: ${GROQ_API_KEY:-}
+      GROQ_MODEL: ${GROQ_MODEL:-openai/gpt-oss-120b}
     depends_on:
       db:
         condition: service_healthy
