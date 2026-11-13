@@ -77,25 +77,27 @@ Gate:
 
 Tasks:
 
-1. Add features: alert counts, evidence types, entity counts, severity, time, organization.
+1. Add features: alert counts, evidence types, entity counts, time, and organization frequency. The public CSV has no severity column and no priority rank; neither is invented. Organization identity and org frequency are excluded from the headline model because a queue-specific labeling style can leak into the score; the org-frequency gain is reported as an ablation. Per-org slices are reported.
 2. Tune LightGBM with a small grid on the dev split.
-3. Calibrate with temperature scaling or isotonic regression.
+3. Calibrate with temperature scaling, vector scaling, or isotonic regression. The method is selected by two-fold cross-validation on dev, then refit on all of dev.
 4. Report expected calibration error and a reliability diagram.
 5. Add per-class precision and recall.
 6. Optional: MiniLM embeddings and a fine-tune, only if the baseline is stable.
-7. Add the priority ranking baseline and P@5/10/20.
+7. Ranking: the public GUIDE CSV does not include the paper's expert priority ranks, so analyst P@5/10/20 cannot be measured. Report a queue-level true-positive ranking proxy (precision@5/10/20 and true-positive capture@10%) against a signal-only baseline. Mark the analyst priority gate as blocked by data.
 
 Artifact:
 
-- `reports/w2_classifier.md` with the calibration plot, macro-F1, per-class metrics, and priority ranking.
-- `models/classifier_v1/` with the model card and version.
+- `reports/w2_classifier.md` with the reliability diagram, macro-F1, per-class metrics, calibration results, and the queue ranking proxy.
+- `reports/w2_reliability.svg` and `reports/w2_metrics.json`.
+- `models/classifier_v1/` with the model, calibrator, metadata, and model card.
 
 Gate:
 
-- [ ] Calibration error is reported, not assumed.
-- [ ] Per-class recall is above the majority-class floor for all three classes.
-- [ ] Priority ranking beats severity-only.
-- [ ] The model card states training data, features, and limitations.
+- [x] Calibration error is reported, not assumed.
+- [x] Per-class recall is above the majority-class prevalence floor (0.489 on the frozen test split) for all three classes.
+- [x] The queue ranking proxy beats the signal-only baseline at precision@10.
+- [x] The model card states training data, features, and limitations.
+- [x] Analyst priority P@5/10/20 is marked blocked: the public release has no priority labels.
 
 If calibration is poor, fix it before building the router. A router on uncalibrated scores is a random threshold.
 
