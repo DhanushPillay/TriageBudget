@@ -58,16 +58,20 @@ def _cmd_check(args: argparse.Namespace) -> int:
 
 
 def _cmd_baselines(args: argparse.Namespace) -> int:
-    metadata = run_baselines(
-        train_path=Path(args.train),
-        dev_path=Path(args.dev) if args.dev else None,
-        test_path=Path(args.test),
-        manifest_path=Path(args.manifest),
-        report_path=Path(args.report),
-        metrics_path=Path(args.metrics),
-        dataset_label=args.dataset,
-        seed=args.seed,
-    )
+    try:
+        metadata = run_baselines(
+            train_path=Path(args.train),
+            dev_path=Path(args.dev) if args.dev else None,
+            test_path=Path(args.test),
+            manifest_path=Path(args.manifest),
+            report_path=Path(args.report),
+            metrics_path=Path(args.metrics),
+            dataset_label=args.dataset,
+            seed=args.seed,
+        )
+    except ValueError as exc:
+        _emit({"error": str(exc)})
+        return 1
     _emit(
         {
             "dataset": metadata["dataset"],
@@ -86,19 +90,23 @@ def _cmd_baselines(args: argparse.Namespace) -> int:
 
 
 def _cmd_classify(args: argparse.Namespace) -> int:
-    metadata = run_classifier(
-        train_path=Path(args.train),
-        dev_path=Path(args.dev) if args.dev else None,
-        test_path=Path(args.test),
-        manifest_path=Path(args.manifest),
-        report_path=Path(args.report),
-        metrics_path=Path(args.metrics),
-        model_dir=Path(args.model_dir),
-        reliability_path=Path(args.reliability) if args.reliability else None,
-        dataset_label=args.dataset,
-        seed=args.seed,
-        grid=args.grid,
-    )
+    try:
+        metadata = run_classifier(
+            train_path=Path(args.train),
+            dev_path=Path(args.dev) if args.dev else None,
+            test_path=Path(args.test),
+            manifest_path=Path(args.manifest),
+            report_path=Path(args.report),
+            metrics_path=Path(args.metrics),
+            model_dir=Path(args.model_dir),
+            reliability_path=Path(args.reliability) if args.reliability else None,
+            dataset_label=args.dataset,
+            seed=args.seed,
+            grid=args.grid,
+        )
+    except ValueError as exc:
+        _emit({"error": str(exc)})
+        return 1
     _emit(
         {
             "dataset": metadata["dataset"],
