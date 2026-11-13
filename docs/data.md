@@ -16,12 +16,12 @@ TriageBudget uses Microsoft GUIDE, a public dataset of security incidents from M
 | Alerts | 1,600,000 | Dataset card |
 | Triage labels | True positive, benign positive, false positive | Paper |
 | Remediation labels | 26,000 | Paper |
-| Expert-ranked incidents | 9,980 across 499 organization queues | Paper |
+| Queue-ranked test incidents | 9,980 across 499 organization queues | Public CSV (`GUIDE_Test_Queue_Rankings.csv`) |
 | License | CDLA-Permissive-2.0 | Dataset card |
 | Size | About 3.5 GB compressed | Kaggle |
 | Modalities | Incident records, alerts, evidence, entities, labels | Paper |
 
-The 9,980 expert-ranked incidents are reported in the paper, not in the public Kaggle release. The public CSVs contain triage labels but no priority rank and no severity column. Week 2 therefore reports a queue-level ranking proxy and marks analyst P@5/10/20 as blocked; see `docs/evaluation.md` section 4.2.
+The public release includes `GUIDE_Test_Queue_Rankings.csv` with `OrgId`, `IncidentId`, and `QueueRank`: 9,980 test incidents, 499 organizations, and 20 ranked incidents per organization. The count matches the ranked set reported in the paper. The file is not used in Week 2, which reports a queue-level true-positive proxy; Week 4 will use `QueueRank` for analyst P@5/10/20. The public CSVs still contain no severity column.
 
 Links:
 
@@ -317,58 +317,50 @@ RAG needs a corpus, a chunking policy, and an embedding index. This section defi
 
 Source: GUIDE train split only. The test split is never indexed.
 
-Document shape:
+Week 3 implementation:
 
-- Incident summary.
-- Top 3 to 5 evidence snippets, truncated and redacted.
-- Metadata: label, severity, organization queue, incident date.
+- One document per distinct `(summary, triage_label)` pair. The representative incident id becomes the doc id; all member incident ids are stored.
+- 14,664 documents cover all 89,999 train incidents. The public release has evidence ids but no raw evidence text, so evidence snippets are not indexed.
+- Metadata: label, member count, categories, MITRE techniques, representative incident id.
 
-Chunking:
-
-- 300 to 500 tokens per chunk, 50-token overlap.
-- Evidence snippets keep their evidence id so the agent can cite them.
-- Do not split an evidence item across more than two chunks.
+The earlier plan called for 300 to 500-token evidence chunks with evidence ids. That is not possible with the public CSVs and is deferred until raw evidence text exists.
 
 ### 11.2 Playbook corpus
 
-Source: 50 to 100 public security playbooks and internal-style runbooks. If a playbook is generated for the demo, label it synthetic.
+Source: nine synthetic Markdown playbooks under `data/playbooks/`, 63 sections total. Every file and the README label the corpus synthetic.
 
 Document shape:
 
-- Playbook title, version, effective date, source.
+- Playbook title, version, effective date, source, categories, role.
 - Section heading and body.
-- Stable `playbook_id` and `section_id`.
+- Stable `playbook:<file>:<section-slug>` id.
 
-Chunking:
-
-- One section per chunk where possible.
-- Long sections split at heading boundaries, not arbitrary character counts.
-- Every chunk keeps its source URL or file name.
+Chunking: one section per document. Each document keeps its file name, heading, role, and category metadata.
 
 ### 11.3 Embeddings and vector index
 
 - Model: `bge-small-en-v1.5`, 384 dimensions, normalized.
-- Local experiments: FAISS or DuckDB.
-- Deployed demo: Postgres with pgvector.
-- Index type: HNSW for the demo, exact search for small evaluation sets.
-- Store: `chunks` table with text and metadata, `embeddings` table with `vector(384)`.
+- Local index: exact numpy inner product over 14,727 documents. No FAISS dependency.
+- Deployed demo: Postgres with pgvector is planned for Week 5.
+- Index files: `docs.jsonl`, `embeddings.npy`, `manifest.json`.
+- Measured size: 29,701,397 bytes. Build time: about two minutes on this machine.
 
-The index is rebuilt by one command. The build records the model name, dimension, chunk count, and source manifest hash.
+The index is rebuilt by one command. The manifest records the model name, dimension, doc counts, train path and SHA-256, member incident count, and build time.
 
 ### 11.4 Retrieval evaluation set
 
-- 100 queries drawn from dev incidents.
-- Each query has gold evidence ids and gold playbook section ids.
-- The first 30 queries are labelled by two people; report agreement.
-- Query types: similar incident, playbook, and incident evidence.
+- 100 dev queries, stratified 34 true positive, 33 benign positive, 33 false positive.
+- Gold incident docs are the top 3 same-label train docs by Jaccard overlap over categories, MITRE techniques, and alert titles.
+- Gold playbook docs are Triage questions and Containment sections in playbooks whose category metadata intersects the query categories.
+- The first 30 human-labelled queries are still open. Week 3 reports a structured-overlap proxy, not human relevance.
 - The test split is not used to tune retrieval.
 
 ### 11.5 Leakage and freshness
 
-- Test incidents are excluded from the index.
-- For time-based splits, the index only contains incidents earlier than the query incident.
+- Test incidents are excluded from the index. The Week 3 build checks all test ids against all indexed member ids and reports 0 overlap.
+- For time-based splits, the index only contains incidents earlier than the query incident. This is not implemented yet.
 - Playbooks carry an effective date so a stale runbook can be flagged.
-- Rebuilding the index is part of the evaluation run, not an afterthought.
+- Rebuilding the index is part of the evaluation run.
 
 ---
 
@@ -376,16 +368,16 @@ The index is rebuilt by one command. The build records the model name, dimension
 
 Before building the agent, answer these:
 
-- [ ] Kaggle download works with a token.
-- [ ] The incident, alert, evidence, and label tables are identifiable.
-- [ ] The triage label distribution is known.
-- [ ] The organization queue count is known.
-- [ ] The official split is present and incident-level.
-- [ ] At least 50k incidents have usable summary text.
-- [ ] At least 1,000 incidents have remediation labels.
-- [ ] At least 50 playbook sections exist and are chunked.
-- [ ] A 384-dim embedding index builds on the 100k sample.
-- [ ] A 20-query retrieval smoke test returns citations.
-- [ ] The 100k sample fits in DuckDB and trains a LightGBM baseline in under 30 minutes.
+- [x] Kaggle download works with a token.
+- [x] The incident, alert, evidence, and label tables are identifiable.
+- [x] The triage label distribution is known: 62,540 true positive, 148,215 benign positive, 92,465 false positive in the frozen test split.
+- [x] The organization queue count is known: 499 queues in the public queue-rank file.
+- [x] The official split is present and incident-level.
+- [x] At least 50k incidents have usable summary text: 89,999 train incidents.
+- [ ] At least 1,000 incidents have remediation labels. Not used: this project trains triage labels, not remediation quality.
+- [x] At least 50 playbook sections exist and are chunked: 63 synthetic sections.
+- [x] A 384-dim embedding index builds on the sample: 14,727 documents, 29,701,397 bytes.
+- [x] A 20-query retrieval smoke test returns citations: 20/20.
+- [x] The sample fits in DuckDB and trains a LightGBM baseline in under 30 minutes: 15.1 seconds for the optimized Week 1 baseline run.
 
 If fewer than five of these pass, stop and reassess before writing agent code.
