@@ -83,7 +83,7 @@ Tasks:
 4. Report expected calibration error and a reliability diagram.
 5. Add per-class precision and recall.
 6. Optional: MiniLM embeddings and a fine-tune, only if the baseline is stable.
-7. Ranking: the public release includes `GUIDE_Test_Queue_Rankings.csv` with 9,980 queue ranks. Week 4 evaluates analyst P@5/10/20 against that file. Week 2 reports a queue-level true-positive proxy (precision@5/10/20 and true-positive capture@10%) against a signal-only baseline.
+7. Ranking: the public release includes `GUIDE_Test_Queue_Rankings.csv` with 9,980 queue ranks. Week 4 evaluated analyst P@5/10/20 against that file on 499 organizations: the model beat the analyst queue at P@5 (0.3226 vs 0.2269) and P@10 (0.2802 vs 0.2216), tied at P@20 (0.2219), and led nDCG@10 (0.6877 vs 0.5192). Week 2 reports a queue-level true-positive proxy (precision@5/10/20 and true-positive capture@10%) against a signal-only baseline.
 
 Artifact:
 
@@ -138,7 +138,7 @@ Gate:
 - [x] Mean tool calls are below 8. Measured 5.00.
 - [x] Every true-positive decision has at least one evidence citation. Measured 7/7.
 
-Implementation notes: the local index is an exact numpy inner-product index, not FAISS or pgvector. The optional cross-encoder reranker was skipped. The agent is a deterministic offline policy over the typed tools; prompt templates exist but no LLM is called. Gate evidence is in `reports/w3_retrieval.md` and `reports/w3_agent.md`.
+Implementation notes: the local index is an exact numpy inner-product index, not FAISS or pgvector. The optional cross-encoder reranker was measured in Week 4 and reduced every retrieval metric while costing about 24x the hybrid latency; it is not used in the default path. The agent is a deterministic offline policy over the typed tools; prompt templates exist but no LLM is called. Gate evidence is in `reports/w3_retrieval.md`, `reports/w3_agent.md`, and `reports/w4_retrieval.md`.
 
 If retrieval is weak, fix chunking and hybrid search before tuning the agent. If schema validity is below 80%, replace the free-form agent with a deterministic decision tree plus LLM explanation for the demo. Keep the schema, tools, and trace.
 
@@ -167,14 +167,16 @@ Artifact:
 - `reports/w4_retrieval.md` with the retrieval ablation table.
 - `results/` with predictions, metrics, and the run config.
 
+Status: measured on the frozen GUIDE test split. The classifier-only router peaks at 9.9% coverage at the 0.95 threshold, with a 0.2% true-positive miss rate and 1.0% selective risk. The 60% coverage target at a 1% miss rate is not met; the shortfall is 50.1 percentage points. On the fixed 600-case subset, the full agent reaches 15.0% coverage at a 0.0% miss rate, versus 12.0% and 1.0% for classifier-only. The RAG vote proxy reaches 21.7% coverage at a 0.5% miss rate but 30.0% selective risk. Zero-shot and LLM-generated RAG are not measured because no hosted LLM was called. The cross-encoder reranker was measured and made retrieval worse on every metric, so it is reported as a negative result.
+
 Gate:
 
-- [ ] The curve has at least five operating points.
-- [ ] The 10-minute budget point is marked.
-- [ ] The full system is compared to the classifier-only baseline.
-- [ ] Retrieval results are reported for all four baselines.
-- [ ] Per-class and per-org slices are reported.
-- [ ] If the agent does not improve the curve, the report says so.
+- [x] The curve has at least five operating points.
+- [x] The 10-minute budget point is marked.
+- [x] The full system is compared to the classifier-only baseline.
+- [x] Retrieval results are reported for all four baselines.
+- [x] Per-class and per-org slices are reported.
+- [x] If the agent does not improve the curve, the report says so.
 
 Do not tune on test. If the curve is flat, report it. A flat curve is a finding.
 
@@ -307,7 +309,7 @@ The project is done when all of these are true:
 - [ ] The split manifest is committed and hashed.
 - [ ] The classifier has macro-F1, per-class P/R, and calibration reported.
 - [ ] Retrieval has Recall@5, Recall@10, nDCG@10, and MRR for BM25, dense, and hybrid.
-- [ ] The selective-risk curve is published with the 10-minute operating point.
+- [x] The selective-risk curve is published with the 10-minute operating point. Best classifier-only point: 9.9% coverage at 0.2% TP miss; the 60% target is not met.
 - [ ] The agent has a schema-valid decision for at least 90% of its subset.
 - [ ] Citation accuracy is measured on at least 50 decisions.
 - [ ] The API and UI work end to end for three scenarios.
