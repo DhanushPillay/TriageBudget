@@ -1,7 +1,7 @@
 UV ?= uv
 PYTHON ?= $(UV) run python
 
-.PHONY: setup test lint fixture-eval data split eval check ci clean
+.PHONY: setup test lint fixture-eval data split eval w2 check ci clean
 
 setup:
 	$(UV) sync --all-groups
@@ -23,6 +23,9 @@ split:
 
 eval:
 	$(PYTHON) -m triage.cli baselines --train data/processed/train.parquet --dev data/processed/dev.parquet --test data/processed/test.parquet --manifest data/manifests/split_v1.json --report reports/w1_baselines.md --metrics reports/w1_metrics.json --dataset guide
+
+w2:
+	$(PYTHON) -m triage.cli classify --train data/processed/train.parquet --dev data/processed/dev.parquet --test data/processed/test.parquet --manifest data/manifests/split_v1.json --report reports/w2_classifier.md --metrics reports/w2_metrics.json --model-dir models/classifier_v1 --dataset guide
 
 check:
 	$(PYTHON) -m triage.cli check --incidents data/processed/incidents.parquet --manifest data/manifests/split_v1.json
