@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[2]
+# Installed packages do not sit next to the repository, so containers set this
+# to the directory holding public/ and reports/.
+ROOT = Path(os.environ.get("TRIAGE_ROOT") or Path(__file__).resolve().parents[2]).resolve()
 DATA_DIR = ROOT / "data"
 RAW_DIR = DATA_DIR / "raw"
 PROCESSED_DIR = DATA_DIR / "processed"
