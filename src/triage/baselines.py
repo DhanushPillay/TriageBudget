@@ -298,6 +298,25 @@ def run_baselines(
     _check_labels(train, "train")
     _check_labels(test, "test")
 
+    manifest_validation = validate_manifest(manifest_path)
+    if not manifest_validation["passed"]:
+        failed = [
+            check["name"] for check in manifest_validation["checks"] if not check["passed"]
+        ]
+        raise ValueError(f"Manifest validation failed: {', '.join(failed)}")
+
+    source = manifest.get("source", {}).get("incidents_parquet", {})
+    incidents_path = resolve_path(source.get("path") or "")
+    if not incidents_path.is_file():
+        raise ValueError(
+            f"Incidents parquet not found: {display_path(incidents_path)}"
+        )
+    data_checks = quality_report(incidents_path, Path(manifest_path))
+    if not data_checks["passed"]:
+        raise ValueError(
+            "Data quality checks failed: " + ", ".join(data_checks["failed"])
+        )
+
     y_train = train["triage_label"].to_numpy()
     y_test = test["triage_label"].to_numpy()
 
@@ -320,26 +339,6 @@ def run_baselines(
         result["macro_f1_ci95"] = _bootstrap_ci(y_test, prediction, seed=seed)
         results[name] = result
 
-    manifest_validation = validate_manifest(manifest_path)
-    source = manifest.get("source", {}).get("incidents_parquet", {})
-    incidents_path = resolve_path(source.get("path") or "")
-    if incidents_path.is_file():
-        data_checks = quality_report(incidents_path, Path(manifest_path))
-    else:
-        detail = f"incidents parquet not found: {display_path(incidents_path)}"
-        data_checks = {
-            "passed": False,
-            "checks": [
-                {
-                    "name": "incidents parquet present",
-                    "passed": False,
-                    "detail": detail,
-                    "warning": False,
-                }
-            ],
-            "failed": ["incidents parquet present"],
-            "warnings": [],
-        }
     split_sizes = {
         name: split.get("rows", 0) for name, split in manifest.get("splits", {}).items()
     }
