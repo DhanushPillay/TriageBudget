@@ -37,21 +37,106 @@ docker compose down -v
 
 ## Vercel plus Neon
 
-Vercel can host the FastAPI app and static files. Neon provides Postgres because
-Vercel's filesystem is ephemeral.
+The repository contains the files Vercel needs:
 
-Planned settings:
+- `app.py` at the root is the ASGI entrypoint. It adds `src/` to `sys.path` and
+  re-exports `triage.web.app:app`.
+- `requirements.txt` lists only the web dependencies: FastAPI, httpx, and
+  psycopg. The training and retrieval stack stays in `pyproject.toml`.
+- `.vercelignore` keeps tests, data, indexes, models, reports, and results out of
+  the upload. It also hides `pyproject.toml` and `uv.lock` on purpose. Vercel
+  treats a lock file as the highest-priority install source and would install
+  the full ML stack, which risks the 500 MB uncompressed bundle limit.
+- `.python-version` pins Python 3.12, the version used locally.
+- `vercel.json` sets the function `maxDuration` to 60 seconds and adds
+  `X-Content-Type-Options`, `Referrer-Policy`, and `X-Frame-Options` headers.
+  `/api/*` responses are `no-store`.
+- `public/` is served by the Vercel CDN. When `VERCEL` is set the app does not
+  mount the directory itself; the local server still mounts it.
 
-- `DATABASE_URL`: Neon pooled Postgres connection string.
-- `TRIAGE_REVIEW_TOKEN`: a random review token, not the demo value.
-- `TRIAGE_DEMO_MODE=0`.
-- Function `maxDuration`: 60 seconds.
-- Static files served from `public/`.
-- Exclude `data/`, `indexes/`, `models/`, `results/`, and tests from the bundle.
+### Steps
 
-The Vercel Python bundle limit is 500 MB uncompressed. The app only needs the
-seed trace file and code, not the GUIDE parquet files or the retrieval index.
-The decisions are precomputed.
+1. Create a Neon project and a database named `triage`, in a region close to
+   your users.
+2. Copy the **pooled** connection string and append `sslmode=require` if it is
+   missing. Store it in Vercel as `DATABASE_URL`.
+3. Import the GitHub repository in Vercel. Use the repository root, leave the
+   build command empty, and let Vercel detect the Python entrypoint. The
+   framework preset can stay on FastAPI or Other.
+4. Add the environment variables below for Production and Preview.
+5. Seed Neon once from a local checkout, because `reports/` is not uploaded:
+
+   ```bash
+   DATABASE_URL="postgresql://...-pooler.../triage?sslmode=require" \
+     uv run python -m triage.web seed --if-empty
+   ```
+
+   Drop `--if-empty` to reset the 20 demo incidents.
+6. Deploy and check `/health` and `/api/incidents`. `init_schema` creates the
+   tables on the first request, so no separate migration step is required for
+   this schema.
+7. Choose the function region closest to the Neon region in project settings.
+   Cross-region database calls add latency to every review and explanation.
+
+| Variable | Value | Notes |
+|---|---|---|
+| `DATABASE_URL` | Neon pooled URL | Required for persistence. SQLite does not survive a redeploy. |
+| `TRIAGE_REVIEW_TOKEN` | long random string | Do not use `demo-review-token`. It gates writes and AI calls. |
+| `TRIAGE_DEMO_MODE` | `0` | Requires the token above. |
+| `GROQ_API_KEY` | Groq API key | Server-side only. Rotate it before the first real deployment. |
+| `GROQ_MODEL` | `openai/gpt-oss-120b` | Fallback: `openai/gpt-oss-20b`. |
+
+Without `GROQ_API_KEY`, `/health` reports `ai_configured: false`, the detail page
+hides the AI panel, and `POST /api/incidents/{id}/explain` returns 503. The queue,
+reviews, and audit log still work.
+
+The Vercel bundle only carries the console code. The seed reads
+`reports/w3_traces.json` from the local checkout, and the precomputed decisions
+do not need the GUIDE parquet files or the retrieval index at runtime.
+
+### AI explanation endpoint
+
+```http
+POST /api/incidents/{incident_id}/explain
+X-Review-Token: <token>
+```
+
+Optional `?refresh=true` bypasses the cache and makes a new model call. The
+response is:
+
+```json
+{
+  "explanation": {
+    "explanation": "...",
+    "evidence_ids": ["e1"],
+    "uncertainty": "medium",
+    "next_step": "...",
+    "model": "openai/gpt-oss-120b",
+    "prompt_version": "w6_explain_v1",
+    "prompt_tokens": 0,
+    "completion_tokens": 0,
+    "latency_ms": 0,
+    "created_at": "..."
+  },
+  "cached": false
+}
+```
+
+Cached explanations are also returned by `GET /api/incidents/{id}` in the
+`explanation` field. The cache key covers the incident, model, prompt version,
+and a hash of the source fields, so a changed decision misses the cache.
+
+The request sends only the incident summary, verdict, priority, confidence,
+probabilities, retrieved evidence ids with short quotes, and remediation
+targets. It does not send reviewer identity, review notes, or raw GUIDE logs.
+The model explains a decision that was already made. It cannot approve, edit,
+close, or escalate an incident, and it cannot execute remediation. Unknown cited
+evidence ids are rejected before anything is stored.
+
+Status codes: 401 for a missing or wrong token, 404 for an unknown incident, 422
+when there is no evidence to cite, 503 when `GROQ_API_KEY` is missing, and 502
+for an upstream or validation failure. Each call logs `ai_explanation` or
+`ai_explanation_failed` with model, prompt version, latency, and token counts.
 
 Before a public deployment:
 
