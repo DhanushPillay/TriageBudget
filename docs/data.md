@@ -21,6 +21,8 @@ TriageBudget uses Microsoft GUIDE, a public dataset of security incidents from M
 | Size | About 3.5 GB compressed | Kaggle |
 | Modalities | Incident records, alerts, evidence, entities, labels | Paper |
 
+The 9,980 expert-ranked incidents are reported in the paper, not in the public Kaggle release. The public CSVs contain triage labels but no priority rank and no severity column. Week 2 therefore reports a queue-level ranking proxy and marks analyst P@5/10/20 as blocked; see `docs/evaluation.md` section 4.2.
+
 Links:
 
 - Kaggle: <https://www.kaggle.com/datasets/Microsoft/microsoft-security-incident-prediction>
