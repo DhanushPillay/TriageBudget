@@ -1,7 +1,7 @@
 # Model card: classifier_v1
 
 - Version: `tfidf_lgbm_calibrated_v1`
-- Generated: 2026-11-13T09:25:19.859691+00:00
+- Generated: 2026-11-13T09:48:19.829730+00:00
 - Seed: 42
 - Dataset: guide
 
