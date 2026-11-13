@@ -235,21 +235,25 @@ def _fit_lgbm(
     train_features: csr_matrix,
     y_train: np.ndarray,
     seed: int,
+    params: dict[str, Any] | None = None,
 ) -> LGBMClassifier:
-    model = LGBMClassifier(
-        objective="multiclass",
-        n_estimators=300,
-        learning_rate=0.05,
-        num_leaves=31,
-        min_child_samples=20,
-        colsample_bytree=0.8,
-        reg_lambda=0.1,
-        random_state=seed,
-        n_jobs=-1,
-        verbose=-1,
-        force_col_wise=True,
-        deterministic=True,
-    )
+    config = {
+        "objective": "multiclass",
+        "n_estimators": 300,
+        "learning_rate": 0.05,
+        "num_leaves": 31,
+        "min_child_samples": 20,
+        "colsample_bytree": 0.8,
+        "reg_lambda": 0.1,
+        "random_state": seed,
+        "n_jobs": -1,
+        "verbose": -1,
+        "force_col_wise": True,
+        "deterministic": True,
+    }
+    if params:
+        config.update(params)
+    model = LGBMClassifier(**config)
     sample_weight = compute_sample_weight(class_weight="balanced", y=y_train)
     model.fit(train_features, y_train, sample_weight=sample_weight)
     return model
