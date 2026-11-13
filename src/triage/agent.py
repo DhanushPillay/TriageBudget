@@ -20,7 +20,7 @@ from triage.classifier import (
     load_classifier,
     load_frame,
 )
-from triage.config import LABELS, SEED, display_path
+from triage.config import LABELS, display_path
 from triage.retrieval import (
     FastEmbedEmbedder,
     RetrievalIndex,
@@ -137,7 +137,7 @@ class TriageDecision:
     latency_ms: int
     cost_usd: float
 
-    def validate(self) -> list[str]:
+    def validate(self, evidence_sources: dict[str, str] | None = None) -> list[str]:
         problems: list[str] = []
         if not self.incident_id:
             problems.append("incident_id is empty")
@@ -170,6 +170,21 @@ class TriageDecision:
                 problems.append("low-confidence human or agent route must set needs_human")
         if self.route in {"auto_close", "auto_escalate"} and self.needs_human:
             problems.append("automatic routes cannot require a human")
+        if self.verdict == "true_positive" and self.route == "auto_close":
+            problems.append("true_positive decisions cannot be auto-closed")
+        if self.verdict == "true_positive" and not self.remediation:
+            problems.append("true_positive decisions must include remediation")
+        if self.verdict == "true_positive" and any(
+            item.action == "close_no_action" for item in self.remediation
+        ):
+            problems.append("true_positive decisions cannot close with no action")
+        if self.route == "auto_escalate" and self.verdict != "true_positive":
+            problems.append("auto_escalate requires a true_positive verdict")
+        if self.route == "auto_close" and self.verdict != "false_positive":
+            problems.append("auto_close requires a false_positive verdict")
+        if any(item.action in CONTAINMENT_ACTIONS for item in self.remediation):
+            if self.route not in {"auto_escalate", "human"} and not self.needs_human:
+                problems.append("containment actions require human review")
 
         evidence_ids = [citation.evidence_id for citation in self.evidence]
         if len(evidence_ids) != len(set(evidence_ids)):
@@ -179,6 +194,16 @@ class TriageDecision:
                 problems.append("evidence citation fields must be non-empty")
             if citation.source not in {"incident", "train_incident", "playbook", "tool"}:
                 problems.append(f"invalid evidence source: {citation.source}")
+            if evidence_sources is not None:
+                source_text = evidence_sources.get(citation.evidence_id)
+                if source_text is None:
+                    problems.append(
+                        f"evidence id not found in tool results: {citation.evidence_id}"
+                    )
+                elif citation.quote not in source_text:
+                    problems.append(
+                        f"evidence quote does not match source: {citation.evidence_id}"
+                    )
 
         for item in self.remediation:
             if item.action not in ACTIONS:
@@ -745,7 +770,6 @@ class OfflineAgent:
             counts=counts,
         )
         remediation = [Remediation(**proposal) for proposal in proposals]
-        latency_ms = int((time.perf_counter() - started) * 1000)
         decision = TriageDecision(
             incident_id=incident_id,
             verdict=verdict,
@@ -758,7 +782,7 @@ class OfflineAgent:
             classifier_version=self.classifier.model_version,
             prompt_version=PROMPT_VERSION,
             tool_calls=len(context.records),
-            latency_ms=latency_ms,
+            latency_ms=0,
             cost_usd=0.0,
         )
         prompt = self._prompt(
@@ -771,7 +795,16 @@ class OfflineAgent:
                 "action_proposals": proposals,
             },
         )
-        violations = decision.validate()
+        evidence_sources = {
+            f"incident:{incident_id}": str(public.get("summary") or "")
+        }
+        for hit in similar:
+            evidence_sources[f"train_incident:{hit['source_id']}"] = str(
+                hit.get("text") or ""
+            )
+        for hit in playbooks:
+            evidence_sources[str(hit["doc_id"])] = str(hit.get("text") or "")
+        violations = decision.validate(evidence_sources=evidence_sources)
         revision_count = 0
         if violations:
             revision_count = 1
@@ -785,9 +818,8 @@ class OfflineAgent:
                 for citation in decision.evidence
             ):
                 decision.evidence.append(incident_citation)
-            decision.latency_ms = int((time.perf_counter() - started) * 1000)
-            violations = decision.validate()
-
+            violations = decision.validate(evidence_sources=evidence_sources)
+        decision.latency_ms = int((time.perf_counter() - started) * 1000)
         schema_valid = not violations
         return AgentTrace(
             case_id=str(case.get("case_id", incident_id)),
@@ -821,11 +853,11 @@ def _summarize(traces: Sequence[dict[str, Any]], dataset_label: str) -> dict[str
     hard_violations = sum(1 for trace in traces if trace["violations"])
     mean_tool_calls = float(np.mean([len(trace["tool_calls"]) for trace in traces]))
     tp_traces = [trace for trace in traces if trace["expected_label"] == "true_positive"]
-    tp_with_citation = sum(
+    tp_with_retrieval = sum(
         1
         for trace in tp_traces
         if any(
-            citation["source"] in {"incident", "train_incident", "playbook"}
+            citation["source"] in {"train_incident", "playbook"}
             for citation in trace["decision"]["evidence"]
         )
     )
@@ -848,8 +880,8 @@ def _summarize(traces: Sequence[dict[str, Any]], dataset_label: str) -> dict[str
         "exact_label_agreement": exact / total,
         "abstention_rate": predicted["undetermined"] / total,
         "tp_cases": len(tp_traces),
-        "tp_citation_count": tp_with_citation,
-        "tp_citation_complete": tp_with_citation == len(tp_traces),
+        "tp_retrieval_cited": tp_with_retrieval,
+        "tp_retrieval_complete": tp_with_retrieval == len(tp_traces),
         "tp_missed": sum(
             1
             for trace in tp_traces
@@ -878,7 +910,7 @@ def _summarize(traces: Sequence[dict[str, Any]], dataset_label: str) -> dict[str
             "schema_valid_18_of_20": valid >= 18,
             "zero_hard_constraint_violations": hard_violations == 0,
             "mean_tool_calls_under_8": mean_tool_calls < 8,
-            "tp_evidence_citation": tp_with_citation == len(tp_traces),
+            "tp_retrieval_citation": tp_with_retrieval == len(tp_traces),
             "trace_logged": True,
         },
         "case_results": [
@@ -925,8 +957,8 @@ def render_report(metrics: dict[str, Any], traces: Sequence[dict[str, Any]]) -> 
         f"| max tool calls | {metrics['max_tool_calls']} |",
         f"| exact label agreement | {_fmt(metrics['exact_label_agreement'])} |",
         f"| abstention rate | {_fmt(metrics['abstention_rate'])} |",
-        f"| true-positive citation rate | "
-        f"{metrics['tp_citation_count']}/{metrics['tp_cases']} |",
+        f"| true-positive retrieval citation rate | "
+        f"{metrics['tp_retrieval_cited']}/{metrics['tp_cases']} |",
         "",
         "## Gates",
         "",
@@ -1019,8 +1051,8 @@ def render_report(metrics: dict[str, Any], traces: Sequence[dict[str, Any]]) -> 
             "## Reproduce",
             "",
             "```bash",
-            "python -m triage.agent --case case_01",
-            "make w3-agent",
+            "uv run python -m triage.agent --case case_01",
+            "uv run python -m triage.agent",
             "```",
             "",
         ]
@@ -1039,7 +1071,6 @@ def run_agent(
     prompts_dir: Path,
     case_id: str | None = None,
     dataset_label: str = "guide",
-    seed: int = SEED,
 ) -> dict[str, Any]:
     payload = json.loads(Path(cases_path).read_text(encoding="utf-8"))
     cases = list(payload.get("cases", []))
@@ -1054,11 +1085,27 @@ def run_agent(
     store = IncidentStore.from_parquet(Path(dev_path), incident_ids)
     classifier = load_classifier(Path(model_dir))
     index = RetrievalIndex.load(Path(index_dir), FastEmbedEmbedder())
+
+    classifier_train_sha = classifier.metadata.get("manifest", {}).get("train_sha256")
+    index_train_sha = index.manifest.get("train_sha256")
+    if classifier_train_sha and index_train_sha and classifier_train_sha != index_train_sha:
+        raise ValueError(
+            "Classifier and retrieval index were built from different train files: "
+            f"{classifier_train_sha} != {index_train_sha}"
+        )
+
     agent = OfflineAgent(classifier, index, store, Path(prompts_dir))
 
     traces: list[dict[str, Any]] = []
     for case in cases:
-        expected = case.get("expected_label")
+        incident_id = str(case["incident_id"])
+        expected = store.label(incident_id)
+        declared = case.get("expected_label")
+        if declared is not None and declared != expected:
+            raise ValueError(
+                f"Case {case.get('case_id', incident_id)} expects {declared}, "
+                f"but dev label is {expected}"
+            )
         trace = agent.run(case, expected)
         traces.append(trace.to_dict())
 
@@ -1100,7 +1147,6 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--traces", default="reports/w3_traces.json")
     parser.add_argument("--metrics", default="reports/w3_agent_metrics.json")
     parser.add_argument("--dataset", choices=["guide", "fixture"], default="guide")
-    parser.add_argument("--seed", type=int, default=SEED)
     return parser
 
 
@@ -1117,7 +1163,6 @@ def main(argv: list[str] | None = None) -> int:
         prompts_dir=Path(args.prompts),
         case_id=args.case,
         dataset_label=args.dataset,
-        seed=args.seed,
     )
     if args.case:
         print(json.dumps(result, indent=2))
